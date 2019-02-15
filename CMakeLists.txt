@@ -203,3 +203,6 @@ include_directories(
 
 add_executable(lader_scan_data src/lader_scan_data.cpp)
 target_link_libraries(lader_scan_data ${catkin_LIBRARIES})
+add_executable(roomba_ctrl src/roomba_ctrl.cpp)
+target_link_libraries(roomba_ctrl ${catkin_LIBRARIES})
+
