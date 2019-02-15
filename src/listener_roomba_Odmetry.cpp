@@ -1,29 +1,29 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include "roomba_500driver_meiji/RoombaCtrl.h"
-#include "nav_msgs/Odmetry.h"
+#include "nav_msgs/Odometry.h"
 
-void chattercallback(const std_msgs::odmetry::constptr& msg)
+
+void chattercallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
-	_msg = *msg
-	ros_info("pose\n");
-	ros_info("x:%f\n", pose.pose.position.x);
-	ros_info("y:%f\n", pose.pose.position.y);
-	ros_info("z:%f\n\n", pose.pose.position.z);
-	ros_info("orientation\n");
-	ros_info("x:%f\n"pose.pose.orientation.x);
-	ros_info("y:%f\n"pose.pose.orientation.y);
-	ros_info("z:%f\n"pose.pose.orientation.z);
-	ros_info("w:%f\n"pose.pose.orientation.w);
+	nav_msgs::Odometry  _msg = *msg;
+	ROS_INFO("pose\n");
+	ROS_INFO("x:%f\n", _msg.pose.pose.position.x);
+	ROS_INFO("y:%f\n", _msg.pose.pose.position.y);
+	ROS_INFO("z:%f\n\n", _msg.pose.pose.position.z);
+	ROS_INFO("orientation\n");
+	ROS_INFO("x:%f\n",_msg.pose.pose.orientation.x);
+	ROS_INFO("y:%f\n",_msg.pose.pose.orientation.y);
+	ROS_INFO("z:%f\n",_msg.pose.pose.orientation.z);
+	ROS_INFO("w:%f\n",_msg.pose.pose.orientation.w);
 }
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "listener_roomba_Odmetry");
 
-  ros::nodehandle n;
+  ros::NodeHandle n;
 
-  ros::subscriber sub = n.subscribe("chatter", 1000, chattercallback);
+  ros::Subscriber sub = n.subscribe("chatter", 1000, chattercallback);
 
   ros::spin();
 
