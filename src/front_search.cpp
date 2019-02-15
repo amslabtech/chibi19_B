@@ -19,14 +19,14 @@ void chatterCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
   LaserData Ldata[N];
   for(int i=0; i<N; i++){
     Ldata[i].angle = _msg.angle_min + i*_msg.angle_increment;
-    Ldara[i].range = _msg.rabges[i];
+    Ldata[i].range = _msg.ranges[i];
   }
 
   for(int i=0; i<N; i++){
     if(abs(Ldata[i].angle) < 0.523599){
-      s += Ldara[i].range;
+      s += Ldata[i].range;
       count++;
-    }if else(Ldata[i].angle >0.523599){
+    }else if(Ldata[i].angle >0.523599){
       break;
     }else{
       continue;
