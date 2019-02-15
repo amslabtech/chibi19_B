@@ -21,7 +21,7 @@ int main(int argc, char **argv)
 
   ros::NodeHandle n;
 
-  ros::Subscriber sub = n.subscribe("chatter", 1000, chattercallback);
+  ros::Subscriber sub = n.subscribe("/roomba/odometry", 1000, chattercallback);
 
   ros::spin();
 
