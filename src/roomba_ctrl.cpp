@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     //std::stringstream ss;
     //ss << "hello world " << count;
 	msg.mode = 11;
-    msg.cntl.liner.x = 0.02;
+    msg.cntl.linear.x = 0.02;
 
     ROS_INFO("%d", count);
 
