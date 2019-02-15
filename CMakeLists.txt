@@ -1,16 +1,19 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(chibi19_B)
+project(chibi19_b)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  roomba_500driver_meiji
   roscpp
   rospy
   std_msgs
+  #nav_msgs
+  #sensor_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -104,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES chibi19_B
+  LIBRARIES chibi19_b
 #  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
@@ -197,3 +200,6 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(lader_scan_data src/lader_scan_data.cpp)
+target_link_libraries(lader_scan_data ${catkin_LIBRARIES})
