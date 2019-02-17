@@ -216,3 +216,6 @@ target_link_libraries(front_search ${catkin_LIBRARIES})
 add_executable(roatation src/roatation.cpp)
 target_link_libraries(roatation ${catkin_LIBRARIES})
 
+add_executable(kadai2_22 src/kadai2_22.cpp)
+target_link_libraries(kadai2_22 ${catkin_LIBRARIES})
+
