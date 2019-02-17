@@ -7,7 +7,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "roomba_ctrl");
   ros::NodeHandle n;
-  ros::Publisher ctrl_pub = n.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/controll", 1000);
+  ros::Publisher ctrl_pub = n.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1000);
 
   ros::Rate loop_rate(10);
   int count = 0;
