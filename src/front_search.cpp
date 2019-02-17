@@ -4,7 +4,7 @@
 #include "roomba_500driver_meiji/RoombaCtrl.h"
 #include "math.h"
 
-typedef struct LaserData{
+struct LaserData{
   float angle; //[rad]
   float range; //[m]
 };
@@ -13,9 +13,9 @@ void chatterCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
   sensor_msgs::LaserScan _msg = *msg;
 
-  const int N = sizeof(_msg.ranges);
-  int s = 0;
-  int count = 0;
+  const int N = int((_msg.angle_max - _msg.angle_min) / _msg.angle_increment);
+  float s = 0;
+  float count = 0;
   LaserData Ldata[N];
   for(int i=0; i<N; i++){
     Ldata[i].angle = _msg.angle_min + i*_msg.angle_increment;
@@ -25,13 +25,15 @@ void chatterCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
   for(int i=0; i<N; i++){
     if(abs(Ldata[i].angle) < 0.523599){
       s += Ldata[i].range;
-      count++;
+      count += 1.0;
     }else if(Ldata[i].angle >0.523599){
       break;
     }else{
       continue;
     }
   }
+
+
 
   ROS_INFO("average: [%f]", s/count);
 
