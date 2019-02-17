@@ -20,11 +20,10 @@ int main(int argc, char **argv)
     int status = 0;
     ros::init(argc, argv, "roatation");
     ros::NodeHandle n;
-    ros::Publisher ctrl_pub = n.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1000);
+    ros::Publisher ctrl_pub = n.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);
     ros::Rate loop_rate(10);
     ros::NodeHandle roomba_odometry_sub;
-    ros::Subscriber sub = roomba_odometry_sub.subscribe("/roomba/odometry", 1000, chattercallback);
-    ros::spin();
+    ros::Subscriber sub = roomba_odometry_sub.subscribe("/roomba/odometry", 1, chattercallback);
     while (ros::ok())
     {
         roomba_500driver_meiji::RoombaCtrl msg;
@@ -39,7 +38,7 @@ int main(int argc, char **argv)
                 break;
             case 1:
                 msg.cntl.angular.z = 0.50;
-                if(theata > 0.0){
+                if(theata >= 0.0){
                     status++;
                 }
                 break;
@@ -48,16 +47,12 @@ int main(int argc, char **argv)
                 break;
             default:
                 ROS_INFO("Error. status : %d", status);
+        }
+        ctrl_pub.publish(msg);
+        ros::spinOnce();
+        loop_rate.sleep();
     }
 
-
-    ctrl_pub.publish(msg);
-
-    ros::spinOnce();
-
-    loop_rate.sleep();
-  }
-
-  return 0;
+    return 0;
 }
 
