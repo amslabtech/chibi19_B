@@ -29,10 +29,15 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
     float count = 0.0;
     LaserData Ldata[N];
     for(int i=0; i<N; i++){
-        if(abs(Ldata[i].angle) < (M_PI / 18)){
+        Ldata[i].angle = _msg.angle_min + i*_msg.angle_increment;
+        Ldata[i].range = _msg.ranges[i];
+    }
+
+    for(int i=0; i<N; i++){
+        if(abs(Ldata[i].angle) < 0.523599){
             s += Ldata[i].range;
             count += 1.0;
-        }else if(Ldata[i].angle > (M_PI / 18)){
+        }else if(Ldata[i].angle > 0.523599){
             break;
         }else{
             continue;
@@ -63,7 +68,7 @@ int main(int argc, char **argv)
         msg.mode = 11;
         switch(status){
             case 0:
-                msg.cntl.linear.x = 0.50;
+                msg.cntl.linear.x = 0.20;
                 msg.cntl.angular.z = 0.00;
                 if(rundist > 3.0){
                     status++;
@@ -84,7 +89,7 @@ int main(int argc, char **argv)
                 }
                 break;
             case 3:
-                msg.cntl.linear.x = 0.50;
+                msg.cntl.linear.x = 0.20;
                 msg.cntl.angular.z = 0.00;
                 if(sensor_front_range <= 0.50){
                     status++;
