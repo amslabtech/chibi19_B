@@ -213,3 +213,6 @@ target_link_libraries(listener_roomba_Odometry ${catkin_LIBRARIES})
 add_executable(front_search src/front_search.cpp)
 target_link_libraries(front_search ${catkin_LIBRARIES})
 
+add_executable(roatation src/roatation.cpp)
+target_link_libraries(roatation ${catkin_LIBRARIES})
+
