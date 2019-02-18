@@ -101,7 +101,7 @@ int main(int argc, char **argv)
                 msg.cntl.angular.z = 0.00;
                 if(abs(sensor_front_range -0.50) <= range_threshold){
                     status++;
- j               }
+                }
                 break;
             case 4:
                 msg.cntl.linear.x = 0.00;
