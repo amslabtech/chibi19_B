@@ -7,6 +7,10 @@
 float rundist = 0.0;
 float theata = 0.0;
 float sensor_front_range = 0.0;
+double rundist_threshold = 0.001;
+double theata_threshold = 0.01;
+double range_threshold = 0.005;
+
 
 struct LaserData{
     float angle;
@@ -16,8 +20,9 @@ struct LaserData{
 void odometrycallback(const nav_msgs::Odometry::ConstPtr& msg)
 {
     nav_msgs::Odometry _msg = *msg;
+	theata = asin(_msg.pose.pose.orientation.z)
     rundist = sqrt( pow(_msg.pose.pose.position.x, 2.0) + pow(_msg.pose.pose.position.y, 2.0));
-    theata = asin(_msg.pose.pose.orientation.z);
+	//rubdist = 
 }
 
 void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
@@ -53,6 +58,9 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 int main(int argc, char **argv)
 {
     int status = 0;
+	double rundist_threshold = 0.001;
+	double theata_threshold = 0.;
+	double range_threshold = 0.001;
     ros::init(argc, argv, "roatation");
     ros::NodeHandle roomba_ctrl_pub;
     ros::NodeHandle roomba_odometry_sub;
@@ -70,7 +78,7 @@ int main(int argc, char **argv)
             case 0:
                 msg.cntl.linear.x = 0.20;
                 msg.cntl.angular.z = 0.00;
-                if(rundist > 3.0){
+                if(abs(rundist - 3.0) < rundist_threshold){
                     status++;
                 }
                 break;
@@ -84,16 +92,16 @@ int main(int argc, char **argv)
             case 2:
                 msg.cntl.linear.x = 0.00;
                 msg.cntl.angular.z = 0.50;
-                if(theata >= 0.0){
+                if(abs(theata) <= theta_threshold){
                     status++;
                 }
                 break;
             case 3:
                 msg.cntl.linear.x = 0.20;
                 msg.cntl.angular.z = 0.00;
-                if(sensor_front_range <= 0.50){
+                if(abs(sensor_front_range -0.50) <= range_threshold){
                     status++;
-                }
+ j               }
                 break;
             case 4:
                 msg.cntl.linear.x = 0.00;
@@ -109,4 +117,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
