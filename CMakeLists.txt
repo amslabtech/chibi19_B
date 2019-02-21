@@ -219,3 +219,16 @@ target_link_libraries(roatation ${catkin_LIBRARIES})
 add_executable(kadai2_22 src/kadai2_22.cpp)
 target_link_libraries(kadai2_22 ${catkin_LIBRARIES})
 
+##############################[Wataru-Y update 19-02-21]##########################################
+
+add_executable(roomba_position src/roomba_position.cpp)
+target_link_libraries(roomba_position ${catkin_LIBRARIES})
+
+add_executable(LIDAR_Search src/LIDAR_Search.cpp)
+target_link_libraries(LIDAR_Search ${catkin_LIBRARIES})
+
+add_executable(roomba_move src/roomba_move.cpp)
+target_link_libraries(roomba_move ${catkin_LIBRARIES})
+
+
+
