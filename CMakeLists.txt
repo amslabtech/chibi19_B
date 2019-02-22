@@ -108,7 +108,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
   LIBRARIES chibi19_b
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+  CATKIN_DEPENDS message_runtime roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
 
@@ -119,7 +119,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -223,12 +223,15 @@ target_link_libraries(kadai2_22 ${catkin_LIBRARIES})
 
 add_executable(roomba_position src/roomba_position.cpp)
 target_link_libraries(roomba_position ${catkin_LIBRARIES})
+add_dependencies(roomba_position chibi19_b_generate_messages_cpp)
 
 add_executable(LIDAR_Search src/LIDAR_Search.cpp)
 target_link_libraries(LIDAR_Search ${catkin_LIBRARIES})
+add_dependencies(LIDAR_Search chibi19_b_generate_messages_cpp)
 
 add_executable(roomba_move src/roomba_move.cpp)
 target_link_libraries(roomba_move ${catkin_LIBRARIES})
+add_dependencies(roomba_move chibi19_b_generate_messages_cpp)
 
 
 
