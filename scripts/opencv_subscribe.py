@@ -6,14 +6,31 @@ import cv2
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
-def callback(self,data):
+def callback(data):
     rospy.loginfo(rospy.get_caller_id()+"I heard %s",data.encoding)
     try:
-        cv_image = self.CvBridge().imgmsg_to_cv2(data,"bgr8")
+        img = CvBridge().imgmsg_to_cv2(data,"bgr8")
     except CvBridgeError as e:
         print(e)
-    cv2.imshow("input",cv_image)
+    cv2.imshow("original",img)
+
+
+    img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    ret, img_threshold = cv2.threshold(img_gray,200,255,cv2.THRESH_BINARY)
+    img_canny = cv2.Canny(img_threshold, 50, 110)
+
+    lines = cv2.HoughLinesP(img_canny, rho=1, theta=np.pi/360, threshold=30, minLineLength=200, max LineGap=20)
+    print(lines)
+    for line in lines:
+        x1, y1, x2, y2 = line[0]
+        #redline
+        img_red_line = cv2.line(img, (x1,y1), (x2,y2), (0,0,255), 3)
+
+
+    cv2.imshow("red_line", img_red_line)
     cv2.waitKey(3)
+
+
 
 #def callback(data):
 #    rospy.loginfo(rospy.get_caller_id()+"I heard %s",data.encoding)
