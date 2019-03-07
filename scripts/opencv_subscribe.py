@@ -4,11 +4,20 @@ import rospy
 import numpy as np
 import cv2
 from sensor_msgs.msg import Image
+from cv_bridge import CvBridge, CvBridgeError
 
-def callback(data):
-    rospy.loginfo(rospy.get_caller_id()+"I heard %s",data.encoding)
+def callback(self,data):
+    try:
+        cv_image = self.CvBridge().imgmsg_to_cv2(data,"bgr8")
+    except CvBridgeError as e:
+        print(e)
+    cv2.imshow("input",cv_image)
+    cv2.waitKey(3)
 
-    cv2.imshow("input", data.data)
+#def callback(data):
+#    rospy.loginfo(rospy.get_caller_id()+"I heard %s",data.encoding)
+#    cv_image = 
+#    cv2.imshow("input", data.data)
 
     #cv2.waitKey(0)
     #cv2.destroyAllWindows()
@@ -44,7 +53,7 @@ def listener():
     #print('Hello!!!!!!!!!!!!!')
     
     rospy.init_node('opencv_subscribe', anonymous=True)
-    rospy.Subscriber("usb_cam/image_raw", Image, callback)
+    rospy.Subscriber("/usb_cam/image_raw", Image, callback)
     rospy.spin()
         
 if __name__ == '__main__':
