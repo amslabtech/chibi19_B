@@ -3,7 +3,7 @@
 import rospy
 import numpy as np
 import cv2
-from sensor_msgs import Image
+from sensor_msgs.msg import Image
 
 def callback(data):
     rospy.loginfo(rospy.get_caller_id()+"I heard %s",data.encoding)
