@@ -19,14 +19,14 @@ def callback(data):
     ret, img_threshold = cv2.threshold(img_gray,200,255,cv2.THRESH_BINARY)
     img_canny = cv2.Canny(img_threshold, 50, 110)
 
-    lines = cv2.HoughLinesP(img_canny, rho=1, theta=np.pi/360, threshold=30, minLineLength=200, max LineGap=20)
+    lines = cv2.HoughLinesP(img_canny, rho=1, theta=np.pi/360, threshold=30, minLineLength=200, maxLineGap=20)
     for line in lines:
         x1, y1, x2, y2 = line[0]
         #redline
         img_red_line = cv2.line(img, (x1,y1), (x2,y2), (0,0,255), 3)
 
 
-    #cv2.imshow("red_line", img_red_line)
+    cv2.imshow("red_line", img_red_line)
     cv2.waitKey(3)
 
 
