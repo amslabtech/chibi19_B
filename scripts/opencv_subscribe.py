@@ -7,6 +7,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 
 def callback(self,data):
+    rospy.loginfo(rospy.get_caller_id()+"I heard %s",data.encoding)
     try:
         cv_image = self.CvBridge().imgmsg_to_cv2(data,"bgr8")
     except CvBridgeError as e:
