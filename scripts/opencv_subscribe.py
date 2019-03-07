@@ -12,7 +12,7 @@ def callback(data):
         img = CvBridge().imgmsg_to_cv2(data,"bgr8")
     except CvBridgeError as e:
         print(e)
-    #cv2.imshow("original",img)
+    cv2.imshow("original",img)
 
 
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -20,14 +20,13 @@ def callback(data):
     img_canny = cv2.Canny(img_threshold, 50, 110)
 
     lines = cv2.HoughLinesP(img_canny, rho=1, theta=np.pi/360, threshold=30, minLineLength=200, max LineGap=20)
-    print(lines)
     for line in lines:
         x1, y1, x2, y2 = line[0]
         #redline
         img_red_line = cv2.line(img, (x1,y1), (x2,y2), (0,0,255), 3)
 
 
-    cv2.imshow("red_line", img_red_line)
+    #cv2.imshow("red_line", img_red_line)
     cv2.waitKey(3)
 
 
