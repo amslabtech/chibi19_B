@@ -54,13 +54,9 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 		p.p_init(map);
         Particles.push_back(p);
         poses.poses.push_back(p.pose.pose);
-    	ROS_INFO("%f\n",p.pose.pose.position.x);
-		ROS_INFO("%f\n",p.pose.pose.position.y);
-		ROS_INFO("%f\n",tf::getYaw(p.pose.pose.orientation));
 	}
     poses.header.frame_id = 'map';
 	map_get = true;
-
 }
 
 int main(int argc, char** argv)
@@ -68,15 +64,17 @@ int main(int argc, char** argv)
     ros::init(argc,argv,"localization");
     ros::NodeHandle nh;
     ros::NodeHandle local_nh("~");
-    
+   
     ros::Subscriber map_sub = nh.subscribe("/map",100,map_callback);
 
+	ROS_INFO("Started\n");
+
 	ros::Rate rate(10.0);
+	
+	ros::spin();
 
 	if(map_get)
 		ROS_INFO("Ready");
-
-	ros::spin();
 
 	return 0;
 }
