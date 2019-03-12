@@ -13,9 +13,12 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
-  #nav_msgs
-  #sensor_msgs
+  nav_msgs
+  sensor_msgs
 )
+
+find_package(OpenCV REQUIRED) #追加
+find_package(PythonLibs REQUIRED) #追加
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -162,10 +165,10 @@ include_directories(
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-# install(PROGRAMS
-#   scripts/my_python_script
-#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+ install(PROGRAMS
+   scripts/my_python_script
+   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+ )
 
 ## Mark executables and/or libraries for installation
 # install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
@@ -233,6 +236,20 @@ add_executable(roomba_move src/roomba_move.cpp)
 target_link_libraries(roomba_move ${catkin_LIBRARIES})
 add_dependencies(roomba_move chibi19_b_generate_messages_cpp)
 
+##############################[ichiro-t update 19-02-28]##########################################
+
+add_executable(opencv_subscribe scripts/opencv_subscribe.py)
+target_link_libraries(opencv_subscribe ${catkin_LIBRARIES})
+set_target_properties(opencv_subscribe PROPERTIES LINKER_LANGUAGE Python)
+if(OpenCV_FOUND)
+  # インクルードパスを指定
+  include_directories(${OpenCV_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS})
+  # リンクするライブラリ指定
+  target_link_libraries(opencv_subscribe ${OpenCV_LIBS} ${PYTHON_LIBRARIES})
+endif(OpenCV_FOUND)
+
+#add_executable(opencv_subscribe scripts/opencv_subscribe.py)
+#target_link_libraries(opencv_subscribe ${catkin_LIBRARIES})
 
 add_executable(Localization src/Localization.cpp)
 target_link_libraries(Localization ${catkin_LIBRARIES})
