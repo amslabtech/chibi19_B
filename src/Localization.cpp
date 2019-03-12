@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 	while(ros::ok())
 	{
 		int i = 0;
-		map_callback(map);
+		map_callback(&map);
 	}
 
 	return 0;
