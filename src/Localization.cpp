@@ -25,6 +25,7 @@ std::uniform_real_distribution<> rand1(0.0, 1.0);    //0<p<1の範囲で乱数�
 nav_msgs::OccupancyGrid map;
 geometry_msgs::PoseArray poses;
 
+bool map_get = false;
 
 const int N = 5;
 
@@ -58,7 +59,7 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 		ROS_INFO("%f\n",tf::getYaw(p.pose.pose.orientation));
 	}
     poses.header.frame_id = 'map';
-
+	map_get = true;
 
 }
 
@@ -71,6 +72,9 @@ int main(int argc, char** argv)
     ros::Subscriber map_sub = nh.subscribe("/map",100,map_callback);
 
 	ros::Rate rate(10.0);
+
+	if(map_get)
+		ROS_INFO("Ready");
 
 	ros::spin();
 
