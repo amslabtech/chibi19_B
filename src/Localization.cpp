@@ -68,13 +68,14 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     ros::NodeHandle local_nh("~");
     
-    ros::Subscriber map_sub = nh.subscribe("/mapdata",100,map_callback);
+    ros::Subscriber map_sub = nh.subscribe("/map",100,map_callback);
 
 	ros::Rate rate(10.0);
 
 	while(ros::ok())
 	{
 		int i = 0;
+		ROS_INFO("%d", i);
 	}
 
 	return 0;
