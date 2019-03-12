@@ -46,7 +46,8 @@ private:
 std::vector<Particle> Particles;
 void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 {
-    map = *msg;
+    ROS_INFO("getting map");
+	map = *msg;
     
     for(int i = 0;i < N;i++)
     {
@@ -54,8 +55,12 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 		p.p_init(map);
         Particles.push_back(p);
         poses.poses.push_back(p.pose.pose);
+		ROS_INFO("%f", p.pose.pose.position.x);
+		ROS_INFO("%f", p.pose.pose.position.y);
+		ROS_INFO("%f", tf::getYaw(p.pose.pose.orientation));
+		Ros_INFO("\n");
 	}
-    poses.header.frame_id = 'map';
+    poses.header.frame_id = "map";
 	map_get = true;
 }
 
@@ -71,11 +76,13 @@ int main(int argc, char** argv)
 
 	ros::Rate rate(10.0);
 	
+	while(ros::ok())
+{
 	ros::spin();
 
 	if(map_get)
 		ROS_INFO("Ready");
-
+}
 	return 0;
 }
 
