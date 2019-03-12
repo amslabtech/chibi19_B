@@ -26,7 +26,7 @@ nav_msgs::OccupancyGrid map;
 geometry_msgs::PoseArray poses;
 
 
-const int N = 1000;
+const int N = 5;
 
 class Particle
 {
@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 	while(ros::ok())
 	{
 		int i = 0;
-		ROS_INFO("%d", i);
+		map_callback(map);
 	}
 
 	return 0;
