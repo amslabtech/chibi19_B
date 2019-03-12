@@ -72,11 +72,7 @@ int main(int argc, char** argv)
 
 	ros::Rate rate(10.0);
 
-	while(ros::ok())
-	{
-		int i = 0;
-		map_callback(&map);
-	}
+	ros::spin();
 
 	return 0;
 }
