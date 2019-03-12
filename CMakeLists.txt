@@ -234,4 +234,6 @@ target_link_libraries(roomba_move ${catkin_LIBRARIES})
 add_dependencies(roomba_move chibi19_b_generate_messages_cpp)
 
 
-
+add_executable(Localization src/Localization.cpp)
+target_link_libraries(Localization ${catkin_LIBRARIES})
+add_dependencies(Localization chibi19_b_generate_messages_cpp)
