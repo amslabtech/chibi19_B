@@ -14,17 +14,16 @@
 #include "tf/transform_broadcaster.h"
 #include "tf/transform_listener.h"
 
-#include "math.h"
-#include "random"
+#include <math.h>
+#include <random>
 
 //乱数の生成
-std::ramdom_device rnd;
+std::random_device rnd;
 std::mt19937 mt(rnd());
 std::uniform_real_distribution<> rand1(0.0, 1.0);    //0<p<1の範囲で乱数を生成
 
-nav_msg::OccupancyGrid map_data;
+nav_msgs::OccupancyGrid map;
 geometry_msgs::PoseArray poses;
-std::vector<Particle> Particles;
 
 
 const int N = 1000;
@@ -43,15 +42,15 @@ public:
     
 private:
 };
-
-void map_callback(nav_msgs::OccupancyGridConstPtr& msg)
+std::vector<Particle> Particles;
+void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 {
     map = *msg;
-    Particle p;
     
     for(int i = 0;i < N;i++)
     {
-        p.p_init();
+        Particle p;
+		p.p_init(map);
         Particles.push_back(p);
         poses.poses.push_back(p.pose.pose);
     }
@@ -76,9 +75,9 @@ Particle::Particle(void)
     weight = 1/(double)N;
 }
 
-Perticle:: p_init(nav_msgs::OccupancyGridConstPtr& msg)
+void Particle::p_init(nav_msgs::OccupancyGrid& map_data)
 {
-    pose.pose.position.x = rand1(mt)*map.info.width;
-    pose.pose.position.y = rand1(mt)*map.info.height;
-    quaternionTFToMsg(tf::createQuaternionFromYaw(2*pi()*rand1(mt)), pose.pose.orientation);
+    pose.pose.position.x = rand1(mt)*map_data.info.width;
+    pose.pose.position.y = rand1(mt)*map_data.info.height;
+    quaternionTFToMsg(tf::createQuaternionFromYaw(2*M_PI*rand1(mt)), pose.pose.orientation);
 }
