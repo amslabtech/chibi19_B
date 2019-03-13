@@ -27,8 +27,6 @@ geometry_msgs::PoseArray poses;
 
 bool map_get = false;
 
-const int N = 5;
-
 class Particle
 {
 public:
@@ -43,7 +41,17 @@ public:
     
 private:
 };
+
+const int N = 5;
+double init_x = 0.0;
+double init_y = 0.0;
+double init_yaw = 0.0;
+double x_cov = 2.0;
+double y_cov = 2.0;
+double yaw_cov = 1.0;
+
 std::vector<Particle> Particles;
+
 void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 {
     ROS_INFO("getting map");
@@ -52,7 +60,7 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
     for(int i = 0;i < N;i++)
     {
         Particle p;
-		p.p_init(map);
+		p.p_init(init_x, init_y, init_yaw);
         Particles.push_back(p);
         poses.poses.push_back(p.pose.pose);
 		ROS_INFO("%f", p.pose.pose.position.x);
@@ -86,6 +94,11 @@ int main(int argc, char** argv)
 	return 0;
 }
 
+double rand_nomal(double mu, double sigma)
+{
+	double z = sprt(-2.0*log(rand1(mt)))*sin(2.0*M_PI*rand1(mt));
+	return mu + sigma*z;
+}
 
 Particle::Particle(void)
 {
@@ -95,9 +108,9 @@ Particle::Particle(void)
     weight = 1/(double)N;
 }
 
-void Particle::p_init(nav_msgs::OccupancyGrid& map_data)
+void Particle::p_init(double x, double y, double theta)
 {
-    pose.pose.position.x = rand1(mt)*map_data.info.width;
-    pose.pose.position.y = rand1(mt)*map_data.info.height;
-    quaternionTFToMsg(tf::createQuaternionFromYaw(2*M_PI*rand1(mt)), pose.pose.orientation);
+    pose.pose.position.x = ran_nomal(x, x_cov);
+    pose.pose.position.y = ran_nomal(y, y_cov);
+    quaternionTFToMsg(tf::createQuaternionFromYaw(rand_nomal(theta, yaw_cov)), pose.pose.orientation);
 }
