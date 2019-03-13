@@ -31,7 +31,7 @@ class Particle
 {
 public:
     Particle(void);
-    void p_init(double,double, double)
+    void p_init(double,double, double);
     void motion_update();
     void measurement_update();
     
@@ -66,7 +66,7 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 		ROS_INFO("%f", p.pose.pose.position.x);
 		ROS_INFO("%f", p.pose.pose.position.y);
 		ROS_INFO("%f", tf::getYaw(p.pose.pose.orientation));
-		Ros_INFO("\n");
+		ROS_INFO("\n");
 	}
     poses.header.frame_id = "map";
 	map_get = true;
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 
 double rand_nomal(double mu, double sigma)
 {
-	double z = sprt(-2.0*log(rand1(mt)))*sin(2.0*M_PI*rand1(mt));
+	double z = sqrt(-2.0*log(rand1(mt)))*sin(2.0*M_PI*rand1(mt));
 	return mu + sigma*z;
 }
 
@@ -110,7 +110,7 @@ Particle::Particle(void)
 
 void Particle::p_init(double x, double y, double theta)
 {
-    pose.pose.position.x = ran_nomal(x, x_cov);
-    pose.pose.position.y = ran_nomal(y, y_cov);
+    pose.pose.position.x = rand_nomal(x, x_cov);
+    pose.pose.position.y = rand_nomal(y, y_cov);
     quaternionTFToMsg(tf::createQuaternionFromYaw(rand_nomal(theta, yaw_cov)), pose.pose.orientation);
 }
