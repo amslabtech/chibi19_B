@@ -31,7 +31,7 @@ class Particle
 {
 public:
     Particle(void);
-    void p_init(nav_msgs::OccupancyGrid&);
+    void p_init(double,double, double)
     void motion_update();
     void measurement_update();
     
