@@ -72,25 +72,38 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 	map_get = true;
 }
 
+double Get_Yaw(const geometry_msgs::Quaternion q)
+{
+    double rool, pitch, yaw;
+    tf::Quaternion quat(q.x,q.y,q.z,q.w);
+    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+    
+    return yaw;
+}
+
+double cul_angle_diff(double a, double b)
+{
+    
+}
+
 int main(int argc, char** argv)
 {
     ros::init(argc,argv,"localization");
     ros::NodeHandle nh;
     ros::NodeHandle local_nh("~");
+    
+    ROS_INFO("Started\n");
    
     ros::Subscriber map_sub = nh.subscribe("/map",100,map_callback);
-
-	ROS_INFO("Started\n");
+    
+    tf::TransformListener listener;
+    tf::StampedTransform temp_tf_stamped;
+    temp_tf_stamped = tf::StampedTransform(tf::Transform(tf::createQuaternionFromYaw(0.0), tf::Vector3(0.0, 0.0, 0)), ros::Time::now(), "map", "odom");
 
 	ros::Rate rate(10.0);
 	
-	while(ros::ok())
-{
 	ros::spin();
-
-	if(map_get)
-		ROS_INFO("Ready");
-}
+    
 	return 0;
 }
 
@@ -113,4 +126,13 @@ void Particle::p_init(double x, double y, double theta)
     pose.pose.position.x = rand_nomal(x, x_cov);
     pose.pose.position.y = rand_nomal(y, y_cov);
     quaternionTFToMsg(tf::createQuaternionFromYaw(rand_nomal(theta, yaw_cov)), pose.pose.orientation);
+}
+
+void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::PoseStamped previous)
+{
+    double dx,dy,dyaw;
+    
+    dx = current.pose.pose.x - previous.pose.pose.x;
+    dy = current.pose.pose.y - previous.pose.pose.y;
+    
 }
