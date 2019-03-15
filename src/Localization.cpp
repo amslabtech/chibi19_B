@@ -32,7 +32,7 @@ class Particle
 public:
     Particle(void);
     void p_init(double,double, double);
-    void motion_update();
+    void motion_update(geometry_msgs::PoseStamped, geometry_msgs::PoseStamed);
     void measurement_update();
     
     double weight;
