@@ -24,6 +24,7 @@ std::uniform_real_distribution<> rand1(0.0, 1.0);    //0<p<1の範囲で乱数�
 
 nav_msgs::OccupancyGrid map;
 geometry_msgs::PoseArray poses;
+sensor_msgs::LaserScan laser;
 
 bool map_get = false;
 
@@ -70,6 +71,11 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 	}
     poses.header.frame_id = "map";
 	map_get = true;
+}
+
+void laser_callback(sensor_msgs::LaserScan& msg)
+{
+	laser = *msg;	
 }
 
 double Get_Yaw(const geometry_msgs::Quaternion q)
@@ -157,10 +163,10 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     
     dist = sqrt(dx*dx + dy*dy)
     
-    /*if(dist < 0.01)
+    if(dist < 0.01)
     {
         delta  = 0;
-    }*/
+    }
     
     pose.pose.posion.x += dist * cos(Get_Yaw(pose.pose.orientation)) + rand_nomal(0.0, x_cov);
     pose.pose.posion.y += dist * sin(Get_Yaw(pose.pose.orientation)) + rand_nomal(0.0, y_cov);
