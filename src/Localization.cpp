@@ -151,7 +151,7 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     double delta;
     
     dx = current.pose.position.x - previous.pose.position.x;
-    dy = current.pose.position.y - previous.pose.posoition.y;
+    dy = current.pose.position.y - previous.pose.position.y;
     dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
     
     if(sqrt(dx*dx + dy*dy) < 0.01)
