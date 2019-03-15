@@ -83,7 +83,24 @@ double Get_Yaw(const geometry_msgs::Quaternion q)
 
 double cul_angle_diff(double a, double b)
 {
+    a = atan2(sin(a),cos(a));
+    b = atan2(sin(b),cos(b));
     
+    double d1 = a-b;
+    double d2 = 2*M_PI-fbas(d1);
+    
+    if(fabs(d1) < fabs(d2))
+    {
+        return d1;
+    }
+    
+    else if(d1>0)
+    {
+        return -1.0*d2;
+    }
+    
+    else
+        return d2;
 }
 
 int main(int argc, char** argv)
