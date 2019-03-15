@@ -158,4 +158,5 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     {
         delta  = 0;
     }
+    
 }
