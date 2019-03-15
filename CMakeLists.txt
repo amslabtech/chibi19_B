@@ -254,3 +254,7 @@ endif(OpenCV_FOUND)
 add_executable(Localization src/Localization.cpp)
 target_link_libraries(Localization ${catkin_LIBRARIES})
 add_dependencies(Localization chibi19_b_generate_messages_cpp)
+
+add_executable(global_path_planning src/global_path_planning.cpp)
+target_link_libraries(global_path_planning ${catkin_LIBRARIES})
+
