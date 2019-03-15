@@ -76,7 +76,7 @@ double Get_Yaw(const geometry_msgs::Quaternion q)
 {
     double rool, pitch, yaw;
     tf::Quaternion quat(q.x,q.y,q.z,q.w);
-    tf::Matrix3x3(quat).getRPY(roll, pitch, yaw);
+    tf::Matrix3x3(quat).getRPY(rool, pitch, yaw);
     
     return yaw;
 }
@@ -87,7 +87,7 @@ double cul_angle_diff(double a, double b)
     b = atan2(sin(b),cos(b));
     
     double d1 = a-b;
-    double d2 = 2*M_PI-fbas(d1);
+    double d2 = 2*M_PI-fabs(d1);
     
     if(fabs(d1) < fabs(d2))
     {
@@ -148,8 +148,14 @@ void Particle::p_init(double x, double y, double theta)
 void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::PoseStamped previous)
 {
     double dx,dy,dyaw;
+    double delta;
     
     dx = current.pose.pose.x - previous.pose.pose.x;
     dy = current.pose.pose.y - previous.pose.pose.y;
+    dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
     
+    if(sqrt(dx*dx + dy*dy) < 0.01)
+    {
+        delta  = 0;
+    }
 }
