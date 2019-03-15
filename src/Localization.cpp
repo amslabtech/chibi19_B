@@ -155,7 +155,7 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 {
     double dx,dy,dyaw;
     double delta;
-    //double dist;
+    double dist;
     
     dx = current.pose.position.x - previous.pose.position.x;
     dy = current.pose.position.y - previous.pose.position.y;
