@@ -149,14 +149,20 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 {
     double dx,dy,dyaw;
     double delta;
+    //double dist;
     
     dx = current.pose.position.x - previous.pose.position.x;
     dy = current.pose.position.y - previous.pose.position.y;
     dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
     
-    if(sqrt(dx*dx + dy*dy) < 0.01)
+    dist = sqrt(dx*dx + dy*dy)
+    
+    /*if(dist < 0.01)
     {
         delta  = 0;
-    }
+    }*/
     
+    pose.pose.posion.x += dist * cos(Get_Yaw(pose.pose.orientation)) + rand_nomal(0.0, x_cov);
+    pose.pose.posion.y += dist * sin(Get_Yaw(pose.pose.orientation)) + rand_nomal(0.0, y_cov);
+    quaternionTFToMsg(tf::createQuaternionFromYaw(Get_Yaw(pose.pose.orientation) + dyaw + rand_nomal(0.0, yaw_cov)), pose.pose.orientation);
 }
