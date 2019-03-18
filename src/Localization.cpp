@@ -148,7 +148,7 @@ void Particle::p_init(double x, double y, double theta)
 		pose.pose.position.x = rand_nomal(x, x_cov);
     	pose.pose.position.y = rand_nomal(y, y_cov);
     	quaternionTFToMsg(tf::createQuaternionFromYaw(rand_nomal(theta, yaw_cov)), pose.pose.orientation);
-	}while(map.data[p.pose.pose.position.x+p.pose.pose.position.y*map.info.width]!=0)
+	}while(map.data[pose.pose.position.x+pose.pose.position.y*map.info.width]!=0)
 }
 
 void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::PoseStamped previous)
