@@ -46,7 +46,7 @@ public:
 private:
 };
 
-const int N = 5;
+const int N = 1000;
 double init_x = 0.0;
 double init_y = 0.0;
 double init_yaw = 0.0;
