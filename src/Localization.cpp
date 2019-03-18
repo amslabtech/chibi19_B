@@ -56,6 +56,8 @@ double yaw_cov = 1.0;
 
 std::vector<Particle> Particles;
 
+double Get_Yaw(const geometry_msgs::Quaternion);
+
 void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 {
     ROS_INFO("getting map");
@@ -69,8 +71,17 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 		ROS_INFO("%f", p.pose.pose.position.y);
 		ROS_INFO("%f", tf::getYaw(p.pose.pose.orientation));
 		ROS_INFO("\n");
+
+		geometry_msgs::Pose particle_pose;
+
+		particle_pose.position.x = p.pose.pose.position.x;
+		particle_pose.position.y = p.pose.pose.position.y;
+		particle_pose.position.z = 0.0;
+		quaternionTFToMsg(tf::createQuaternionFromYaw(Get_Yaw(p.pose.pose.orientation)), particle_pose.orientation);
+
+		poses.poses.push_back(particle_pose);
 	}
-    poses.header.frame_id = "map";
+    poses.header.frame_id = "map";	
 	map_get = true;
 }
 
