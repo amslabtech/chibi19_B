@@ -107,6 +107,19 @@ double cul_angle_diff(double a, double b)
         return d2;
 }
 
+int get_index(double x, double y)
+{
+	int index, index_x, index_y;
+
+	index_x = floor((x - map.info.origin.position.x) / map.info.resolution);
+	index_y = floor((y - map.info.origin.position.y) / map.info.resolution)*map.info.width;
+
+	index = index_x + index_y;
+
+	return index;
+}
+
+
 int main(int argc, char** argv)
 {
     ros::init(argc,argv,"localization");
@@ -148,7 +161,7 @@ void Particle::p_init(double x, double y, double theta)
 		pose.pose.position.x = rand_nomal(x, x_cov);
     	pose.pose.position.y = rand_nomal(y, y_cov);
     	quaternionTFToMsg(tf::createQuaternionFromYaw(rand_nomal(theta, yaw_cov)), pose.pose.orientation);
-	}while(map.data[pose.pose.position.x+pose.pose.position.y*map.info.width]!=0);
+	}while(map.data[get_index(pose.pose.position.x, pose.pose.position.y)]!=0);
 }
 
 void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::PoseStamped previous)
