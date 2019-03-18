@@ -23,6 +23,9 @@ std::mt19937 mt(rnd());
 std::uniform_real_distribution<> rand1(0.0, 1.0);    //0<p<1の範囲で乱数を生成
 
 nav_msgs::OccupancyGrid map;
+geometry_msgs::PoseStamped estimated_pose;
+geometry_msgs::PoseStamped current_pose;
+geometry_msgs::PoseStamped previous_pose;
 geometry_msgs::PoseArray poses;
 sensor_msgs::LaserScan laser;
 
@@ -71,7 +74,7 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 	map_get = true;
 }
 
-void laser_callback(sensor_msgs::LaserScanConstPtr& msg)
+void laser_callback(const sensor_msgs::LaserScanConstPtr& msg)
 {
 	laser = *msg;	
 }
@@ -122,21 +125,88 @@ int get_index(double x, double y)
 
 int main(int argc, char** argv)
 {
-    ros::init(argc,argv,"localization");
+    ros::init(argc,argv,"Localization");
     ros::NodeHandle nh;
     ros::NodeHandle local_nh("~");
     
     ROS_INFO("Started\n");
    
-    ros::Subscriber map_sub = nh.subscribe("/map",100,map_callback);
-    
-    tf::TransformListener listener;
+    ros::Subscriber map_sub = nh.subscribe("/map",100, map_callback);
+	ros::Subscriber laser_sub = nh.subscribe("/scan",100, laser_callback);
+	ros::Publisher pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/chibi19/estimated_pose",100);
+	ros::Publisher pose_array_pub = nh.advertise<geometry_msgs::PoseArray>("/poses",100);
+
+	tf::TransformBroadcaster map_broadcaster;
+	tf::TransformListener listener;
     tf::StampedTransform temp_tf_stamped;
     temp_tf_stamped = tf::StampedTransform(tf::Transform(tf::createQuaternionFromYaw(0.0), tf::Vector3(0.0, 0.0, 0)), ros::Time::now(), "map", "odom");
 
+	current_pose.pose.position.x = 0.0;
+	current_pose.pose.position.y = 0.0;
+	quaternionTFToMsg(tf::createQuaternionFromYaw(0), current_pose.pose.orientation);
+
 	ros::Rate rate(10.0);
-	
-	ros::spin();
+
+	while(ros::ok())
+	{
+		if(map_get && !laser.ranges.empty())
+		{
+			estimated_pose.header.frame_id = "map";
+			poses.header.frame_id = "map";
+
+			tf::StampedTransform transform;
+			transform = tf::StampedTransform(tf::Transform(tf::createQuaternionFromYaw(0.0), tf::Vector3(0.0, 0.0, 0)), ros::Time::now(), "odom", "base_link");
+
+			try{
+				listener.waitForTransform("odom", "base_link", ros::Time(0), ros::Duration(1.0));
+				listener.lookupTransform("odom", "base_link", ros::Time(0), transform);
+			}
+
+			catch(tf::TransformException &ex)
+			{
+				ROS_ERROR("%s", ex.what());
+				ros::Duration(1.0).sleep();
+			}
+
+			previous_pose = current_pose;
+			current_pose.pose.position.x = transform.getOrigin().x();
+			current_pose.pose.position.y = transform.getOrigin().y();
+			quaternionTFToMsg(transform.getRotation(), current_pose.pose.orientation);
+
+			for(int i=0;i<N;i++)
+			{
+				Particles[i].motion_update(current_pose, previous_pose);
+			}
+
+			estimated_pose = current_pose;
+			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
+			_estimated_pose.pose.pose = estimated_pose.pose;
+			_estimated_pose.header = estimated_pose.header;
+			pose_pub.publish(_estimated_pose);
+			pose_array_pub.publish(poses);
+
+			try{
+				tf::StampedTransform map_transform;
+				map_transform.setOrigin(tf::Vector3(estimated_pose.pose.position.x, estimated_pose.pose.position.y, 0.0));
+				map_transform.setRotation(tf::Quaternion(0, 0, Get_Yaw(estimated_pose.pose.orientation), 1));
+				tf::Stamped<tf::Pose> tf_stamped(map_transform.inverse(), laser.header.stamp, "base_link");
+				tf::Stamped<tf::Pose> odom_to_map;
+				listener.transformPose("odom", tf_stamped, odom_to_map);
+				tf::Transform latest_tf = tf::Transform(tf::Quaternion(odom_to_map.getRotation()), tf::Point(odom_to_map.getOrigin()));
+				temp_tf_stamped = tf::StampedTransform(latest_tf.inverse(), laser.header.stamp, "map", "odom");
+				map_broadcaster.sendTransform(temp_tf_stamped);
+			}
+
+			catch(tf::TransformException ex)
+			{
+				std::cout << "Error!" << std::endl;
+				std::cout << ex.what() << std::endl;
+			}
+
+		}
+		ros::spinOnce();
+		rate.sleep();
+	}
     
 	return 0;
 }
