@@ -15,7 +15,7 @@ int delta[direction][2] = {{-1,0,},
 				   
 float delta_cost[direction] = {1.0,sqrtf(2.0),1.0,sqrtf(2.0),1.0,sqrtf(2.0),1.0,sqrtf(2.0)}; 
 
-char delta_name[direction][4] = {"^","「","<","L","v","」",">","7"};
+char delta_name[direction][5] = {"^","「","<","L","v","」",">","7"};
 
 int positive_count(const int *a,const int size){
 	int count = 0;
@@ -107,11 +107,24 @@ void show_farray(float array[row][column]){
          if(i != row-1) printf("\n [");
      }   
      printf("]\n");
- }
+}
+
+void show_path(int array[row][column]){
+	for(int i=0;i<row;i++){
+		for(int j=0;j<column;j++){
+			if(array[i][j] == -1) printf("■ ");
+			else printf("%2s",delta_name[array[i][j]]);
+		}
+		if(i != row-1) printf("\n");
+	}
+	printf("\n");
+}
+
 
 
 float search(const int grid[row][column],const int heuristic_grid[row][column],
-	float path[row][column], const int init[2],const int goal[2])
+	float path[row][column], int result_path[row][column],
+	const int init[2],const int goal[2])
 {
 	int move_history[row*column][2];
 	int selected_move = 0;
@@ -122,6 +135,8 @@ float search(const int grid[row][column],const int heuristic_grid[row][column],
 	int move_direction;
 	int f;
 	float total_cost=0.0;
+
+	set_all(result_path,-1);
 	
 	path[y][x] = 0;
 	for(f=1;f<row*column;f++){
@@ -161,6 +176,7 @@ float search(const int grid[row][column],const int heuristic_grid[row][column],
 		
 		else{
 			move_direction = min_array(a,direction,d);
+			result_path[y][x] = move_direction;
 			x = x+delta[move_direction][1];
 			y = y+delta[move_direction][0];
 			total_cost += delta_cost[move_direction]; 
@@ -170,6 +186,7 @@ float search(const int grid[row][column],const int heuristic_grid[row][column],
 	f--;
 	return total_cost;
 }
+
 
 int main(void){
 	
@@ -182,6 +199,7 @@ int main(void){
 
 	int heuristic_grid[row][column];
 	float path[row][column];
+	int result_path[row][column];
 	fset_all(path,-1);
 	
 	const int init[2] = {0,0};
@@ -190,10 +208,11 @@ int main(void){
 	
 	set_heuristic(heuristic_grid,goal);
 	
-	float cost = search(grid, heuristic_grid,path,init,goal);
+	float cost = search(grid, heuristic_grid,path,result_path,init,goal);
 	printf("grid = \n"); show_array(grid);
 	printf("heuristic_grid = \n"); show_array(heuristic_grid);
 	printf("path = \n"); show_farray(path);
 	printf("total_cost = %f\n",cost);
-	
+	printf("result_path = \n"); show_array(result_path);
+	show_path(result_path);
 }
