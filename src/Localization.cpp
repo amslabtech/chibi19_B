@@ -133,6 +133,18 @@ int get_index(double x, double y)
 	return index;
 }
 
+bool update_judge(geometry_msgs::PoseStamped current, geometry_msgs::PoseStamped previous)
+{
+	if(sqrt(pow(current.pose.position.x,2)+pow(current.pose.position.y-previous.pose.position.y,2))<0.01)
+	{
+		return false;
+	}
+
+	else
+	{
+		return true;
+	}
+}
 
 int main(int argc, char** argv)
 {
@@ -184,10 +196,14 @@ int main(int argc, char** argv)
 			current_pose.pose.position.y = transform.getOrigin().y();
 			quaternionTFToMsg(transform.getRotation(), current_pose.pose.orientation);
 
-			for(int i=0;i<N;i++)
+			if(update_judge(current_pose, previous_pose))
 			{
-				Particles[i].motion_update(current_pose, previous_pose);
 				ROS_INFO("motion update/n");
+
+				for(int i=0;i<N;i++)
+				{
+					Particles[i].motion_update(current_pose, previous_pose);
+				}
 			}
 
 			estimated_pose = current_pose;
