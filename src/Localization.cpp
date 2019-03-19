@@ -46,7 +46,7 @@ public:
 private:
 };
 
-const int N = 1000;
+const int N = 10;
 double init_x = 0.0;
 double init_y = 0.0;
 double init_yaw = 0.0;
@@ -160,7 +160,7 @@ int main(int argc, char** argv)
 
 	while(ros::ok())
 	{
-		if(map_get && !laser.ranges.empty())
+		if(map_get)// && !laser.ranges.empty())
 		{
 			estimated_pose.header.frame_id = "map";
 			poses.header.frame_id = "map";
@@ -187,6 +187,7 @@ int main(int argc, char** argv)
 			for(int i=0;i<N;i++)
 			{
 				Particles[i].motion_update(current_pose, previous_pose);
+				ROS_INFO("motion update/n");
 			}
 
 			estimated_pose = current_pose;
@@ -242,7 +243,7 @@ void Particle::p_init(double x, double y, double theta)
 		pose.pose.position.x = rand_nomal(x, x_cov);
     	pose.pose.position.y = rand_nomal(y, y_cov);
     	quaternionTFToMsg(tf::createQuaternionFromYaw(rand_nomal(theta, yaw_cov)), pose.pose.orientation);
-	}while(map.data[get_index(pose.pose.position.x, pose.pose.position.y)]!=0);
+		}while(map.data[get_index(pose.pose.position.x, pose.pose.position.y)]!=0);
 }
 
 void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::PoseStamped previous)
