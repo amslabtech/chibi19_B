@@ -262,6 +262,7 @@ double calc_range(double p_x, doublep_ y, double yaw)
 	int xstep, ystep;
 	int x, y;
 	bool flag = false;
+	int err;
 
 	x0 = (p_x - map.info.origin.position.x) / map.info.resolution;
 	y0 = (p_y - map.info.origin.position.y) / map.info.resolution;
