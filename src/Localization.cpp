@@ -36,7 +36,7 @@ class Particle
 public:
     Particle(void);
     void p_init(double,double, double);
-    void motion_update(geometry_msgs::PoseStamped, geometry_msgs::PoseStamped);
+    void motion_update(geometry_msgs::PoseStamped, geometry_msgs::PoseStamped, int);
     void measurement_update();
     
     double weight;
@@ -203,7 +203,7 @@ int main(int argc, char** argv)
 
 				for(int i=0;i<N;i++)
 				{
-					Particles[i].motion_update(current_pose, previous_pose);
+					Particles[i].motion_update(current_pose, previous_pose, i);
 				}
 			}
 
@@ -263,7 +263,7 @@ void Particle::p_init(double x, double y, double theta)
 		}while(map.data[get_index(pose.pose.position.x, pose.pose.position.y)]!=0);
 }
 
-void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::PoseStamped previous)
+void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::PoseStamped previous, int i)
 {
     double dx,dy,dyaw;
     double delta;
@@ -279,4 +279,13 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     pose.pose.position.x += dist * cos(yaw) + rand_nomal(0.0, x_cov);
     pose.pose.position.y += dist * sin(yaw) + rand_nomal(0.0, y_cov);
     quaternionTFToMsg(tf::createQuaternionFromYaw(yaw + dyaw + rand_nomal(0.0, yaw_cov)), pose.pose.orientation);
+	
+	geometry_msgs::Pose particle_pose;
+	
+	particle_pose.position.x = pose.pose.position.x;
+	particle_pose.position.y = pose.pose.position.y;
+	particle_pose.position.z = 0.0;
+	quaternionTFToMsg(tf::createQuaternionFromYaw(Get_Yaw(pose.pose.orientation)), particle_pose.orientation);
+
+	poses.poses[i] = particle_pose;
 }
