@@ -80,6 +80,7 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
 		quaternionTFToMsg(tf::createQuaternionFromYaw(Get_Yaw(p.pose.pose.orientation)), particle_pose.orientation);
 
 		poses.poses.push_back(particle_pose);
+		Particles.push_back(p);
 	}
     poses.header.frame_id = "map";	
 	map_get = true;
