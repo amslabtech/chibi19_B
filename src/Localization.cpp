@@ -53,6 +53,7 @@ double init_yaw = 0.0;
 double x_cov = 2.0;
 double y_cov = 2.0;
 double yaw_cov = 1.0;
+double Max_Range = 20;
 
 std::vector<Particle> Particles;
 
@@ -254,6 +255,107 @@ Particle::Particle(void)
     weight = 1/(double)N;
 }
 
+double calc_range(double p_x, doublep_ y, double yaw)
+{
+	int x0, x1, y0, y1;
+	int dx, dy;
+	int xstep, ystep;
+	int x, y;
+	bool flag = false;
+
+	x0 = (p_x - map.info.origin.position.x) / map.info.resolution;
+	y0 = (p_y - map.info.origin.position.y) / map.info.resolution;
+
+	x1 = (P_x + Max_Range * cos(yaw) - map.info.position.x) / map.info.resolution;
+	y1 = (p_y + Max_Range * sin(yaw) - map.info.position.y) / map.info.resolution;
+	
+	dx = fabs(x1 - x0);
+	dy = fabs(y1 - y0);
+
+	if(dy > dx)
+	{
+		int temp = x1;
+		x1 = x0;
+		x0 = temp;
+
+		temp = y1;
+		y1 = y0;
+		y0 = temp;
+
+		flag = true;
+	}
+	
+	dx = fabs(x1 - x0);
+    dy = fabs(y1 - y0);
+
+	if(x1 > x0)
+		xstep = 1;
+	
+	else
+		xstep = -1;
+
+	if(y1 > y0)
+		ystep = 1;
+
+	else
+		ystep = -1;
+
+	if(flag)
+	{
+		if(y < 0||y > map.info.width||x < 0||x > map.info.height||map.data[y + x * map.info.width] != 0)
+		{
+			return sqrt(pow(x - x0, 2)+pow(y - y0, 2))*map.info.resolution;
+		}
+	}
+	
+	else
+	{
+        if(x < 0||x > map.info.width||y < 0||y > map.info.height||map.data[x + y * map.info.width] != 0)
+        {
+			return sqrt(pow(x - x0, 2)+pow(y - y0, 2))*map.info.resolution;
+        }
+	}
+	
+	x = x0;
+	y = y0;
+	err = dy;
+
+	while(x != x1 + xstep)
+	{
+		x += xstep;
+		err += dy;
+
+		if(2*err > dx)
+		{
+			y += ystep;
+			err -= dx;
+		}
+	
+		if(flag)
+		{
+			if(y < 0||y > map.info.width||x < 0||x > map.info.height||map.data[y + x * map.info.width] != 0)
+			{
+				return sqrt(pow(x - x0, 2)+pow(y - y0, 2))*map.info.resolution;
+			}
+		}
+
+		else
+		{
+			if(x < 0||x > map.info.width||x < 0||y > map.info.height||map.data[x + y * map.info.width] != 0)
+			{
+				return sqrt(pow(x - x0, 2)+pow(y - y0, 2))*map.info.resolution;
+			}
+		}
+	}
+
+	return Max_Range;
+}
+
+
+
+
+
+
 void Particle::p_init(double x, double y, double theta)
 {
     do{
@@ -288,4 +390,9 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 	quaternionTFToMsg(tf::createQuaternionFromYaw(Get_Yaw(pose.pose.orientation)), particle_pose.orientation);
 
 	poses.poses[i] = particle_pose;
+}
+
+void Particle::measurement_update()
+{
+
 }
