@@ -275,7 +275,7 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
     dist = sqrt(dx*dx + dy*dy);
 
-    pose.pose.position.x += dist * cos(Get_Yaw(yaw)) + rand_nomal(0.0, x_cov);
-    pose.pose.position.y += dist * sin(Get_Yaw(yaw)) + rand_nomal(0.0, y_cov);
-    quaternionTFToMsg(tf::createQuaternionFromYaw(Get_Yaw(yaw) + dyaw + rand_nomal(0.0, yaw_cov)), pose.pose.orientation);
+    pose.pose.position.x += dist * cos(yaw) + rand_nomal(0.0, x_cov);
+    pose.pose.position.y += dist * sin(yaw) + rand_nomal(0.0, y_cov);
+    quaternionTFToMsg(tf::createQuaternionFromYaw(yaw + dyaw + rand_nomal(0.0, yaw_cov)), pose.pose.orientation);
 }
