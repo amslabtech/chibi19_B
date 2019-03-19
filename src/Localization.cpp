@@ -267,20 +267,15 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     double dx,dy,dyaw;
     double delta;
     double dist;  
-	
-	ROS_INFO("IN");
+
+	double yaw = Get_Yaw(pose.pose.orientation); 
 
     dx = current.pose.position.x - previous.pose.position.x;
-	ROS_INFO("dx/n");
     dy = current.pose.position.y - previous.pose.position.y;
-	ROS_INFO("dy/n");
     dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
-    ROS_INFO("dyaw/n");
-
     dist = sqrt(dx*dx + dy*dy);
-	ROS_INFO("dist/n");
 
-    pose.pose.position.x += dist * cos(Get_Yaw(pose.pose.orientation)) + rand_nomal(0.0, x_cov);
-    pose.pose.position.y += dist * sin(Get_Yaw(pose.pose.orientation)) + rand_nomal(0.0, y_cov);
-    quaternionTFToMsg(tf::createQuaternionFromYaw(Get_Yaw(pose.pose.orientation) + dyaw + rand_nomal(0.0, yaw_cov)), pose.pose.orientation);
+    pose.pose.position.x += dist * cos(Get_Yaw(yaw)) + rand_nomal(0.0, x_cov);
+    pose.pose.position.y += dist * sin(Get_Yaw(yaw)) + rand_nomal(0.0, y_cov);
+    quaternionTFToMsg(tf::createQuaternionFromYaw(Get_Yaw(yaw) + dyaw + rand_nomal(0.0, yaw_cov)), pose.pose.orientation);
 }
