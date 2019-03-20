@@ -1,0 +1,7 @@
+<launch>
+  <group ns="chibi19">
+    <node pkg="chibi19_b" name="position" type="roomba_position"/>
+	<node pkg="chibi19_b" name="move" type="roomba_move"/>
+	<node pkg="chibi19_b" name="sense" type="LIDAR_Search"/>
+  </group>
+</launch>
