@@ -54,6 +54,13 @@ double x_cov = 2.0;
 double y_cov = 2.0;
 double yaw_cov = 1.0;
 double Max_Range = 20;
+double w_slow = 0.0;
+double w_fast = 0.0;
+double sigma = 3.0;
+double a_slow = 0.01;
+double a_fast = 0.1;
+double range_count = 3;
+
 
 std::vector<Particle> Particles;
 
@@ -198,15 +205,56 @@ int main(int argc, char** argv)
 			current_pose.pose.position.y = transform.getOrigin().y();
 			quaternionTFToMsg(transform.getRotation(), current_pose.pose.orientation);
 
-			/*if(update_judge(current_pose, previous_pose))
-			{*/
-				//ROS_INFO("motion update/n");
 
-				for(int i=0;i<N;i++)
-				{
-					Particles[i].motion_update(current_pose, previous_pose, i);
-				}
-			//}
+			for(int i=0;i<N;i++)
+			{
+				Particles[i].motion_update(current_pose, previous_pose, i);
+			}
+
+			double sum = 0;
+
+			for(int i=0;i<N;i++)
+			{
+				Particles[i].measurement_update();
+				sum += Particles[i].weight;
+			}
+			
+			double w_ave = 0;
+			int max_index = 0;
+			
+			for(int i=0;i<N;i++)
+			{
+				w_ave += Particles[i].weight / (double)N;
+				Particles[i].weight /= sum;
+				if(Particles[i].weight > Particles[max_index].weight)
+					max_index = i;
+			}
+
+			if(w_slow == 0)
+			{
+				w_slow = w_ave;
+			}
+
+			else
+			{
+				w_slow += a_slow*(w_ave - w_slow);
+			}
+
+			if(w_fast == 0)
+			{
+				w_fast = w_ave;
+			}
+
+			else
+			{
+				w_fast += a_fast*(w_ave - w_fast);
+			}
+
+
+
+
+
+				
 
 			estimated_pose = current_pose;
 			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
@@ -255,7 +303,7 @@ Particle::Particle(void)
     weight = 1/(double)N;
 }
 
-double calc_range(double p_x, doublep_ y, double yaw)
+double calc_range(double p_x, double p_y, double yaw)
 {
 	int x0, x1, y0, y1;
 	int dx, dy;
@@ -267,8 +315,8 @@ double calc_range(double p_x, doublep_ y, double yaw)
 	x0 = (p_x - map.info.origin.position.x) / map.info.resolution;
 	y0 = (p_y - map.info.origin.position.y) / map.info.resolution;
 
-	x1 = (P_x + Max_Range * cos(yaw) - map.info.position.x) / map.info.resolution;
-	y1 = (p_y + Max_Range * sin(yaw) - map.info.position.y) / map.info.resolution;
+	x1 = (p_x + Max_Range * cos(yaw) - map.info.origin.position.x) / map.info.resolution;
+	y1 = (p_y + Max_Range * sin(yaw) - map.info.origin.position.y) / map.info.resolution;
 	
 	dx = fabs(x1 - x0);
 	dy = fabs(y1 - y0);
@@ -288,6 +336,8 @@ double calc_range(double p_x, doublep_ y, double yaw)
 	
 	dx = fabs(x1 - x0);
     dy = fabs(y1 - y0);
+	x = x0;
+	y = y0;
 
 	if(x1 > x0)
 		xstep = 1;
@@ -300,6 +350,8 @@ double calc_range(double p_x, doublep_ y, double yaw)
 
 	else
 		ystep = -1;
+
+	
 
 	if(flag)
 	{
@@ -317,10 +369,6 @@ double calc_range(double p_x, doublep_ y, double yaw)
         }
 	}
 	
-	x = x0;
-	y = y0;
-	err = dy;
-
 	while(x != x1 + xstep)
 	{
 		x += xstep;
@@ -395,5 +443,19 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 
 void Particle::measurement_update()
 {
+	double range_diff = 0;
+	double p;
+	double range_diff_sum = 0; 
+	double angle;
 
+	for(int i=0;i<laser.ranges.size();i+=range_count)
+	{
+		angle = i*laser.angle_increment - M_PI / 2;
+		range_diff += laser.ranges[i] - calc_range(pose.pose.position.x, pose.pose.position.y, Get_Yaw(pose.pose.orientation)+angle);
+		range_diff_sum += range_diff * range_diff;
+	}
+
+	p = exp(-1*(range_diff_sum)/(2 * sigma* sigma));
+
+	weight *= p;
 }

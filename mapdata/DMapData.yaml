@@ -1,5 +1,0 @@
-image: DMapData.pgm
-resolution: 0.050000
-origin: [-100.000000, -100.000000, -100.000000]
-occupied_thresh: 0.65
-free_thresh: 0.196
