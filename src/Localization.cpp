@@ -46,13 +46,13 @@ public:
 private:
 };
 
-const int N = 10;
+const int N = 1000;
 double init_x = 0.0;
 double init_y = 0.0;
 double init_yaw = 0.0;
-double x_cov = 2.0;
-double y_cov = 2.0;
-double yaw_cov = 1.0;
+double x_cov = 0.5;
+double y_cov = 0.5;
+double yaw_cov = 0.5;
 double Max_Range = 20;
 double w_slow = 0.0;
 double w_fast = 0.0;
@@ -249,14 +249,65 @@ int main(int argc, char** argv)
 			{
 				w_fast += a_fast*(w_ave - w_fast);
 			}
+			
+			//resampling step
+			int index = rand1(mt) * N;
+			double beta = 0;
+			double w;
 
+			std::vector<Particle> New_Particles;
 
+			w = 1 - (w_fast / w_slow);
 
+			if(w<0)
+			{
+				w =0;
+			}
 
+			for(int i=0;i<N;i++)
+			{
+				if(w < rand1(mt))
+				{
+					beta += rand1(mt) * 2 * Particles[max_index].weight;
+						while(beta > Particles[index].weight)
+						{
+							beta -= Particles[index].weight;
+							index = (index+1) % N;
+						}
 
-				
+					New_Particles.push_back(Particles[index]);
+				}
 
-			estimated_pose = current_pose;
+				else
+				{
+					Particle p;
+					p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation));
+					New_Particles.push_back(p);
+				}
+			}
+			
+			Particles = New_Particles;
+
+			double sum_x = 0;
+			double sum_y = 0;
+			double sum_yaw = 0;
+			
+			for(int i=0;i<N;i++)
+			{
+				poses.poses[i] = Particles[i].pose.pose;
+				sum_x += Particles[i].pose.pose.position.x;
+				sum_y += Particles[i].pose.pose.position.y;
+				sum_yaw += Get_Yaw(Particles[i].pose.pose.orientation);
+			}
+
+			sum_x /= N;
+			sum_y /= N;
+			sum_yaw /= N;
+
+			estimated_pose.pose.position.x = sum_x;
+			estimated_pose.pose.position.y = sum_y;
+			quaternionTFToMsg(tf::createQuaternionFromYaw(sum_yaw), estimated_pose.pose.orientation);
+
 			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
 			_estimated_pose.pose.pose = estimated_pose.pose;
 			_estimated_pose.header = estimated_pose.header;
@@ -400,11 +451,6 @@ double calc_range(double p_x, double p_y, double yaw)
 	return Max_Range;
 }
 
-
-
-
-
-
 void Particle::p_init(double x, double y, double theta)
 {
     do{
@@ -431,14 +477,6 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     pose.pose.position.y += dist * sin(yaw) + rand_nomal(0.0, y_cov);
     quaternionTFToMsg(tf::createQuaternionFromYaw(yaw + dyaw + rand_nomal(0.0, yaw_cov)), pose.pose.orientation);
 	
-	geometry_msgs::Pose particle_pose;
-	
-	particle_pose.position.x = pose.pose.position.x;
-	particle_pose.position.y = pose.pose.position.y;
-	particle_pose.position.z = 0.0;
-	quaternionTFToMsg(tf::createQuaternionFromYaw(Get_Yaw(pose.pose.orientation)), particle_pose.orientation);
-
-	poses.poses[i] = particle_pose;
 }
 
 void Particle::measurement_update()
