@@ -75,10 +75,6 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
     {
         Particle p;
 		p.p_init(init_x, init_y, init_yaw);
-		ROS_INFO("%f", p.pose.pose.position.x);
-		ROS_INFO("%f", p.pose.pose.position.y);
-		ROS_INFO("%f", tf::getYaw(p.pose.pose.orientation));
-		ROS_INFO("\n");
 
 		geometry_msgs::Pose particle_pose;
 
@@ -285,28 +281,28 @@ int main(int argc, char** argv)
 					New_Particles.push_back(p);
 				}
 			}
-			
+		
+			double est_yaw;
+			est_yaw = Get_Yaw(Particles[max_index].pose.pose.orientation);
+
 			Particles = New_Particles;
 
 			double sum_x = 0;
 			double sum_y = 0;
-			double sum_yaw = 0;
 			
 			for(int i=0;i<N;i++)
 			{
 				poses.poses[i] = Particles[i].pose.pose;
 				sum_x += Particles[i].pose.pose.position.x;
 				sum_y += Particles[i].pose.pose.position.y;
-				sum_yaw += Get_Yaw(Particles[i].pose.pose.orientation);
 			}
 
 			sum_x /= N;
 			sum_y /= N;
-			sum_yaw /= N;
 
 			estimated_pose.pose.position.x = sum_x;
 			estimated_pose.pose.position.y = sum_y;
-			quaternionTFToMsg(tf::createQuaternionFromYaw(sum_yaw), estimated_pose.pose.orientation);
+			quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
 
 			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
 			_estimated_pose.pose.pose = estimated_pose.pose;
