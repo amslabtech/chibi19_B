@@ -60,6 +60,10 @@ double sigma = 3.0;
 double a_slow = 0.01;
 double a_fast = 0.1;
 double range_count = 3;
+double a_1 = 0.5;
+double a_2 = 0.5;
+double a_3 = 0.5;
+double a_4 = 0.5;
 
 
 std::vector<Particle> Particles;
@@ -172,12 +176,13 @@ int main(int argc, char** argv)
 	current_pose.pose.position.x = 0.0;
 	current_pose.pose.position.y = 0.0;
 	quaternionTFToMsg(tf::createQuaternionFromYaw(0), current_pose.pose.orientation);
+	previous_pose = current_pose;
 
 	ros::Rate rate(10.0);
 
 	while(ros::ok())
 	{
-		if(map_get)// && !laser.ranges.empty())
+		if(map_get && !laser.ranges.empty())
 		{
 			estimated_pose.header.frame_id = "map";
 			poses.header.frame_id = "map";
@@ -194,9 +199,9 @@ int main(int argc, char** argv)
 			{
 				ROS_ERROR("%s", ex.what());
 				ros::Duration(1.0).sleep();
+				ROS_INFO("Erorr! No.1");
 			}
 
-			previous_pose = current_pose;
 			current_pose.pose.position.x = transform.getOrigin().x();
 			current_pose.pose.position.y = transform.getOrigin().y();
 			quaternionTFToMsg(transform.getRotation(), current_pose.pose.orientation);
@@ -289,20 +294,23 @@ int main(int argc, char** argv)
 
 			double sum_x = 0;
 			double sum_y = 0;
-			
+			double sum_yaw = 0;
+
 			for(int i=0;i<N;i++)
 			{
 				poses.poses[i] = Particles[i].pose.pose;
 				sum_x += Particles[i].pose.pose.position.x;
 				sum_y += Particles[i].pose.pose.position.y;
+				sum_yaw += Get_Yaw(Particles[i].pose.pose.orientation);
 			}
 
 			sum_x /= N;
 			sum_y /= N;
+			sum_yaw /= N;
 
 			estimated_pose.pose.position.x = sum_x;
 			estimated_pose.pose.position.y = sum_y;
-			quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
+			quaternionTFToMsg(tf::createQuaternionFromYaw(sum_yaw), estimated_pose.pose.orientation);
 
 			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
 			_estimated_pose.pose.pose = estimated_pose.pose;
@@ -326,11 +334,14 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Error!" << std::endl;
 				std::cout << ex.what() << std::endl;
+				ROS_INFO("Erorr! No.2");
 			}
 
 		}
 		ros::spinOnce();
 		rate.sleep();
+
+		previous_pose = current_pose;
 	}
     
 	return 0;
@@ -460,19 +471,32 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 {
     double dx,dy,dyaw;
     double delta;
-    double dist;  
+	double yaw = Get_Yaw(pose.pose.orientation);
 
-	double yaw = Get_Yaw(pose.pose.orientation); 
-
+	double del_rot1, del_rot2, del_trans;
+	double del_rot1_hat, del_rot2_hat, del_trans_hat;
+	double del_rot1_noise, del_rot2_noise;
     dx = current.pose.position.x - previous.pose.position.x;
     dy = current.pose.position.y - previous.pose.position.y;
     dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
-    dist = sqrt(dx*dx + dy*dy);
 
-    pose.pose.position.x += dist * cos(yaw) + rand_nomal(0.0, x_cov);
-    pose.pose.position.y += dist * sin(yaw) + rand_nomal(0.0, y_cov);
-    quaternionTFToMsg(tf::createQuaternionFromYaw(yaw + dyaw + rand_nomal(0.0, yaw_cov)), pose.pose.orientation);
+	if(dx*dx + dy*dy<0.01)
+		del_rot1 = 0;
+	else
+		del_rot1 = cul_angle_diff(atan2(dy,dx), Get_Yaw(previous.pose.orientation));
+	del_trans = sqrt(dx*dx + dy*dy);
+	del_rot2 = cul_angle_diff(dyaw, del_rot1);
 	
+	del_rot1_noise = std::min(fabs(cul_angle_diff(del_rot1, 0.0)),fabs(cul_angle_diff(del_rot1, M_PI)));
+	del_rot2_noise = std::min(fabs(cul_angle_diff(del_rot2, 0.0)),fabs(cul_angle_diff(del_rot2, M_PI)));
+	
+	del_rot1_hat = cul_angle_diff(del_rot1, rand_nomal(0.0, a_1*del_rot1_noise*del_rot1_noise - a_2*del_trans*del_trans));
+	del_trans_hat = del_trans - rand_nomal(0.0, a_3*del_trans*del_trans + a_4*del_rot1_noise*del_rot1_noise + a_4*del_rot2_noise*del_rot2_noise);
+	del_rot2_hat = cul_angle_diff(del_rot2, rand_nomal(0.0, a_1*del_rot2_noise*del_rot2_noise - a_2*del_trans*del_trans));
+
+    pose.pose.position.x += del_trans_hat * cos(yaw + del_rot1_hat);
+    pose.pose.position.y += del_trans_hat * sin(yaw + del_rot1_hat);
+    quaternionTFToMsg(tf::createQuaternionFromYaw(yaw + del_rot1_hat + del_rot2_hat), pose.pose.orientation);
 }
 
 void Particle::measurement_update()
