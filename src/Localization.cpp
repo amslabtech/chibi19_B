@@ -46,7 +46,7 @@ public:
 private:
 };
 
-const int N = 1000;
+const int N = 500;
 double init_x = 0.0;
 double init_y = 0.0;
 double init_yaw = 0.0;
@@ -177,7 +177,7 @@ int main(int argc, char** argv)
 	current_pose.pose.position.y = 0.0;
 	quaternionTFToMsg(tf::createQuaternionFromYaw(0), current_pose.pose.orientation);
 	previous_pose = current_pose;
-
+	estimated_pose = current_pose;
 	ros::Rate rate(10.0);
 
 	while(ros::ok())
@@ -294,23 +294,20 @@ int main(int argc, char** argv)
 
 			double sum_x = 0;
 			double sum_y = 0;
-			double sum_yaw = 0;
 
 			for(int i=0;i<N;i++)
 			{
 				poses.poses[i] = Particles[i].pose.pose;
 				sum_x += Particles[i].pose.pose.position.x;
 				sum_y += Particles[i].pose.pose.position.y;
-				sum_yaw += Get_Yaw(Particles[i].pose.pose.orientation);
 			}
 
 			sum_x /= N;
 			sum_y /= N;
-			sum_yaw /= N;
 
 			estimated_pose.pose.position.x = sum_x;
 			estimated_pose.pose.position.y = sum_y;
-			quaternionTFToMsg(tf::createQuaternionFromYaw(sum_yaw), estimated_pose.pose.orientation);
+			quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
 
 			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
 			_estimated_pose.pose.pose = estimated_pose.pose;
