@@ -18,6 +18,7 @@
 #define speed_cost_gain 1.0
 #define robot_radius 1.0
 
+const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment;
 
 struct State{
 	float x;
@@ -36,6 +37,13 @@ struct Goal{
 	float x;
 	float y;
 };
+
+struct LaserData{
+	float angle;
+	float range;
+};
+
+LaserData Ldata[N];
 
 void motion(State roomba, Speed u){
 	roomba.yaw += u.omega * dt;
@@ -90,31 +98,33 @@ double calc_speed_cost(std::vector<State>traj){
 	return speed_cost_gain * error_speed;
 };
 
-/*double calc_obstacle_cost(std::vector<State>traj, Goal goal){
+double calc_obstacle_cost(State roomba, std::vector<State>traj, Goal goal){
 	
 	int skip_i = 2;
-	int skip_j = 10;
+	int skip_j = 20;
 	float min_r = std::numeric_limits<float>::infinity();
 	float infinity = std::numeric_limits<float>::infinity();
-
-	sensor_msgs::LaserScan _msg = *msg;
-
-	const int N = int((_msg.angle_max - _msg.amgle_min) / _msg.angle_increment);
 	
-	float x;
-	float y;
-	float r_roomba;
+	float x_traj;
+	float y_traj;
+	float x_roomba = roomba.x;
+	float y_roomba= roomba.y;
+	float r;
 	float angle_obstacle; 
 	float range_obstacle;
+	float x_obstacle;
+	float y_obstacle;
 
 	for(int i = 0;i < traj.size();i += skip_i){
-		x = traj[i].x;
-		y = traj[i].y;
+		x_traj = traj[i].x;
+		y_traj = traj[i].y;
 		
 		for(int j = 0;j < N;j += skip_j){
-			angle_obstacle = _msg.angle_min + j*_msg.angle_increment;
-			range_obstacle = _msg.ranges[j];
-
+			angle_obstacle = Ldata[j].angle;
+			range_obstacle = Ldata[j].range;
+			x_obstacle = x_roomba + range_obstacle * std::cos(angle_obstacle);
+			y_obstacle = y_roomba + range_obstacle * std::sin(angle_obstacle);
+			r = std::sqrt(pow(x_obstacle - x_traj, 2.0) + pow(y_obstacle - y_traj, 2.0));
 
 			if(r <= robot_radius){
 				return infinity;
@@ -127,7 +137,7 @@ double calc_speed_cost(std::vector<State>traj){
 	}
 
 	return 1.0 / min_r;
-}*/
+}
 
 void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 
@@ -146,7 +156,7 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 	
 			to_goal_cost = calc_to_goal_cost(traj, goal);
 			speed_cost = calc_speed_cost(traj);
-			//ob_cost = calc_obstacle_cost(traj, goal);
+			ob_cost = calc_obstacle_cost(roomba, traj, goal);
 
 			final_cost = to_goal_cost + speed_cost + ob_cost;
 
@@ -166,6 +176,16 @@ void dwa_control(State roomba, Speed u, Goal goal,float dw[]){
 	calc_final_input(roomba, u, dw, goal);
 };
 
+void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
+{
+    sensor_msgs::LaserScan _msg = *msg;
+
+    for(int i=0; i<N; i++){
+        Ldata[i].angle = _msg.angle_min + i*_msg.angle_increment;
+        Ldata[i].range = _msg.ranges[i];
+    }
+}
+
 int main(int argc, char **argv)
 {
 	printf("start");
@@ -179,8 +199,15 @@ int main(int argc, char **argv)
 	Speed u = {0.0, 0.0};
 	float dw[] = {0.0, 0.0, 0.0, 0.0};
 	
+	ros::NodeHandle roomba_ctrl_pub;
+	ros::NodeHandle scan_laser_sub;
+	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);
+	ros::Subscriber laser_sub = scan_laser_sub.subscribe("scan", 1, lasercallback);
+	ros::Rate loop_rate(10);
+
 	while(ros::ok())
 	{
+	ros::spinOnce();
 	dwa_control(roomba, u, goal, dw);
 	motion(roomba, u);
 
@@ -190,6 +217,7 @@ int main(int argc, char **argv)
 			msg.mode = 0;
 			break;
 		}
+	loop_rate.sleep();
 	}
 	
 	return 0;
