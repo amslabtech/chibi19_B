@@ -258,3 +258,5 @@ add_dependencies(Localization chibi19_b_generate_messages_cpp)
 add_executable(global_path_planning src/global_path_planning.cpp)
 target_link_libraries(global_path_planning ${catkin_LIBRARIES})
 
+add_executable(DWA src/DWA.cpp)
+target_link_libraries(DWA ${catkin_LIBRARIES})
