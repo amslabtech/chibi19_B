@@ -5,7 +5,7 @@
 #include "math.h"
 #include <tf/tf.h>
 
-#define max_speed 1.0
+#define max_speed 0.40
 #define min_speed -0.5
 #define max_yawrate 1.0
 #define max_accel 0.2
@@ -16,7 +16,9 @@
 #define predict_time 3.0
 #define to_goal_cost_gain 1.0
 #define speed_cost_gain 1.0
-#define robot_radius 1.0
+#define robot_radius 0.19
+#define roomba_v_gain 0.1
+#define roomba_omega_gain 0.1
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment;
 
@@ -167,6 +169,7 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 			}
 		}
 	}
+	u = min_u;
 };
 
 void dwa_control(State roomba, Speed u, Goal goal,float dw[]){
@@ -209,7 +212,15 @@ int main(int argc, char **argv)
 	{
 	ros::spinOnce();
 	dwa_control(roomba, u, goal, dw);
-	motion(roomba, u);
+	//motion(roomba, u);
+	roomba.yaw += u.omega * dt;
+	roomba.x += u.v * std::cos(roomba.yaw) * dt;
+	roomba.y += u.v * std::sin(roomba.yaw) * dt;
+	roomba.v = u.v;
+	roomba.omega = u.omega;
+
+	msg.cntl.linear.x = roomba.v * roomba_v_gain;
+	msg.cntl.angular.z = roomba.omega * roomba_omega_gain;
 
 	//check goal
 	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
