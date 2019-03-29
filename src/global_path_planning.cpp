@@ -1,8 +1,29 @@
 #include "ros/ros.h"
+#include "nav_msgs/Path.h"
+#include "nav_msgs/OccupancyGrid.h"
+#include "nav_msgs/MapMetaData.h"
+#include "nav_msgs/Path.h"
+#include "geometry_msgs/PointStamped.h"
+#include "geometry_msgs/PoseStamped.h"
+#include <tf/transform_listener.h>
 
-const int row = 5;
-const int column = 6;
+//(21.18,19.76,0.01)
+
+const int row = 4000;
+const int column = 4000;
+int grid[row][column];
 const int direction = 8;
+float px[row*column];
+float py[row*column];
+
+int heuristic_grid[row][column];
+float cost_grid[row][column] = {-1};
+int temporary_path[row*column][3];
+
+
+geometry_msgs::PoseStamped path_point;
+nav_msgs::Path global_path;
+
 
 int delta[direction][2] = {{-1,0,},
 					{-1,-1},
@@ -120,10 +141,37 @@ void show_cost_grid(int array[row][column]){
 	printf("\n");
 }
 
-int search(const int grid[row][column],const int heuristic_grid[row][column],
-	float cost_grid[row][column], int temporary_path[][3], const int init[2],const int goal[2])
+int count_map(){
+	int ccount=0;
+	for(int i=0;i<row;i++){
+		for(int j=0;j<column;j++){
+			if(grid[i][j] == 0) {
+				//printf("% d ", grid[i][j]);
+				ccount++;
+			}
+		}
+	}
+	return ccount;
+}
+
+void to_gridnum(float x,float y,int goal[2]){
+	goal[0] = (100.0-y)*(20.0);
+	goal[1] = (100.0+x)*(20.0);
+	if(goal[0] > row-1 || goal[0] < 0 || goal[1] > column-1 || goal[1] < 0)
+		printf("error.\n(to_gridnum)");
+}
+
+void to_coordnum(int gy,int gx, float &x,float &y){
+     x = ((float)gx - 2000.0) / 20.0;
+	 y = (2000.0 - (float)gy) / 20.0;
+     
+     if(x > 100 || x < -100 || y > 100 || y < -100)
+         printf("error.\n(to_coordnum)");
+}
+
+int search(const int init[2],const int goal[2])
 {
-	int move_history[row*column][2];
+	static int move_history[row*column][2];
 	int selected_move = 0;
 	int a[direction]= {-1};
 	int eight_cost[direction];
@@ -145,7 +193,7 @@ int search(const int grid[row][column],const int heuristic_grid[row][column],
 		for(int i=0;i<direction;i++){
 			if(-1<(x+delta[i][1]) && column>(x+delta[i][1]) && -1<(y+delta[i][0]) && row>(y+delta[i][0])){
 				eight_cost[i] = cost_grid[y+delta[i][0]][x+delta[i][1]];
-				if(grid[y+delta[i][0]][x+delta[i][1]] != 1){
+				if(grid[y+delta[i][0]][x+delta[i][1]] == 0){
 					if(cost_grid[y+delta[i][0]][x+delta[i][1]] < 0)
 						a[i] = heuristic_grid[y+delta[i][0]][x+delta[i][1]];
 					else a[i] = -1;
@@ -190,42 +238,79 @@ int search(const int grid[row][column],const int heuristic_grid[row][column],
 	}
 }
 
-int set_path(int temporary_path[][3], int result_path[][3],int step)
+void mapmetadata_sub_callback(const nav_msgs::MapMetaData::ConstPtr& msg)
 {
-	for(int i=0;i<step;i++){
-		result_path[i][0] = temporary_path[i][0];
-		result_path[i][1] = temporary_path[i][1];
-		result_path[i][2] = temporary_path[i][2];
-		printf("path = [%3d,%3d,%3d]\n",result_path[i][0],result_path[i][1],result_path[i][2]);
+	nav_msgs::MapMetaData _msg = *msg;
+	ROS_INFO("width:%6d height:%6d",_msg.width,_msg.height);
+}
+
+void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
+{
+	int count = 0;
+	int ccc=0;
+	nav_msgs::OccupancyGrid _msg = *msg;
+	ROS_INFO("map received.");
+	for(int i=row-1;i>-1;i--){
+		for(int j=0;j<column;j++){
+			grid[i][j] = _msg.data[count];
+			count++;
+			if(grid[i][j] == 0) ccc++;
+		}
+	}
+	ROS_INFO("ccc = %d",ccc);
+	global_path.header.frame_id = "map";
+	fset_all(cost_grid,-1);
+	int init[2] = {2000,2000};
+	int goal[2];// = {1695,2030};
+	to_gridnum(19.15,19.15,goal);  //(21.18,19.76,goal);
+
+	int x,y;
+
+	set_heuristic(heuristic_grid,goal);
+
+	int step = search(init,goal) + 1;
+
+    for(int i=0;i<step;i++){
+         to_coordnum(temporary_path[i][0],temporary_path[i][1],px[i],py[i]);
+
+         path_point.pose.position.x = px[i];
+         path_point.pose.position.y = py[i];
+         path_point.pose.position.z = 0;
+         path_point.pose.orientation=tf::createQuaternionMsgFromYaw(0);
+
+         global_path.poses.push_back(path_point);
 	}
 
 }
+
+void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
+{
+	geometry_msgs::PointStamped _msg = *msg;
+	ROS_INFO("%.2f,%.2f,%.2f",_msg.point.x,_msg.point.y,_msg.point.z);
+}
 	
 
-int main(void){
-	
-	int grid[row][column] = {{0, 1, 0, 0, 0, 0},
-							 {0, 0, 0, 1, 1, 0},
-							 {0, 1, 0, 1, 1, 0},
-							 {1, 1, 0, 1, 1, 0},
-							 {0, 0, 0, 0, 1, 0}};
-	
+int main(int argc, char **argv)
+{
+	ros::init(argc, argv, "global_path_planning");
+	ros::NodeHandle path;
+	ros::Publisher path_pub = path.advertise<nav_msgs::Path>("chibi19_b/global_path", 1);
 
-	int heuristic_grid[row][column];
-	float cost_grid[row][column];
-	int temporary_path[row*column][3];
-	fset_all(cost_grid,-1);
-	
-	const int init[2] = {0,0};
-	const int goal[2] = {4,5};
-	
-	set_heuristic(heuristic_grid,goal);
-	
-	const int step = search(grid, heuristic_grid,cost_grid,temporary_path,init,goal) + 1;
-	int result_path[step][3];
+	ros::NodeHandle map_metadata;
+	ros::NodeHandle map;
+	ros::NodeHandle click;
+	ros::Subscriber map_meatadata_sub = map_metadata.subscribe("map_metadata",1,mapmetadata_sub_callback);
+	ros::Subscriber map_sub = map.subscribe("map",1,map_sub_callback);
+	ros::Subscriber click_sub = click.subscribe("clicked_point",1,click_callback);
+	ros::Rate loop_rate(0.5);
 
-	set_path(temporary_path, result_path, step);
-	printf("grid = \n"); show_array(grid);
-	//printf("heuristic_grid = \n"); show_array(heuristic_grid);
-	printf("cost_grid = \n"); show_farray(cost_grid);
+	while (ros::ok()){
+         printf("count = %d\n" ,count_map());
+         //msg.poses[].pose.position.x
+         ROS_INFO("x,y =(%.2f, %.2f) \n", path_point.pose.position.x,path_point.pose.position.y);
+         path_pub.publish(global_path);
+         ros::spinOnce();
+         loop_rate.sleep();
+	}
+
 }
