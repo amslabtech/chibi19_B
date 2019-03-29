@@ -25,8 +25,9 @@ int main(int argc, char **argv)
     int count = 0;
     float buf_theta = 0.0;
     float omega_sum = 0.0;
+    float omega = 0.0;
 
-    ofstream change_x("/home/amsl/Desktop/omega.txt");
+    ofstream outputfile("/home/amsl/Desktop/omega.txt");
     ros::init(argc, argv, "roatation");
     ros::NodeHandle roomba_ctrl_pub;
     ros::NodeHandle roomba_odometry_sub;
@@ -58,7 +59,7 @@ int main(int argc, char **argv)
                 buf_theta = theta;
                 if(msg.cntl.angular.z > 1.00){
                     count=0;
-                    ROS_INFO("theata : %d", theata * 180 / M_PI);
+                    ROS_INFO("theta : %f", theta * 180 / M_PI);
                     status++;
                 }
                 break;

@@ -25,6 +25,7 @@ int main(int argc, char **argv)
     int count = 0;
     float buf_rundist = 0.0;
     float speed_sum = 0.0;
+    float speed = 0.0;
 
     ofstream outputfile("/home/amsl/Desktop/speed.txt");
     ros::init(argc, argv, "roatation");
@@ -54,7 +55,7 @@ int main(int argc, char **argv)
                 buf_rundist = rundist;
                 if(msg.cntl.linear.x > 1.00){
                     count=0;
-                    ROS_INFO("dist : %d", rundist);
+                    ROS_INFO("dist : %f", rundist);
                     status++;
                 }
                 break;
