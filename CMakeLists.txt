@@ -263,3 +263,6 @@ target_link_libraries(DWA ${catkin_LIBRARIES})
 
 add_executable(laser_test src/laser_test.cpp)
 target_link_libraries(laser_test ${catkin_LIBRARIES})
+
+add_executable(test_speed_accel src/test_speed_accel.cpp)
+target_link_libraries(test_speed_accel ${catkin_LIBRARIES})
