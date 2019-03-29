@@ -260,3 +260,6 @@ target_link_libraries(global_path_planning ${catkin_LIBRARIES})
 
 add_executable(DWA src/DWA.cpp)
 target_link_libraries(DWA ${catkin_LIBRARIES})
+
+add_executable(laser_test src/laser_test.cpp)
+target_link_libraries(laser_test ${catkin_LIBRARIES})
