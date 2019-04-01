@@ -57,13 +57,13 @@ double Max_Range = 20;
 double w_slow = 0.0;
 double w_fast = 0.0;
 double sigma = 3.0;
-double a_slow = 0.01;
+double a_slow = 0.001;
 double a_fast = 0.1;
 double range_count = 3;
-double a_1 = 0.5;
-double a_2 = 0.5;
-double a_3 = 0.5;
-double a_4 = 0.5;
+double a_1 = 0.3;
+double a_2 = 0.3;
+double a_3 = 0.1;
+double a_4 = 0.1;
 
 
 std::vector<Particle> Particles;
@@ -498,18 +498,42 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 void Particle::measurement_update()
 {
 	double range_diff = 0;
-	double p;
-	double range_diff_sum = 0; 
+	double p = 1.0;
+	double pz;
+	double map_range; 
 	double angle;
+
+	double z_short = 0.1;
+	double z_hit = 0.7;
+	double z_max = 0.1;
+	double z_random = 0.1;
 
 	for(int i=0;i<laser.ranges.size();i+=range_count)
 	{
 		angle = i*laser.angle_increment - M_PI / 2;
-		range_diff += laser.ranges[i] - calc_range(pose.pose.position.x, pose.pose.position.y, Get_Yaw(pose.pose.orientation)+angle);
-		range_diff_sum += range_diff * range_diff;
+		map_range = calc_range(pose.pose.position.x, pose.pose.position.y, Get_Yaw(pose.pose.orientation)+angle);
+		range_diff += laser.ranges[i] - map_range;
+		pz = 0.0;
+
+		pz += exp(-1*(range_diff)/(2 * sigma* sigma)); 
+
+		if(range_diff < 0)
+		{
+			pz += z_short * exp(-z_short * map_range);
+		}
+
+		if(map_range == Max_Range)
+		{
+			pz += z_max * 1.0;
+		}
+
+		if(map_range < Max_Range)
+		{
+			pz += z_random * 1.0 / Max_Range;
+		}
+
+		p += pow(pz,3);
 	}
 
-	p = exp(-1*(range_diff_sum)/(2 * sigma* sigma));
-
-	weight = p;
+	weight *= p;
 }
