@@ -199,7 +199,6 @@ int main(int argc, char** argv)
 			{
 				ROS_ERROR("%s", ex.what());
 				ros::Duration(1.0).sleep();
-				ROS_INFO("Erorr! No.1");
 			}
 
 			current_pose.pose.position.x = transform.getOrigin().x();
@@ -277,6 +276,7 @@ int main(int argc, char** argv)
 						}
 
 					New_Particles.push_back(Particles[index]);
+					ROS_INFO("Check");
 				}
 
 				else
@@ -331,7 +331,6 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Error!" << std::endl;
 				std::cout << ex.what() << std::endl;
-				ROS_INFO("Erorr! No.2");
 			}
 
 		}
@@ -512,5 +511,5 @@ void Particle::measurement_update()
 
 	p = exp(-1*(range_diff_sum)/(2 * sigma* sigma));
 
-	weight *= p;
+	weight = p;
 }
