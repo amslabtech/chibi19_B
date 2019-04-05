@@ -9,6 +9,7 @@
 
 const int row = 4000;
 const int column = 4000;
+int search_count=0;
 
 const int d = 8;//houkousyurui
 
@@ -24,9 +25,11 @@ float delta_cost[d] = {1.0,sqrtf(2.0),1.0,sqrtf(2.0),1.0,sqrtf(2.0 ),1.0,sqrtf(2
 
 int grid[row][column];
 int open_grid[row][column];
+int close_grid[row][column];
 int heuristic[row][column];
 
 nav_msgs::Path global_path;
+nav_msgs::Path connect_path;
 
 struct Point
 {
@@ -76,7 +79,6 @@ void show_farray(float array[row][column]){
      printf("]\n");
 }
 
-
 void set_heuristic(int array[row][column],const int goal[2]){
     array[goal[0]][goal[1]] = 0;
     for(int i=0;i<row;i++){
@@ -108,7 +110,6 @@ void get_param(Point p,float &cost,float &gvalue,int &x,int &y,int &direction)
 	direction = p.direction;
 }
 
-
 int search(const int init[2],const int goal[2])
 {
 	int x,y,x2,y2,direction,direction2;
@@ -125,8 +126,8 @@ int search(const int init[2],const int goal[2])
 
 	set_heuristic(heuristic,goal);
 	set_all(open_grid);
-	open_grid[x][y] = 10;
-
+	set_all(close_grid);
+	open_grid[y][x] = 10;
 
 	for(int step=0; step<row*column; step++){
 		if (open_Point.size() < 1){
@@ -137,21 +138,26 @@ int search(const int init[2],const int goal[2])
 		std::sort(open_Point.begin(),open_Point.end());
 		get_param(open_Point[open_Point.size()-1],cost,gvalue,x,y,direction);
 		open_Point.pop_back();
+		close_grid[y][x] = 1;
+		open_grid[y][x] = (direction+4)%8;
 		for(int i=0;i<d;i++){
-			x2 = x + delta[i][1];
-			y2 = y + delta[i][0];
-			if(x2<column && x2>-1 && y2<row && y2>-1){
-				if(open_grid[y2][x2] < 0 && grid[y2][x2] == 0){
-					gvalue2 = gvalue + delta_cost[i];
-					cost2 = gvalue2 + heuristic[y2][x2];
-					open_grid[y2][x2] = (i+4)%8;
-					open_Point.push_back(make_Point(cost2,gvalue2,x2,y2,i));
-					if(heuristic[y2][x2] == 0){
-						//printf("success!!\n");
-						i=d;
-						step = row*column;
-						ROS_INFO("success");
-						break;
+			direction2 = (direction+4)%8;
+			if(i != direction2){
+				x2 = x + delta[i][1];
+				y2 = y + delta[i][0];
+				if(x2<column && x2>-1 && y2<row && y2>-1){
+					if(close_grid[y2][x2] < 0 && grid[y2][x2] == 0){
+						gvalue2 = gvalue + delta_cost[i];
+						cost2 = gvalue2 + heuristic[y2][x2];
+						//open_grid[y2][x2] = (i+4)%8;
+						open_Point.push_back(make_Point(cost2,gvalue2,x2,y2,i));
+						if(heuristic[y2][x2] == 0){
+							open_grid[y2][x2] = (i+4)%8;
+							i=d;
+							step = row*column;
+							ROS_INFO("success");
+							break;
+						}
 					}
 				}
 			}
@@ -182,6 +188,7 @@ void get_path(int goal[2])
 	int direction;
 	float x,y;
 	geometry_msgs::PoseStamped path_point;
+	connect_path.poses.clear();
 
 	for(int i = 0;i<row*column;i++){
 		to_coordnum(gx,gy,x,y);
@@ -191,7 +198,7 @@ void get_path(int goal[2])
         path_point.pose.position.z = 0;
         path_point.pose.orientation=tf::createQuaternionMsgFromYaw(0);
 
-		global_path.poses.push_back(path_point);
+		connect_path.poses.push_back(path_point);
 
 		direction = open_grid[gy][gx];
 		if(direction < d && direction > -1){
@@ -200,6 +207,9 @@ void get_path(int goal[2])
 		}
 		else break;
 	}
+	std::reverse(connect_path.poses.begin(),connect_path.poses.end());
+	global_path.poses.insert(global_path.poses.end(),connect_path.poses.begin(),connect_path.poses.end());
+	ROS_INFO("get finish");
 }
 
 void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
@@ -218,7 +228,7 @@ void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
     int goal[2];// = {1695,2030};
     
     to_gridnum(0,0,init);  //(21.18,19.76,goal);
-    to_gridnum(-8.50,-2.57,goal);  //(21.18,19.76,goal);
+    to_gridnum(16.08,-0.24,goal);  //(21.18,19.76,goal);
 
 	search(init,goal);
 	get_path(goal);
@@ -226,10 +236,21 @@ void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 
 
 void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
- {
-     geometry_msgs::PointStamped _msg = *msg;
-     ROS_INFO("%.2f,%.2f,%.2f",_msg.point.x,_msg.point.y,_msg.point.z);
- }
+{
+	int init[2];
+	int goal[2];
+	float x = global_path.poses[global_path.poses.size()-1].pose.position.x;
+	float y = global_path.poses[global_path.poses.size()-1].pose.position.y;
+
+    geometry_msgs::PointStamped _msg = *msg;
+    ROS_INFO("%.2f,%.2f,%.2f",_msg.point.x,_msg.point.y,_msg.point.z);
+    ROS_INFO("%.2f,%.2f",x,y);
+
+	to_gridnum(x,y,init);
+	to_gridnum(_msg.point.x,_msg.point.y,goal);
+	search(init,goal);
+	get_path(goal);
+}
 
 
 int main(int argc, char **argv)
@@ -241,15 +262,12 @@ int main(int argc, char **argv)
     ros::Subscriber map_sub = map.subscribe("map",1,map_sub_callback);
     ros::Subscriber click_sub = click.subscribe("clicked_point",1,click_callback);
     ros::Publisher path_pub = path.advertise<nav_msgs::Path>("chibi19_b/global_path", 1);
-    ros::Rate loop_rate(0.5);
+    ros::Rate loop_rate(0.2);
 
-	
 	while (ros::ok()){
           path_pub.publish(global_path);
+		  ROS_INFO("path is published");
           ros::spinOnce();
           loop_rate.sleep();
-     }
-	
-
-
+    }
 }
