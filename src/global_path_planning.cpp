@@ -7,6 +7,7 @@
 #include "geometry_msgs/PoseStamped.h"
 #include <tf/transform_listener.h>
 
+
 const int row = 4000;
 const int column = 4000;
 int search_count=0;
@@ -224,14 +225,17 @@ void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
         }
     }
     global_path.header.frame_id = "map";
+
+	
     int init[2];
     int goal[2];// = {1695,2030};
     
     to_gridnum(0,0,init);  //(21.18,19.76,goal);
-    to_gridnum(16.08,-0.24,goal);  //(21.18,19.76,goal);
+    to_gridnum(0.1,0.1,goal);  //(21.18,19.76,goal);
 
 	search(init,goal);
 	get_path(goal);
+	
 }
 
 
