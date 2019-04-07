@@ -314,6 +314,9 @@ int main(int argc, char** argv)
 				estimated_pose.pose.position.y = sum_y;
 				quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
 				}
+
+			update_flag = false;
+			
 			}
 
 			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
