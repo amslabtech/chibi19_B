@@ -227,6 +227,7 @@ int main(int argc, char** argv)
 
 				double w_ave = 0.0;
 				int max_index = 0;
+
 				for(int i=0;i<N;i++)
 				{
 					w_ave += Particles[i].weight / (double)N;
@@ -235,7 +236,13 @@ int main(int argc, char** argv)
 						max_index = i;
 				}
 
-				if(w_slow == 0)
+				if(w_ave == 0.0 || std::isnan(w_ave))
+				{
+					w_ave = 1 / (double)N;
+					w_slow = w_fast = w_ave;
+				}
+
+				if(w_slow == 0.0)
 				{
 					w_slow = w_ave;
 				}
@@ -245,7 +252,7 @@ int main(int argc, char** argv)
 					w_slow += a_slow*(w_ave - w_slow);
 				}
 
-				if(w_fast == 0)
+				if(w_fast == 0.0)
 				{
 					w_fast = w_ave;
 				}
@@ -486,7 +493,7 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
 
 	motion_log += dx*dx + dy*dy;
-	yaw_log += dyaw;
+	yaw_log += fabs(dyaw);
 
 	if(motion_log > 0.2 || yaw_log >0.15)
 	{
