@@ -30,6 +30,7 @@ geometry_msgs::PoseArray poses;
 sensor_msgs::LaserScan laser;
 
 bool map_get = false;
+bool update_flag = false;
 
 class Particle
 {
@@ -64,6 +65,9 @@ double a_1 = 0.3;
 double a_2 = 0.3;
 double a_3 = 0.1;
 double a_4 = 0.1;
+
+double motion_log = 0.0;
+double yaw_log  =0.0;
 
 
 std::vector<Particle> Particles;
@@ -211,103 +215,106 @@ int main(int argc, char** argv)
 				Particles[i].motion_update(current_pose, previous_pose, i);
 			}
 
-			double sum = 0;
-
-			for(int i=0;i<N;i++)
+			if(update_flag)
 			{
-				Particles[i].measurement_update();
-				sum += Particles[i].weight;
-			}
-			
-			double w_ave = 0;
-			int max_index = 0;
-			
-			for(int i=0;i<N;i++)
-			{
-				w_ave += Particles[i].weight / (double)N;
-				Particles[i].weight /= sum;
-				if(Particles[i].weight > Particles[max_index].weight)
-					max_index = i;
-			}
-
-			if(w_slow == 0)
-			{
-				w_slow = w_ave;
-			}
-
-			else
-			{
-				w_slow += a_slow*(w_ave - w_slow);
-			}
-
-			if(w_fast == 0)
-			{
-				w_fast = w_ave;
-			}
-
-			else
-			{
-				w_fast += a_fast*(w_ave - w_fast);
-			}
-			
-			//resampling step
-			int index = rand1(mt) * N;
-			double beta = 0;
-			double w;
-
-			std::vector<Particle> New_Particles;
-
-			w = 1 - (w_fast / w_slow);
-
-			if(w<0)
-			{
-				w =0;
-			}
-
-			for(int i=0;i<N;i++)
-			{
-				if(w < rand1(mt))
+				double sum = 0;
+				
+				for(int i=0;i<N;i++)
 				{
-					beta += rand1(mt) * 2 * Particles[max_index].weight;
-						while(beta > Particles[index].weight)
-						{
-							beta -= Particles[index].weight;
-							index = (index+1) % N;
-						}
+					Particles[i].measurement_update();
+					sum += Particles[i].weight;
+				}
 
-					New_Particles.push_back(Particles[index]);
-					ROS_INFO("Check");
+				double w_ave = 0.0;
+				int max_index = 0;
+				for(int i=0;i<N;i++)
+				{
+					w_ave += Particles[i].weight / (double)N;
+					Particles[i].weight /= sum;
+					if(Particles[i].weight > Particles[max_index].weight)
+						max_index = i;
+				}
+
+				if(w_slow == 0)
+				{
+					w_slow = w_ave;
 				}
 
 				else
 				{
-					Particle p;
-					p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation));
-					New_Particles.push_back(p);
+					w_slow += a_slow*(w_ave - w_slow);
+				}
+
+				if(w_fast == 0)
+				{
+					w_fast = w_ave;
+				}
+
+				else
+				{
+					w_fast += a_fast*(w_ave - w_fast);
+				}
+				
+				//resampling step
+				int index = rand1(mt) * N;
+				double beta = 0;
+				double w;
+
+				std::vector<Particle> New_Particles;
+
+				w = 1 - (w_fast / w_slow);
+
+				if(w<0)
+				{
+					w =0;
+				}
+
+				for(int i=0;i<N;i++)
+				{
+					if(w < rand1(mt))
+					{
+						beta += rand1(mt) * 2 * Particles[max_index].weight;
+							while(beta > Particles[index].weight)
+							{
+								beta -= Particles[index].weight;
+								index = (index+1) % N;
+							}
+
+						New_Particles.push_back(Particles[index]);
+						ROS_INFO("Check");
+					}
+
+					else
+					{
+						Particle p;
+						p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation));
+						New_Particles.push_back(p);
+					}
+				}
+			
+				double est_yaw;
+				est_yaw = Get_Yaw(Particles[max_index].pose.pose.orientation);
+
+				Particles = New_Particles;
+
+				double sum_x = 0;
+				double sum_y = 0;
+
+				for(int i=0;i<N;i++)
+				{
+					poses.poses[i] = Particles[i].pose.pose;
+					sum_x += Particles[i].pose.pose.position.x;
+					sum_y += Particles[i].pose.pose.position.y;
+				}
+
+				sum_x /= N;
+				sum_y /= N;
+
+				estimated_pose.pose.position.x = sum_x;
+				estimated_pose.pose.position.y = sum_y;
+				quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
 				}
 			}
-		
-			double est_yaw;
-			est_yaw = Get_Yaw(Particles[max_index].pose.pose.orientation);
-
-			Particles = New_Particles;
-
-			double sum_x = 0;
-			double sum_y = 0;
-
-			for(int i=0;i<N;i++)
-			{
-				poses.poses[i] = Particles[i].pose.pose;
-				sum_x += Particles[i].pose.pose.position.x;
-				sum_y += Particles[i].pose.pose.position.y;
-			}
-
-			sum_x /= N;
-			sum_y /= N;
-
-			estimated_pose.pose.position.x = sum_x;
-			estimated_pose.pose.position.y = sum_y;
-			quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
 
 			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
 			_estimated_pose.pose.pose = estimated_pose.pose;
@@ -333,7 +340,6 @@ int main(int argc, char** argv)
 				std::cout << ex.what() << std::endl;
 			}
 
-		}
 		ros::spinOnce();
 		rate.sleep();
 
@@ -476,10 +482,22 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     dy = current.pose.position.y - previous.pose.position.y;
     dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
 
+	motion_log += dx*dx + dy*dy;
+	yaw_log += dyaw;
+
+	if(motion_log > 0.2 || yaw_log >0.15)
+	{
+		update_flag = true;
+		motion_log = 0.0;
+		yaw_log = 0.0;
+	}
+
 	if(dx*dx + dy*dy<0.01)
 		del_rot1 = 0;
+
 	else
 		del_rot1 = cul_angle_diff(atan2(dy,dx), Get_Yaw(previous.pose.orientation));
+
 	del_trans = sqrt(dx*dx + dy*dy);
 	del_rot2 = cul_angle_diff(dyaw, del_rot1);
 	
@@ -489,10 +507,11 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 	del_rot1_hat = cul_angle_diff(del_rot1, rand_nomal(0.0, a_1*del_rot1_noise*del_rot1_noise - a_2*del_trans*del_trans));
 	del_trans_hat = del_trans - rand_nomal(0.0, a_3*del_trans*del_trans + a_4*del_rot1_noise*del_rot1_noise + a_4*del_rot2_noise*del_rot2_noise);
 	del_rot2_hat = cul_angle_diff(del_rot2, rand_nomal(0.0, a_1*del_rot2_noise*del_rot2_noise - a_2*del_trans*del_trans));
-
+	
     pose.pose.position.x += del_trans_hat * cos(yaw + del_rot1_hat);
     pose.pose.position.y += del_trans_hat * sin(yaw + del_rot1_hat);
     quaternionTFToMsg(tf::createQuaternionFromYaw(yaw + del_rot1_hat + del_rot2_hat), pose.pose.orientation);
+	
 }
 
 void Particle::measurement_update()
@@ -507,14 +526,14 @@ void Particle::measurement_update()
 	double z_hit = 0.7;
 	double z_max = 0.1;
 	double z_random = 0.1;
-
+	
 	for(int i=0;i<laser.ranges.size();i+=range_count)
 	{
 		angle = i*laser.angle_increment - M_PI / 2;
 		map_range = calc_range(pose.pose.position.x, pose.pose.position.y, Get_Yaw(pose.pose.orientation)+angle);
 		range_diff += laser.ranges[i] - map_range;
 		pz = 0.0;
-
+		
 		pz += exp(-1*(range_diff)/(2 * sigma* sigma)); 
 
 		if(range_diff < 0)
