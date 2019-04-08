@@ -332,7 +332,7 @@ int main(int argc, char** argv)
 					poses.poses[i] = Particles[i].pose.pose;
 					sum_x += Particles[i].pose.pose.position.x;
 					sum_y += Particles[i].pose.pose.position.y;
-					sum_yaw += Get_YAw(Particles[i].pose.pose.oriention);
+					sum_yaw += Get_Yaw(Particles[i].pose.pose.orientation);
 				}
 
 				sum_x /= N;
