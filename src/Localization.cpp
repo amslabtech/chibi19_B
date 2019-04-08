@@ -69,6 +69,8 @@ double a_4 = 0.1;
 double motion_log = 0.0;
 double yaw_log  =0.0;
 
+double x_thresh = 0.1;
+double y_thresh = 0.1;
 
 std::vector<Particle> Particles;
 
@@ -209,58 +211,76 @@ int main(int argc, char** argv)
 			current_pose.pose.position.y = transform.getOrigin().y();
 			quaternionTFToMsg(transform.getRotation(), current_pose.pose.orientation);
 
+			if(x_cov < x_thresh && y_cov < y_thresh)
+			{
+				std::vector<Particle> reset_particles;
+				
+				x_cov = 0.3;
+				y_cov = 0.3;
+				
+				for(int i=0;i<N;i++)
+				{
+					Particle p;
+
+					p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation));
+					reset_particles.push_back(p);
+				}
+
+				Particles = reset_particles;
+			}
 
 			for(int i=0;i<N;i++)
 			{
 				Particles[i].motion_update(current_pose, previous_pose, i);
 			}
 
+			double sum = 0;
+				
+			for(int i=0;i<N;i++)
+			{
+				Particles[i].measurement_update();
+				sum += Particles[i].weight;
+			}
+
+			double w_ave = 0.0;
+			int max_index = 0;
+
+			for(int i=0;i<N;i++)
+			{
+				w_ave += Particles[i].weight / (double)N;
+				Particles[i].weight /= sum;
+				if(Particles[i].weight > Particles[max_index].weight)
+					max_index = i;
+			}
+
+			if(w_ave == 0.0 || std::isnan(w_ave))
+			{
+				w_ave = 1 / (double)N;
+				w_slow = w_fast = w_ave;
+			}
+
+			if(w_slow == 0.0)
+			{
+				w_slow = w_ave;
+			}
+
+			else
+			{
+				w_slow += a_slow*(w_ave - w_slow);
+			}
+
+			if(w_fast == 0.0)
+			{
+				w_fast = w_ave;
+			}
+
+			else
+			{
+				w_fast += a_fast*(w_ave - w_fast);
+			}
+
 			if(update_flag)
 			{
-				double sum = 0;
-				
-				for(int i=0;i<N;i++)
-				{
-					Particles[i].measurement_update();
-					sum += Particles[i].weight;
-				}
-
-				double w_ave = 0.0;
-				int max_index = 0;
-
-				for(int i=0;i<N;i++)
-				{
-					w_ave += Particles[i].weight / (double)N;
-					Particles[i].weight /= sum;
-					if(Particles[i].weight > Particles[max_index].weight)
-						max_index = i;
-				}
-
-				if(w_ave == 0.0 || std::isnan(w_ave))
-				{
-					w_ave = 1 / (double)N;
-					w_slow = w_fast = w_ave;
-				}
-
-				if(w_slow == 0.0)
-				{
-					w_slow = w_ave;
-				}
-
-				else
-				{
-					w_slow += a_slow*(w_ave - w_slow);
-				}
-
-				if(w_fast == 0.0)
-				{
-					w_fast = w_ave;
-				}
-
-				else
-				{
-					w_fast += a_fast*(w_ave - w_fast);
-				}
 				
 				//resampling step
 				int index = rand1(mt) * N;
@@ -288,7 +308,6 @@ int main(int argc, char** argv)
 							}
 
 						New_Particles.push_back(Particles[index]);
-						ROS_INFO("Check");
 					}
 
 					else
@@ -306,25 +325,42 @@ int main(int argc, char** argv)
 
 				double sum_x = 0;
 				double sum_y = 0;
+				double sum_yaw = 0;
 
 				for(int i=0;i<N;i++)
 				{
 					poses.poses[i] = Particles[i].pose.pose;
 					sum_x += Particles[i].pose.pose.position.x;
 					sum_y += Particles[i].pose.pose.position.y;
+					sum_yaw += Get_YAw(Particles[i].pose.pose.oriention);
 				}
 
 				sum_x /= N;
 				sum_y /= N;
+				sum_yaw /= N;
 
 				estimated_pose.pose.position.x = sum_x;
 				estimated_pose.pose.position.y = sum_y;
 				quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
+
+				double new_x_cov = 0.0;
+				double new_y_cov = 0.0;
+				double new_yaw_cov = 0.0;
+
+				for(int i=0;i<N;i++)
+				{
+					new_x_cov += (Particles[i].pose.pose.position.x - sum_x) * (Particles[i].pose.pose.position.x - sum_x);
+					new_y_cov += (Particles[i].pose.pose.position.y - sum_y) * (Particles[i].pose.pose.position.y - sum_y);
+					new_yaw_cov += (Get_Yaw(Particles[i].pose.pose.orientation) - sum_yaw) * (Get_Yaw(Particles[i].pose.pose.orientation) - sum_yaw);
 				}
 
-			update_flag = false;
-			
+				x_cov = sqrt(new_x_cov/N);
+				y_cov = sqrt(new_y_cov/N);
+				yaw_cov = sqrt(new_yaw_cov/N);
 			}
+
+			update_flag = false;
+		}
 
 			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
 			_estimated_pose.pose.pose = estimated_pose.pose;
