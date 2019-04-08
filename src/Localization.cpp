@@ -264,7 +264,7 @@ int main(int argc, char** argv)
 				
 				//resampling step
 				int index = rand1(mt) * N;
-				double beta = 0;
+				double beta = 0.0;
 				double w;
 
 				std::vector<Particle> New_Particles;
@@ -407,6 +407,7 @@ double calc_range(double p_x, double p_y, double yaw)
 	
 	dx = fabs(x1 - x0);
     dy = fabs(y1 - y0);
+
 	x = x0;
 	y = y0;
 
