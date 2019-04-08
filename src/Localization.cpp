@@ -236,17 +236,15 @@ int main(int argc, char** argv)
 			for(int i=0;i<N;i++)
 			{
 				Particles[i].motion_update(current_pose, previous_pose, i);
-				Particles[i].measurement_update();
-				sum += Particles[i].weight;
 			}
 
-			//double sum = 0;
+			double sum = 0;
 				
-			/*for(int i=0;i<N;i++)
+			for(int i=0;i<N;i++)
 			{
 				Particles[i].measurement_update();
 				sum += Particles[i].weight;
-			}*/
+			}
 
 			double w_ave = 0.0;
 			int max_index = 0;
@@ -539,7 +537,7 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     dy = current.pose.position.y - previous.pose.position.y;
     dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
 
-	motion_log += dx*dx + dy*dy;
+	motion_log +=sqrt(dx*dx + dy*dy);
 	yaw_log += fabs(dyaw);
 
 	if(motion_log > 0.2 || yaw_log >0.15)
