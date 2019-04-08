@@ -388,20 +388,21 @@ double calc_range(double p_x, double p_y, double yaw)
 	x1 = (p_x + Max_Range * cos(yaw) - map.info.origin.position.x) / map.info.resolution;
 	y1 = (p_y + Max_Range * sin(yaw) - map.info.origin.position.y) / map.info.resolution;
 	
-	dx = fabs(x1 - x0);
-	dy = fabs(y1 - y0);
+	if(fabs(x1 - x0) < fabs(y1 - y0))
+	{
+		flag = true;
+	}
 
-	if(dy > dx)
+	if(flag)
 	{
 		int temp = x1;
-		x1 = x0;
-		x0 = temp;
+		x1 = y1;
+		y1 = temp;
 
-		temp = y1;
-		y1 = y0;
+		temp = x0;
+		x0 = y0;
 		y0 = temp;
 
-		flag = true;
 	}
 	
 	dx = fabs(x1 - x0);
