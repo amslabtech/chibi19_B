@@ -238,7 +238,6 @@ int main(int argc, char** argv)
 				Particles[i].motion_update(current_pose, previous_pose, i);
 			}
 
-			double sum = 0;
 				
 			for(int i=0;i<N;i++)
 			{
