@@ -196,7 +196,8 @@ int main(int argc, char** argv)
 			tf::StampedTransform transform;
 			transform = tf::StampedTransform(tf::Transform(tf::createQuaternionFromYaw(0.0), tf::Vector3(0.0, 0.0, 0)), ros::Time::now(), "odom", "base_link");
 
-			try{
+			try
+			{
 				listener.waitForTransform("odom", "base_link", ros::Time(0), ros::Duration(1.0));
 				listener.lookupTransform("odom", "base_link", ros::Time(0), transform);
 			}
@@ -229,29 +230,36 @@ int main(int argc, char** argv)
 				Particles = reset_particles;
 			}
 
+
+			double sum = 0;
+
 			for(int i=0;i<N;i++)
 			{
 				Particles[i].motion_update(current_pose, previous_pose, i);
-			}
-
-			double sum = 0;
-				
-			for(int i=0;i<N;i++)
-			{
 				Particles[i].measurement_update();
 				sum += Particles[i].weight;
 			}
+
+			//double sum = 0;
+				
+			/*for(int i=0;i<N;i++)
+			{
+				Particles[i].measurement_update();
+				sum += Particles[i].weight;
+			}*/
 
 			double w_ave = 0.0;
 			int max_index = 0;
 
 			for(int i=0;i<N;i++)
 			{
-				w_ave += Particles[i].weight / (double)N;
-				Particles[i].weight /= sum;
+				w_ave += Particles[i].weight;
 				if(Particles[i].weight > Particles[max_index].weight)
 					max_index = i;
+				Particles[i].weight /= sum;
 			}
+
+			w_ave /= (double)N;
 
 			if(w_ave == 0.0 || std::isnan(w_ave))
 			{
@@ -368,7 +376,8 @@ int main(int argc, char** argv)
 			pose_pub.publish(_estimated_pose);
 			pose_array_pub.publish(poses);
 
-			try{
+			try
+			{
 				tf::StampedTransform map_transform;
 				map_transform.setOrigin(tf::Vector3(estimated_pose.pose.position.x, estimated_pose.pose.position.y, 0.0));
 				map_transform.setRotation(tf::Quaternion(0, 0, Get_Yaw(estimated_pose.pose.orientation), 1));
@@ -387,7 +396,7 @@ int main(int argc, char** argv)
 			}
 
 		ros::spinOnce();
-		rate.sleep();
+	rate.sleep();
 
 		previous_pose = current_pose;
 	}
