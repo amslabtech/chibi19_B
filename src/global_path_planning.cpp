@@ -225,26 +225,29 @@ void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
         }
     }
     global_path.header.frame_id = "map";
-
-	
-    int init[2];
-    int goal[2];// = {1695,2030};
-    
-    to_gridnum(0,0,init);  //(21.18,19.76,goal);
-    to_gridnum(0.1,0.1,goal);  //(21.18,19.76,goal);
-
-	search(init,goal);
-	get_path(goal);
-	
 }
 
+void set_randmark(const float x,const float y)
+{
+	int init[2];
+	int goal[2];
+	float ini_x = global_path.poses.back().pose.position.x;
+	float ini_y = global_path.poses.back().pose.position.y;
+
+    ROS_INFO("randmark = (%.2f,%.2f)\n",x,y);
+
+	to_gridnum(ini_x,ini_y,init);
+	to_gridnum(x,y,goal);
+	search(init,goal);
+	get_path(goal);
+}
 
 void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 {
 	int init[2];
 	int goal[2];
-	float x = global_path.poses[global_path.poses.size()-1].pose.position.x;
-	float y = global_path.poses[global_path.poses.size()-1].pose.position.y;
+	float x = global_path.poses.back().pose.position.x;
+	float y = global_path.poses.back().pose.position.y;
 
     geometry_msgs::PointStamped _msg = *msg;
     ROS_INFO("%.2f,%.2f,%.2f",_msg.point.x,_msg.point.y,_msg.point.z);
@@ -256,6 +259,25 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 	get_path(goal);
 }
 
+void set_init(const float x,const float y)
+{
+	geometry_msgs::PoseStamped path_point;
+	path_point.pose.position.x = x;
+	path_point.pose.position.y = y;
+	path_point.pose.position.z = 0;
+	path_point.pose.orientation=tf::createQuaternionMsgFromYaw(0);
+	global_path.poses.push_back(path_point);
+}
+
+void round_DF1()
+{	
+	set_init(0.0,0.0);
+ 	set_randmark(-17.15,-0.10);
+ 	set_randmark(-17.25,13.67);
+ 	set_randmark(16.0,14.17);
+ 	set_randmark(16.19,-0.18);
+ 	set_randmark(0.0,0.0);
+}
 
 int main(int argc, char **argv)
 {
@@ -266,7 +288,9 @@ int main(int argc, char **argv)
     ros::Subscriber map_sub = map.subscribe("map",1,map_sub_callback);
     ros::Subscriber click_sub = click.subscribe("clicked_point",1,click_callback);
     ros::Publisher path_pub = path.advertise<nav_msgs::Path>("chibi19_b/global_path", 1);
-    ros::Rate loop_rate(0.2);
+    ros::Rate loop_rate(0.3);
+
+	round_DF1();
 
 	while (ros::ok()){
           path_pub.publish(global_path);
