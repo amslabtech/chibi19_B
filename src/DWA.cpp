@@ -86,10 +86,15 @@ void calc_trajectory(std::vector<State> traj, float i, float j){
 
 float calc_to_goal_cost(std::vector<State>traj, Goal goal){
 	float goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
+	ROS_INFO("9\n");
 	float traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
+	ROS_INFO("10\n");
 	float dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
+	ROS_INFO("11\n");
 	float error = dot_product / (goal_magnitude * traj_magnitude);
+	ROS_INFO("12\n");
 	float error_angle = std::acos(error);
+	ROS_INFO("13\n");
 
 	return to_goal_cost_gain * error_angle;
 }
