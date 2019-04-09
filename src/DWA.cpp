@@ -47,7 +47,7 @@ struct LaserData{
 
 LaserData Ldata[N];
 
-void motion(State roomba, Speed u){
+void motion(State &roomba, Speed u){
 	roomba.yaw += u.omega * dt;
 	roomba.x += u.v * std::cos(roomba.yaw) * dt;
 	roomba.y += u.v * std::sin(roomba.yaw) * dt;
@@ -55,7 +55,7 @@ void motion(State roomba, Speed u){
 	roomba.omega = u.omega;
 }
 
-void calc_dynamic_window(float dw[4], State roomba){
+void calc_dynamic_window(float &dw[4], State roomba){
 	float Vs[] = {min_speed, 
 					max_speed, 
 					-max_yawrate, 
@@ -72,7 +72,7 @@ void calc_dynamic_window(float dw[4], State roomba){
 	dw[3] = std::min(Vs[3], Vd[3]);
 }
 
-void calc_trajectory(std::vector<State> traj, float i, float j){
+void calc_trajectory(std::vector<State> &traj, float i, float j){
 	
 	State roomba = {0.0, 0.0, 0.0, 0.0, 0.0};
 	Speed u ={i,j}; 
@@ -84,9 +84,10 @@ void calc_trajectory(std::vector<State> traj, float i, float j){
 	}
 }
 
-float calc_to_goal_cost(std::vector<State>traj, Goal goal){
+float calc_to_goal_cost(std::vector<State> &traj, Goal goal){
 	float goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
 	ROS_INFO("9\n");
+	printf("%f\n, %f\n", traj.back().x, traj.)
 	float traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
 	ROS_INFO("10\n");
 	float dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
@@ -99,7 +100,7 @@ float calc_to_goal_cost(std::vector<State>traj, Goal goal){
 	return to_goal_cost_gain * error_angle;
 }
 
-float calc_speed_cost(std::vector<State>traj){
+float calc_speed_cost(std::vector<State> traj){
 	float error_speed = max_speed - traj.back().v;
 
 	return speed_cost_gain * error_speed;
@@ -145,7 +146,7 @@ float calc_speed_cost(std::vector<State>traj){
 	return 1.0 / min_r;
 }*/
 
-void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
+void calc_final_input(State roomba, Speed &u, float &dw[4], Goal goal){
 
 	float min_cost = 10000.0;
 	Speed min_u = u;
@@ -183,7 +184,7 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 	u = min_u;
 }
 
-void dwa_control(State roomba, Speed u, Goal goal,float dw[]){
+void dwa_control(State &roomba, Speed &u, Goal goal,float &dw[]){
 	
 	ROS_INFO("4\n");
 	
