@@ -208,6 +208,8 @@ int main(int argc, char **argv)
 	Speed u = {0.0, 0.0};
 	float dw[] = {0.0, 0.0, 0.0, 0.0};
 
+	ROS_INFO("1\n");
+
 	while(ros::ok())
 	{
 	ros::spinOnce();
