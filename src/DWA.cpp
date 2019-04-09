@@ -250,6 +250,8 @@ int main(int argc, char **argv)
 			msg.mode = 0;
 			break;
 		}
+	ctrl_pub.publish(msg);
+	ROS_INFO("x = %f, z = %f\n", msg.cntl.liner.x, msg.cntl.angular.z);
 	loop_rate.sleep();
 	}
 	
