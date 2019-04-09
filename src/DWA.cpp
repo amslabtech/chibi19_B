@@ -12,7 +12,7 @@
 #define max_dyawrate 1.0
 #define v_reso 0.01
 #define yawrate_reso 1.0
-#define  dt 0.1f
+#define dt 0.1f
 #define predict_time 3.0
 #define to_goal_cost_gain 1.0
 #define speed_cost_gain 1.0
@@ -100,7 +100,7 @@ float calc_speed_cost(std::vector<State>traj){
 	return speed_cost_gain * error_speed;
 };
 
-float calc_obstacle_cost(State roomba, std::vector<State>traj, Goal goal){
+/*float calc_obstacle_cost(State roomba, std::vector<State>traj, Goal goal){
 	
 	int skip_i = 2;
 	int skip_j = 20;
@@ -138,7 +138,7 @@ float calc_obstacle_cost(State roomba, std::vector<State>traj, Goal goal){
 	}
 
 	return 1.0 / min_r;
-}
+}*/
 
 void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 
@@ -157,7 +157,7 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 	
 			to_goal_cost = calc_to_goal_cost(traj, goal);
 			speed_cost = calc_speed_cost(traj);
-			ob_cost = calc_obstacle_cost(roomba, traj, goal);
+//			ob_cost = calc_obstacle_cost(roomba, traj, goal);
 
 			final_cost = to_goal_cost + speed_cost + ob_cost;
 
