@@ -190,6 +190,8 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {	
+	ROS_INFO("1\n");
+	
 	ros::init(argc, argv, "dwa");	
 	ros::NodeHandle roomba_ctrl_pub;
 	ros::NodeHandle scan_laser_sub;
@@ -208,7 +210,7 @@ int main(int argc, char **argv)
 	Speed u = {0.0, 0.0};
 	float dw[] = {0.0, 0.0, 0.0, 0.0};
 
-	ROS_INFO("1\n");
+	ROS_INFO("2\n");
 
 	while(ros::ok())
 	{
