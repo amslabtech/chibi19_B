@@ -150,7 +150,9 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 	float speed_cost;
 	float ob_cost;
 	float final_cost;
-	
+
+	ROS_INFO("6\n");
+
 	for(float i = dw[0] ; i < dw[1] ; i += v_reso ){
 		for(float j = dw[2] ; j < dw[3] ; j += yawrate_reso){
 			calc_trajectory(traj, i, j);
@@ -168,13 +170,20 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 			}
 		}
 	}
+
+	ROS_INFO("7\n");
+
 	u = min_u;
 }
 
 void dwa_control(State roomba, Speed u, Goal goal,float dw[]){
 	
+	ROS_INFO("4\n");
+	
 	calc_dynamic_window(dw, roomba);
 	
+	ROS_INFO("5\n");
+
 	calc_final_input(roomba, u, dw, goal);
 }
 
@@ -199,7 +208,7 @@ int main(int argc, char **argv)
 	ros::Subscriber laser_sub = scan_laser_sub.subscribe("scan", 1, lasercallback);	
 	ros::Rate loop_rate(10);
 	
-	printf("start");
+	printf("start\n");
 	
 	roomba_500driver_meiji::RoombaCtrl msg;
 	msg.mode = 11;
@@ -214,6 +223,7 @@ int main(int argc, char **argv)
 
 	while(ros::ok())
 	{
+	ROS_INFO("3\n");
 	ros::spinOnce();
 	dwa_control(roomba, u, goal, dw);
 	//motion(roomba, u);
