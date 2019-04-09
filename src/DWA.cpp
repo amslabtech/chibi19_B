@@ -12,7 +12,7 @@
 #define max_dyawrate 1.0
 #define v_reso 0.05
 #define yawrate_reso 1.0
-#define dt 0.1
+#define dt 0.1f
 #define predict_time 3.0
 #define to_goal_cost_gain 0.0
 #define speed_cost_gain 0.0
@@ -86,7 +86,6 @@ void calc_trajectory(std::vector<State> &traj, float i, float j){
 
 float calc_to_goal_cost(std::vector<State> &traj, Goal goal){
 	float goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
-	printf("%f\n, %f\n", traj.back().x, traj.back().x);
 	float traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
 	float dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
 	float error = dot_product / (goal_magnitude * traj_magnitude);
@@ -116,12 +115,21 @@ float calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 	float range_obstacle;
 	float x_obstacle;
 	float y_obstacle;
+	
+	ROS_INFO("2\n");
 
 	for(int i = 0;i < traj.size();i += skip_i){
 		x_traj = traj[i].x;
 		y_traj = traj[i].y;
 		
 		for(int j = 0;j < N;j += skip_j){
+			
+			if((144 <= j && j <= 148) || (602 <= j && j <= 607)){
+			continue;
+			}		
+
+			ROS_INFO("N = %d\n", N);
+
 			angle_obstacle = Ldata[j].angle;
 			range_obstacle = Ldata[j].range;
 			x_obstacle = x_roomba + range_obstacle * std::cos(angle_obstacle);
@@ -157,6 +165,7 @@ void calc_final_input(State roomba, Speed &u, float dw[4], Goal goal){
 			calc_trajectory(traj, i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal);
 			speed_cost = calc_speed_cost(traj);
+			ROS_INFO("1\n");
 			ob_cost = calc_obstacle_cost(roomba, traj, goal);
 
 			final_cost = to_goal_cost + speed_cost + ob_cost;
@@ -211,6 +220,9 @@ int main(int argc, char **argv)
 	while(ros::ok())
 	{
 	ros::spinOnce();
+	
+	ROS_INFO("loop");
+
 	dwa_control(roomba, u, goal, dw);
 	//motion(roomba, u);
 	roomba.yaw += u.omega * dt;
