@@ -155,10 +155,11 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 
 	for(float i = dw[0] ; i < dw[1] ; i += v_reso ){
 		for(float j = dw[2] ; j < dw[3] ; j += yawrate_reso){
-			calc_trajectory(traj, i, j);
 			ROS_INFO("7\n");
-			to_goal_cost = calc_to_goal_cost(traj, goal);
+			calc_trajectory(traj, i, j);
 			ROS_INFO("8\n");
+			to_goal_cost = calc_to_goal_cost(traj, goal);
+			ROS_INFO("9\n");
 			speed_cost = calc_speed_cost(traj);
 //			ob_cost = calc_obstacle_cost(roomba, traj, goal);
 
@@ -172,7 +173,7 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 		}
 	}
 
-	ROS_INFO("9\n");
+	ROS_INFO("10\n");
 
 	u = min_u;
 }
