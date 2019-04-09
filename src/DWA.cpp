@@ -72,19 +72,19 @@ void calc_dynamic_window(float dw[4], State roomba){
 	dw[3] = std::min(Vs[3], Vd[3]);
 };
 
-void calc_trajectory(std::vector<State> traj, double i, double j){
+void calc_trajectory(std::vector<State> traj, float i, float j){
 	
 	State roomba = {0.0, 0.0, 0.0, 0.0, 0.0};
 	Speed u ={i,j}; 
 	traj.clear();
 
-	for(double t = 0.0; t <= predict_time; t += dt){
+	for(float t = 0.0; t <= predict_time; t += dt){
 		motion(roomba, u);
 		traj.push_back(roomba);
 	}
 }
 
-double calc_to_goal_cost(std::vector<State>traj, Goal goal){
+float calc_to_goal_cost(std::vector<State>traj, Goal goal){
 	float goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
 	float traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
 	float dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
@@ -94,13 +94,13 @@ double calc_to_goal_cost(std::vector<State>traj, Goal goal){
 	return to_goal_cost_gain * error_angle;
 };
 
-double calc_speed_cost(std::vector<State>traj){
+float calc_speed_cost(std::vector<State>traj){
 	float error_speed = max_speed - traj.back().v;
 
 	return speed_cost_gain * error_speed;
 };
 
-double calc_obstacle_cost(State roomba, std::vector<State>traj, Goal goal){
+float calc_obstacle_cost(State roomba, std::vector<State>traj, Goal goal){
 	
 	int skip_i = 2;
 	int skip_j = 20;
@@ -146,13 +146,13 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 	Speed min_u = u;
 	min_u.v = 0.0;
 	std::vector<State> traj;
-	double to_goal_cost;
-	double speed_cost;
-	double ob_cost;
-	double final_cost;
+	float to_goal_cost;
+	float speed_cost;
+	float ob_cost;
+	float final_cost;
 	
-	for(double i = dw[0] ; i < dw[1] ; i += v_reso ){
-		for(double j = dw[2] ; j < dw[3] ; j += yawrate_reso){
+	for(float i = dw[0] ; i < dw[1] ; i += v_reso ){
+		for(float j = dw[2] ; j < dw[3] ; j += yawrate_reso){
 			calc_trajectory(traj, i, j);
 	
 			to_goal_cost = calc_to_goal_cost(traj, goal);
