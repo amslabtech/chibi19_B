@@ -53,7 +53,7 @@ void motion(State roomba, Speed u){
 	roomba.y += u.v * std::sin(roomba.yaw) * dt;
 	roomba.v = u.v;
 	roomba.omega = u.omega;
-};
+}
 
 void calc_dynamic_window(float dw[4], State roomba){
 	float Vs[] = {min_speed, 
@@ -70,7 +70,7 @@ void calc_dynamic_window(float dw[4], State roomba){
 	dw[1] = std::min(Vs[1], Vd[1]);
 	dw[2] = std::min(Vs[2], Vd[2]);
 	dw[3] = std::min(Vs[3], Vd[3]);
-};
+}
 
 void calc_trajectory(std::vector<State> traj, float i, float j){
 	
@@ -92,13 +92,13 @@ float calc_to_goal_cost(std::vector<State>traj, Goal goal){
 	float error_angle = std::acos(error);
 
 	return to_goal_cost_gain * error_angle;
-};
+}
 
 float calc_speed_cost(std::vector<State>traj){
 	float error_speed = max_speed - traj.back().v;
 
 	return speed_cost_gain * error_speed;
-};
+}
 
 /*float calc_obstacle_cost(State roomba, std::vector<State>traj, Goal goal){
 	
@@ -169,14 +169,14 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 		}
 	}
 	u = min_u;
-};
+}
 
 void dwa_control(State roomba, Speed u, Goal goal,float dw[]){
 	
 	calc_dynamic_window(dw, roomba);
 	
 	calc_final_input(roomba, u, dw, goal);
-};
+}
 
 void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
