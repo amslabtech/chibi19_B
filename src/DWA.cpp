@@ -189,7 +189,14 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 }
 
 int main(int argc, char **argv)
-{
+{	
+	ros::init(argc, argv, "dwa");	
+	ros::NodeHandle roomba_ctrl_pub;
+	ros::NodeHandle scan_laser_sub;
+	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);	
+	ros::Subscriber laser_sub = scan_laser_sub.subscribe("scan", 1, lasercallback);	
+	ros::Rate loop_rate(10);
+	
 	printf("start");
 	
 	roomba_500driver_meiji::RoombaCtrl msg;
@@ -200,12 +207,6 @@ int main(int argc, char **argv)
 	Goal goal = {10000, 10000};
 	Speed u = {0.0, 0.0};
 	float dw[] = {0.0, 0.0, 0.0, 0.0};
-	
-	ros::NodeHandle roomba_ctrl_pub;
-	ros::NodeHandle scan_laser_sub;
-	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);
-	ros::Subscriber laser_sub = scan_laser_sub.subscribe("scan", 1, lasercallback);
-	ros::Rate loop_rate(10);
 
 	while(ros::ok())
 	{
