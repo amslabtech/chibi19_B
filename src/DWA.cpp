@@ -128,7 +128,7 @@ float calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 			continue;
 			}		
 
-			ROS_INFO("N = %d\n", N);
+			ROS_INFO("j = %d\n", j);
 
 			angle_obstacle = Ldata[j].angle;
 			range_obstacle = Ldata[j].range;
