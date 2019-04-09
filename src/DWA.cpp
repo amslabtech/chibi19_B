@@ -5,17 +5,18 @@
 #include "math.h"
 #include <tf/tf.h>
 
-#define max_speed 0.40
-#define min_speed -0.5
-#define max_yawrate 1.0
-#define max_accel 0.2
-#define max_dyawrate 1.0
-#define v_reso 0.01
+#define max_speed 0.40 //m/s
+#define min_speed 0.0 //m/s
+#define max_yawrate 0.87 //rad/s
+#define max_accel 0.2 //m/ss
+#define max_dyawrate 1.0 
+#define v_reso 0.01 
 #define yawrate_reso 1.0
-#define  dt 0.1f
+#define dt 0.1
 #define predict_time 3.0
 #define to_goal_cost_gain 1.0
-#define speed_cost_gain 1.0
+#define speed_cost_gain 0
+#define obstacle_gain 0
 #define robot_radius 0.19
 #define roomba_v_gain 0.1
 #define roomba_omega_gain 0.1
@@ -122,6 +123,11 @@ double calc_obstacle_cost(State roomba, std::vector<State>traj, Goal goal){
 		y_traj = traj[i].y;
 		
 		for(int j = 0;j < N;j += skip_j){
+			
+			if( 143 < N &&  N < 149 || 601 < N  && N < 608){
+				break;
+			}
+			
 			angle_obstacle = Ldata[j].angle;
 			range_obstacle = Ldata[j].range;
 			x_obstacle = x_roomba + range_obstacle * std::cos(angle_obstacle);
@@ -202,6 +208,7 @@ int main(int argc, char **argv)
 	Speed u = {0.0, 0.0};
 	float dw[] = {0.0, 0.0, 0.0, 0.0};
 	
+	ros::init(argc, argv, "dwa");
 	ros::NodeHandle roomba_ctrl_pub;
 	ros::NodeHandle scan_laser_sub;
 	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);
