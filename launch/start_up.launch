@@ -13,6 +13,4 @@
 	<arg name="map_file" default="$(find chibi19_a)/mapdata/DMapData.yaml"/>
 	<node pkg="map_server" name="map_server" type="map_sever" args="$(arg map_fali)"/>
 
-	</node>
-
 </launch>
