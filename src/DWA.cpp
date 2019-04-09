@@ -23,26 +23,26 @@
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment;
 
 struct State{
-	float x;
-	float y;
-	float yaw;
-	float v;
-	float omega;
+	double x;
+	double y;
+	double yaw;
+	double v;
+	double omega;
 };
 
 struct Speed{
-	float v;
-	float omega;
+	double v;
+	double omega;
 };
 
 struct Goal{
-	float x;
-	float y;
+	double x;
+	double y;
 };
 
 struct LaserData{
-	float angle;
-	float range;
+	double angle;
+	double range;
 };
 
 LaserData Ldata[N];
@@ -55,13 +55,13 @@ void motion(State &roomba, Speed u){
 	roomba.omega = u.omega;
 }
 
-void calc_dynamic_window(float dw[4], State roomba){
-	float Vs[] = {min_speed, 
+void calc_dynamic_window(double dw[4], State roomba){
+	double Vs[] = {min_speed, 
 					max_speed, 
 					-max_yawrate, 
 					max_yawrate};
 
-	float Vd[] = {roomba.v - max_accel * dt,
+	double Vd[] = {roomba.v - max_accel * dt,
 					roomba.v + max_accel * dt,
 					roomba.omega - max_dyawrate * dt,
 					roomba.omega + max_dyawrate * dt};
@@ -72,49 +72,49 @@ void calc_dynamic_window(float dw[4], State roomba){
 	dw[3] = std::min(Vs[3], Vd[3]);
 }
 
-void calc_trajectory(std::vector<State> &traj, float i, float j){
+void calc_trajectory(std::vector<State> &traj, double i, double j){
 	
 	State roomba = {0.0, 0.0, 0.0, 0.0, 0.0};
 	Speed u ={i,j}; 
 	traj.clear();
 
-	for(float t = 0.0; t <= predict_time; t += dt){
+	for(double t = 0.0; t <= predict_time; t += dt){
 		motion(roomba, u);
 		traj.push_back(roomba);
 	}
 }
 
-float calc_to_goal_cost(std::vector<State> &traj, Goal goal){
-	float goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
-	float traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
-	float dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
-	float error = dot_product / (goal_magnitude * traj_magnitude);
-	float error_angle = std::acos(error);
+double calc_to_goal_cost(std::vector<State> &traj, Goal goal){
+	double goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
+	double traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
+	double dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
+	double error = dot_product / (goal_magnitude * traj_magnitude);
+	double error_angle = std::acos(error);
 
 	return to_goal_cost_gain * error_angle;
 }
 
-float calc_speed_cost(std::vector<State> traj){
-	float error_speed = max_speed - traj.back().v;
+double calc_speed_cost(std::vector<State> traj){
+	double error_speed = max_speed - traj.back().v;
 
 	return speed_cost_gain * error_speed;
 }
 
-float calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
+double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 	
 	int skip_i = 2;
 	int skip_j = 20;
-	float min_r = std::numeric_limits<float>::infinity();
-	float infinity = std::numeric_limits<float>::infinity();	
-	float x_traj;
-	float y_traj;
-	float x_roomba = roomba.x;
-	float y_roomba= roomba.y;
-	float r;
-	float angle_obstacle; 
-	float range_obstacle;
-	float x_obstacle;
-	float y_obstacle;
+	double min_r = std::numeric_limits<double>::infinity();
+	double infinity = std::numeric_limits<double>::infinity();	
+	double x_traj;
+	double y_traj;
+	double x_roomba = roomba.x;
+	double y_roomba= roomba.y;
+	double r;
+	double angle_obstacle; 
+	double range_obstacle;
+	double x_obstacle;
+	double y_obstacle;
 	
 	for(int i = 0;i < traj.size();i += skip_i){
 		x_traj = traj[i].x;
@@ -134,6 +134,8 @@ float calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 				return infinity;
 			}
 
+			ROS_INFO("r = %d\n", r);
+
 			if(min_r >= r){
 				min_r = r;
 			}
@@ -143,19 +145,19 @@ float calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 	return 1.0 / min_r;
 }
 
-void calc_final_input(State roomba, Speed &u, float dw[4], Goal goal){
+void calc_final_input(State roomba, Speed &u, double dw[4], Goal goal){
 
-	float min_cost = 10000.0;
+	double min_cost = 10000.0;
 	Speed min_u = u;
 	min_u.v = 0.0;
 	std::vector<State> traj;
-	float to_goal_cost;
-	float speed_cost;
-	float ob_cost;
-	float final_cost;
+	double to_goal_cost;
+	double speed_cost;
+	double ob_cost;
+	double final_cost;
 
-	for(float i = dw[0] ; i < dw[1] ; i += v_reso ){
-		for(float j = dw[2] ; j < dw[3] ; j += yawrate_reso){
+	for(double i = dw[0] ; i < dw[1] ; i += v_reso ){
+		for(double j = dw[2] ; j < dw[3] ; j += yawrate_reso){
 			calc_trajectory(traj, i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal);
 			speed_cost = calc_speed_cost(traj);
@@ -175,7 +177,7 @@ void calc_final_input(State roomba, Speed &u, float dw[4], Goal goal){
 	u = min_u;
 }
 
-void dwa_control(State &roomba, Speed &u, Goal goal,float dw[]){
+void dwa_control(State &roomba, Speed &u, Goal goal,double dw[]){
 	
 	
 	calc_dynamic_window(dw, roomba);
@@ -209,7 +211,7 @@ int main(int argc, char **argv)
 	//[x, y, yaw, v, omega]	
 	Goal goal = {10000, 10000};
 	Speed u = {0.0, 0.0};
-	float dw[] = {0.0, 0.0, 0.0, 0.0};
+	double dw[] = {0.0, 0.0, 0.0, 0.0};
 
 	while(ros::ok())
 	{
