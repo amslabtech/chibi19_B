@@ -245,11 +245,11 @@ int main(int argc, char **argv)
 	msg.cntl.angular.z = roomba.omega * roomba_omega_gain;
 
 	//check goal
-	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
+/*	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
 			printf("Goal!!!");
 			msg.mode = 0;
 			break;
-		}
+		}*/
 	ctrl_pub.publish(msg);
 	ROS_INFO("x = %f, z = %f\n", msg.cntl.liner.x, msg.cntl.angular.z);
 	loop_rate.sleep();
