@@ -10,9 +10,9 @@
 #define max_yawrate 1.0
 #define max_accel 0.2
 #define max_dyawrate 1.0
-#define v_reso 0.01
+#define v_reso 0.05
 #define yawrate_reso 1.0
-#define dt 0.1f
+#define dt 0.1
 #define predict_time 3.0
 #define to_goal_cost_gain 1.0
 #define speed_cost_gain 1.0
@@ -156,8 +156,9 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 	for(float i = dw[0] ; i < dw[1] ; i += v_reso ){
 		for(float j = dw[2] ; j < dw[3] ; j += yawrate_reso){
 			calc_trajectory(traj, i, j);
-	
+			ROS_INFO("7\n");
 			to_goal_cost = calc_to_goal_cost(traj, goal);
+			ROS_INFO("8\n");
 			speed_cost = calc_speed_cost(traj);
 //			ob_cost = calc_obstacle_cost(roomba, traj, goal);
 
@@ -171,7 +172,7 @@ void calc_final_input(State roomba, Speed u, float dw[4], Goal goal){
 		}
 	}
 
-	ROS_INFO("7\n");
+	ROS_INFO("9\n");
 
 	u = min_u;
 }
