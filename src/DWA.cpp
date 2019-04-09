@@ -201,6 +201,7 @@ int main(int argc, char **argv)
 	Speed u = {0.0, 0.0};
 	float dw[] = {0.0, 0.0, 0.0, 0.0};
 	
+	ros::init(argc, argv, "dwa");
 	ros::NodeHandle roomba_ctrl_pub;
 	ros::NodeHandle scan_laser_sub;
 	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);
