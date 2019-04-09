@@ -11,6 +11,6 @@
 		<param name="dev" value="/dev/input/js0"/>
 	
 	<arg name="map_file" default="$(find chibi19_b)/mapdata/DMapData.yaml"/>
-	<node pkg="map_server" name="map_server" type="map_sever" args="$(arg map_file)"/>
+	<node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>
 
 </launch>
