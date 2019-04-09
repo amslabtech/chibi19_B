@@ -116,17 +116,19 @@ float calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 	float x_obstacle;
 	float y_obstacle;
 	
-	ROS_INFO("2\n");
-
 	for(int i = 0;i < traj.size();i += skip_i){
 		x_traj = traj[i].x;
 		y_traj = traj[i].y;
 		
 		for(int j = 0;j < N;j += skip_j){
 			
-			if((144 <= j && j <= 148) || (602 <= j && j <= 607)){
+			if(144 <= j && j <= 148){
 			continue;
-			}		
+			}
+
+			if (602 <= j && j <= 606){
+			continue;
+			}
 
 			ROS_INFO("j = %d\n", j);
 
