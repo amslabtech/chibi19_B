@@ -14,8 +14,8 @@
 #define yawrate_reso 1.0
 #define dt 0.1
 #define predict_time 3.0
-#define to_goal_cost_gain 1.0
-#define speed_cost_gain 1.0
+#define to_goal_cost_gain 0.0
+#define speed_cost_gain 0.0
 #define robot_radius 0.19
 #define roomba_v_gain 2.5
 #define roomba_omega_gain 1.25
@@ -86,16 +86,11 @@ void calc_trajectory(std::vector<State> &traj, float i, float j){
 
 float calc_to_goal_cost(std::vector<State> &traj, Goal goal){
 	float goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
-	ROS_INFO("9\n");
 	printf("%f\n, %f\n", traj.back().x, traj.back().x);
 	float traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
-	ROS_INFO("10\n");
 	float dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
-	ROS_INFO("11\n");
 	float error = dot_product / (goal_magnitude * traj_magnitude);
-	ROS_INFO("12\n");
 	float error_angle = std::acos(error);
-	ROS_INFO("13\n");
 
 	return to_goal_cost_gain * error_angle;
 }
@@ -106,7 +101,7 @@ float calc_speed_cost(std::vector<State> traj){
 	return speed_cost_gain * error_speed;
 }
 
-/*float calc_obstacle_cost(State roomba, std::vector<State>traj, Goal goal){
+float calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 	
 	int skip_i = 2;
 	int skip_j = 20;
@@ -144,7 +139,7 @@ float calc_speed_cost(std::vector<State> traj){
 	}
 
 	return 1.0 / min_r;
-}*/
+}
 
 void calc_final_input(State roomba, Speed &u, float dw[4], Goal goal){
 
@@ -157,17 +152,12 @@ void calc_final_input(State roomba, Speed &u, float dw[4], Goal goal){
 	float ob_cost;
 	float final_cost;
 
-	ROS_INFO("6\n");
-
 	for(float i = dw[0] ; i < dw[1] ; i += v_reso ){
 		for(float j = dw[2] ; j < dw[3] ; j += yawrate_reso){
-			ROS_INFO("7\n");
 			calc_trajectory(traj, i, j);
-			ROS_INFO("8\n");
 			to_goal_cost = calc_to_goal_cost(traj, goal);
-			ROS_INFO("9\n");
 			speed_cost = calc_speed_cost(traj);
-//			ob_cost = calc_obstacle_cost(roomba, traj, goal);
+			ob_cost = calc_obstacle_cost(roomba, traj, goal);
 
 			final_cost = to_goal_cost + speed_cost + ob_cost;
 
@@ -179,19 +169,14 @@ void calc_final_input(State roomba, Speed &u, float dw[4], Goal goal){
 		}
 	}
 
-	ROS_INFO("10\n");
-
 	u = min_u;
 }
 
 void dwa_control(State &roomba, Speed &u, Goal goal,float dw[]){
 	
-	ROS_INFO("4\n");
 	
 	calc_dynamic_window(dw, roomba);
 	
-	ROS_INFO("5\n");
-
 	calc_final_input(roomba, u, dw, goal);
 }
 
@@ -207,16 +192,12 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {	
-	ROS_INFO("1\n");
-	
 	ros::init(argc, argv, "dwa");	
 	ros::NodeHandle roomba_ctrl_pub;
 	ros::NodeHandle scan_laser_sub;
 	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);	
 	ros::Subscriber laser_sub = scan_laser_sub.subscribe("scan", 1, lasercallback);	
 	ros::Rate loop_rate(10);
-	
-	printf("start\n");
 	
 	roomba_500driver_meiji::RoombaCtrl msg;
 	msg.mode = 11;
@@ -227,11 +208,8 @@ int main(int argc, char **argv)
 	Speed u = {0.0, 0.0};
 	float dw[] = {0.0, 0.0, 0.0, 0.0};
 
-	ROS_INFO("2\n");
-
 	while(ros::ok())
 	{
-	ROS_INFO("3\n");
 	ros::spinOnce();
 	dwa_control(roomba, u, goal, dw);
 	//motion(roomba, u);
@@ -247,7 +225,8 @@ int main(int argc, char **argv)
 	//check goal
 /*	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
 			printf("Goal!!!");
-			msg.mode = 0;
+			msg.cntl.linear.x = 0.0;
+			msg.cntl.angular.z = 0.0;
 			break;
 		}*/
 	ctrl_pub.publish(msg);
