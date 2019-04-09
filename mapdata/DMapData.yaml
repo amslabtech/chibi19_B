@@ -1,6 +1,6 @@
 image: DMapData.png
 resolution: 0.050000
 origin: [-100.000000, -100.000000, 0.000000]
-occupied_thresh: 0.65
-free_thresh: 0.196
+occupied_thresh: 0.35
+free_thresh: 0.096
 negate: 0

@@ -30,6 +30,7 @@ geometry_msgs::PoseArray poses;
 sensor_msgs::LaserScan laser;
 
 bool map_get = false;
+bool update_flag = false;
 
 class Particle
 {
@@ -57,14 +58,19 @@ double Max_Range = 20;
 double w_slow = 0.0;
 double w_fast = 0.0;
 double sigma = 3.0;
-double a_slow = 0.01;
+double a_slow = 0.001;
 double a_fast = 0.1;
 double range_count = 3;
-double a_1 = 0.5;
-double a_2 = 0.5;
-double a_3 = 0.5;
-double a_4 = 0.5;
+double a_1 = 0.3;
+double a_2 = 0.3;
+double a_3 = 0.1;
+double a_4 = 0.1;
 
+double motion_log = 0.0;
+double yaw_log  =0.0;
+
+double x_thresh = 0.1;
+double y_thresh = 0.1;
 
 std::vector<Particle> Particles;
 
@@ -190,7 +196,8 @@ int main(int argc, char** argv)
 			tf::StampedTransform transform;
 			transform = tf::StampedTransform(tf::Transform(tf::createQuaternionFromYaw(0.0), tf::Vector3(0.0, 0.0, 0)), ros::Time::now(), "odom", "base_link");
 
-			try{
+			try
+			{
 				listener.waitForTransform("odom", "base_link", ros::Time(0), ros::Duration(1.0));
 				listener.lookupTransform("odom", "base_link", ros::Time(0), transform);
 			}
@@ -199,39 +206,65 @@ int main(int argc, char** argv)
 			{
 				ROS_ERROR("%s", ex.what());
 				ros::Duration(1.0).sleep();
-				ROS_INFO("Erorr! No.1");
 			}
 
 			current_pose.pose.position.x = transform.getOrigin().x();
 			current_pose.pose.position.y = transform.getOrigin().y();
 			quaternionTFToMsg(transform.getRotation(), current_pose.pose.orientation);
 
+			if(x_cov < x_thresh && y_cov < y_thresh)
+			{
+				std::vector<Particle> reset_particles;
+				
+				x_cov = 0.3;
+				y_cov = 0.3;
+				
+				for(int i=0;i<N;i++)
+				{
+					Particle p;
+
+					p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation));
+					reset_particles.push_back(p);
+				}
+
+				Particles = reset_particles;
+			}
+
+
+			double sum = 0;
 
 			for(int i=0;i<N;i++)
 			{
 				Particles[i].motion_update(current_pose, previous_pose, i);
 			}
 
-			double sum = 0;
-
+				
 			for(int i=0;i<N;i++)
 			{
 				Particles[i].measurement_update();
 				sum += Particles[i].weight;
 			}
-			
-			double w_ave = 0;
+
+			double w_ave = 0.0;
 			int max_index = 0;
-			
+
 			for(int i=0;i<N;i++)
 			{
-				w_ave += Particles[i].weight / (double)N;
-				Particles[i].weight /= sum;
+				w_ave += Particles[i].weight;
 				if(Particles[i].weight > Particles[max_index].weight)
 					max_index = i;
+				Particles[i].weight /= sum;
 			}
 
-			if(w_slow == 0)
+			w_ave /= (double)N;
+
+			if(w_ave == 0.0 || std::isnan(w_ave))
+			{
+				w_ave = 1 / (double)N;
+				w_slow = w_fast = w_ave;
+			}
+
+			if(w_slow == 0.0)
 			{
 				w_slow = w_ave;
 			}
@@ -241,7 +274,7 @@ int main(int argc, char** argv)
 				w_slow += a_slow*(w_ave - w_slow);
 			}
 
-			if(w_fast == 0)
+			if(w_fast == 0.0)
 			{
 				w_fast = w_ave;
 			}
@@ -250,64 +283,89 @@ int main(int argc, char** argv)
 			{
 				w_fast += a_fast*(w_ave - w_fast);
 			}
+
+			if(update_flag)
+			{
+				
+				//resampling step
+				int index = rand1(mt) * N;
+				double beta = 0.0;
+				double w;
+
+				std::vector<Particle> New_Particles;
+
+				w = 1 - (w_fast / w_slow);
+
+				if(w<0)
+				{
+					w =0;
+				}
+
+				for(int i=0;i<N;i++)
+				{
+					if(w < rand1(mt))
+					{
+						beta += rand1(mt) * 2 * Particles[max_index].weight;
+							while(beta > Particles[index].weight)
+							{
+								beta -= Particles[index].weight;
+								index = (index+1) % N;
+							}
+
+						New_Particles.push_back(Particles[index]);
+					}
+
+					else
+					{
+						Particle p;
+						p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation));
+						New_Particles.push_back(p);
+					}
+				}
 			
-			//resampling step
-			int index = rand1(mt) * N;
-			double beta = 0;
-			double w;
+				double est_yaw;
+				est_yaw = Get_Yaw(Particles[max_index].pose.pose.orientation);
 
-			std::vector<Particle> New_Particles;
+				Particles = New_Particles;
 
-			w = 1 - (w_fast / w_slow);
+				double sum_x = 0;
+				double sum_y = 0;
+				double sum_yaw = 0;
 
-			if(w<0)
-			{
-				w =0;
-			}
-
-			for(int i=0;i<N;i++)
-			{
-				if(w < rand1(mt))
+				for(int i=0;i<N;i++)
 				{
-					beta += rand1(mt) * 2 * Particles[max_index].weight;
-						while(beta > Particles[index].weight)
-						{
-							beta -= Particles[index].weight;
-							index = (index+1) % N;
-						}
-
-					New_Particles.push_back(Particles[index]);
+					poses.poses[i] = Particles[i].pose.pose;
+					sum_x += Particles[i].pose.pose.position.x;
+					sum_y += Particles[i].pose.pose.position.y;
+					sum_yaw += Get_Yaw(Particles[i].pose.pose.orientation);
 				}
 
-				else
+				sum_x /= N;
+				sum_y /= N;
+				sum_yaw /= N;
+
+				estimated_pose.pose.position.x = sum_x;
+				estimated_pose.pose.position.y = sum_y;
+				quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
+
+				double new_x_cov = 0.0;
+				double new_y_cov = 0.0;
+				double new_yaw_cov = 0.0;
+
+				for(int i=0;i<N;i++)
 				{
-					Particle p;
-					p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation));
-					New_Particles.push_back(p);
+					new_x_cov += (Particles[i].pose.pose.position.x - sum_x) * (Particles[i].pose.pose.position.x - sum_x);
+					new_y_cov += (Particles[i].pose.pose.position.y - sum_y) * (Particles[i].pose.pose.position.y - sum_y);
+					new_yaw_cov += (Get_Yaw(Particles[i].pose.pose.orientation) - sum_yaw) * (Get_Yaw(Particles[i].pose.pose.orientation) - sum_yaw);
 				}
-			}
-		
-			double est_yaw;
-			est_yaw = Get_Yaw(Particles[max_index].pose.pose.orientation);
 
-			Particles = New_Particles;
-
-			double sum_x = 0;
-			double sum_y = 0;
-
-			for(int i=0;i<N;i++)
-			{
-				poses.poses[i] = Particles[i].pose.pose;
-				sum_x += Particles[i].pose.pose.position.x;
-				sum_y += Particles[i].pose.pose.position.y;
+				x_cov = sqrt(new_x_cov/N);
+				y_cov = sqrt(new_y_cov/N);
+				yaw_cov = sqrt(new_yaw_cov/N);
 			}
 
-			sum_x /= N;
-			sum_y /= N;
-
-			estimated_pose.pose.position.x = sum_x;
-			estimated_pose.pose.position.y = sum_y;
-			quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
+			update_flag = false;
+		}
 
 			geometry_msgs::PoseWithCovarianceStamped _estimated_pose;
 			_estimated_pose.pose.pose = estimated_pose.pose;
@@ -315,7 +373,8 @@ int main(int argc, char** argv)
 			pose_pub.publish(_estimated_pose);
 			pose_array_pub.publish(poses);
 
-			try{
+			try
+			{
 				tf::StampedTransform map_transform;
 				map_transform.setOrigin(tf::Vector3(estimated_pose.pose.position.x, estimated_pose.pose.position.y, 0.0));
 				map_transform.setRotation(tf::Quaternion(0, 0, Get_Yaw(estimated_pose.pose.orientation), 1));
@@ -331,12 +390,10 @@ int main(int argc, char** argv)
 			{
 				std::cout << "Error!" << std::endl;
 				std::cout << ex.what() << std::endl;
-				ROS_INFO("Erorr! No.2");
 			}
 
-		}
 		ros::spinOnce();
-		rate.sleep();
+	rate.sleep();
 
 		previous_pose = current_pose;
 	}
@@ -373,24 +430,26 @@ double calc_range(double p_x, double p_y, double yaw)
 	x1 = (p_x + Max_Range * cos(yaw) - map.info.origin.position.x) / map.info.resolution;
 	y1 = (p_y + Max_Range * sin(yaw) - map.info.origin.position.y) / map.info.resolution;
 	
-	dx = fabs(x1 - x0);
-	dy = fabs(y1 - y0);
+	if(fabs(x1 - x0) < fabs(y1 - y0))
+	{
+		flag = true;
+	}
 
-	if(dy > dx)
+	if(flag)
 	{
 		int temp = x1;
-		x1 = x0;
-		x0 = temp;
+		x1 = y1;
+		y1 = temp;
 
-		temp = y1;
-		y1 = y0;
+		temp = x0;
+		x0 = y0;
 		y0 = temp;
 
-		flag = true;
 	}
 	
 	dx = fabs(x1 - x0);
     dy = fabs(y1 - y0);
+
 	x = x0;
 	y = y0;
 
@@ -477,10 +536,22 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
     dy = current.pose.position.y - previous.pose.position.y;
     dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
 
+	motion_log +=sqrt(dx*dx + dy*dy);
+	yaw_log += fabs(dyaw);
+
+	if(motion_log > 0.2 || yaw_log >0.15)
+	{
+		update_flag = true;
+		motion_log = 0.0;
+		yaw_log = 0.0;
+	}
+
 	if(dx*dx + dy*dy<0.01)
 		del_rot1 = 0;
+
 	else
 		del_rot1 = cul_angle_diff(atan2(dy,dx), Get_Yaw(previous.pose.orientation));
+
 	del_trans = sqrt(dx*dx + dy*dy);
 	del_rot2 = cul_angle_diff(dyaw, del_rot1);
 	
@@ -490,27 +561,52 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 	del_rot1_hat = cul_angle_diff(del_rot1, rand_nomal(0.0, a_1*del_rot1_noise*del_rot1_noise - a_2*del_trans*del_trans));
 	del_trans_hat = del_trans - rand_nomal(0.0, a_3*del_trans*del_trans + a_4*del_rot1_noise*del_rot1_noise + a_4*del_rot2_noise*del_rot2_noise);
 	del_rot2_hat = cul_angle_diff(del_rot2, rand_nomal(0.0, a_1*del_rot2_noise*del_rot2_noise - a_2*del_trans*del_trans));
-
+	
     pose.pose.position.x += del_trans_hat * cos(yaw + del_rot1_hat);
     pose.pose.position.y += del_trans_hat * sin(yaw + del_rot1_hat);
     quaternionTFToMsg(tf::createQuaternionFromYaw(yaw + del_rot1_hat + del_rot2_hat), pose.pose.orientation);
+	
 }
 
 void Particle::measurement_update()
 {
 	double range_diff = 0;
-	double p;
-	double range_diff_sum = 0; 
+	double p = 1.0;
+	double pz;
+	double map_range; 
 	double angle;
 
+	double z_short = 0.1;
+	double z_hit = 0.7;
+	double z_max = 0.1;
+	double z_random = 0.1;
+	
 	for(int i=0;i<laser.ranges.size();i+=range_count)
 	{
 		angle = i*laser.angle_increment - M_PI / 2;
-		range_diff += laser.ranges[i] - calc_range(pose.pose.position.x, pose.pose.position.y, Get_Yaw(pose.pose.orientation)+angle);
-		range_diff_sum += range_diff * range_diff;
-	}
+		map_range = calc_range(pose.pose.position.x, pose.pose.position.y, Get_Yaw(pose.pose.orientation)+angle);
+		range_diff += laser.ranges[i] - map_range;
+		pz = 0.0;
+		
+		pz += exp(-1*(range_diff)/(2 * sigma* sigma)); 
 
-	p = exp(-1*(range_diff_sum)/(2 * sigma* sigma));
+		if(range_diff < 0)
+		{
+			pz += z_short * exp(-z_short * map_range);
+		}
+
+		if(map_range == Max_Range)
+		{
+			pz += z_max * 1.0;
+		}
+
+		if(map_range < Max_Range)
+		{
+			pz += z_random * 1.0 / Max_Range;
+		}
+
+		p += pow(pz,3);
+	}
 
 	weight *= p;
 }

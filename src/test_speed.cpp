@@ -23,30 +23,39 @@ int main(int argc, char **argv)
 {
     int status = 0;
     int count = 0;
-    ofstream change_x("./speed.txt");
-    ofstream change_z("./roatate.txt");
+    float buf_rundist = 0.0;
+    float speed_sum = 0.0;
+    float speed = 0.0;
+
+    ofstream outputfile("/home/amsl/Desktop/speed.txt");
     ros::init(argc, argv, "roatation");
     ros::NodeHandle roomba_ctrl_pub;
     ros::NodeHandle roomba_odometry_sub;
     ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);
     ros::Subscriber odometry_sub = roomba_odometry_sub.subscribe("/roomba/odometry", 1, odometrycallback);
     ros::Rate loop_rate(10);
+    roomba_500driver_meiji::RoombaCtrl msg;
+    msg.mode = 11;
+    msg.cntl.linear.x = 0.00;
+    msg.cntl.angular.z = 0.00;
+
     while (ros::ok())
     {
-        roomba_500driver_meiji::RoombaCtrl msg;
 
-        msg.mode = 11;
         switch(status){
             case 0:
-                msg.cntl.linear.x = 0.00;
-                msg.cntl.angular.z = 0.00;
-                if(count%100 == 0){
-                    msg.cntl.linear.x = (float)count / 1000;
+                if(count%20 == 0){
+                    speed = speed_sum / 10.0;
+                    outputfile<<speed<<"\n";
+                    msg.cntl.linear.x = (float)count / 200.0;
                 }
-                change_x<<"x:\t"<<msg.cntl.linear.x<<"\t";
-                change_x<<"rundist:\t"<<rundist<<"\n";
+                if(count%20 > 10){
+                    speed_sum += (rundist - buf_rundist) / 0.10;
+                }
+                buf_rundist = rundist;
                 if(msg.cntl.linear.x > 1.00){
                     count=0;
+                    ROS_INFO("dist : %f", rundist);
                     status++;
                 }
                 break;
@@ -54,27 +63,7 @@ int main(int argc, char **argv)
             case 1:
 		msg.cntl.linear.x = 0.00;
                 msg.cntl.angular.z = 0.00;
-		if(count > 300 ){
-                     status++;
-                 }
                  break;
-
-            case 2:
-                msg.cntl.linear.x = 0.00;
-                msg.cntl.angular.z = 0.00;
-                if(count%100 == 0){
-                    msg.cntl.linear.z = (float)count / 1000;
-                }
-                change_z<<"z:\t"<<msg.cntl.angular.z<<"\t";
-                change_z<<"theata:\t"<<theta<<"\n";
-                if(msg.cntl.angular.z > 1.00){
-                    count=0;
-                    status++;
-                }
-                break;
-            case 3:
-                msg.cntl.linear.x = 0.00;
-                msg.cntl.angular.z = 0.00;
             default:
                 ROS_INFO("Error. status : %d", status);
         }

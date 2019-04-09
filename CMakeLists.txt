@@ -264,5 +264,14 @@ target_link_libraries(DWA ${catkin_LIBRARIES})
 add_executable(laser_test src/laser_test.cpp)
 target_link_libraries(laser_test ${catkin_LIBRARIES})
 
-add_executable(test_speed_accel src/test_speed_accel.cpp)
-target_link_libraries(test_speed_accel ${catkin_LIBRARIES})
+add_executable(test_speed src/test_speed.cpp)
+target_link_libraries(test_speed ${catkin_LIBRARIES})
+
+add_executable(test_accel src/test_accel.cpp)
+target_link_libraries(test_accel ${catkin_LIBRARIES})
+
+add_executable(test_omega src/test_omega.cpp)
+target_link_libraries(test_omega ${catkin_LIBRARIES})
+
+add_executable(test_domega src/test_domega.cpp)
+target_link_libraries(test_domega ${catkin_LIBRARIES})
