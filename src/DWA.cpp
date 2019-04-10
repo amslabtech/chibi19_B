@@ -17,8 +17,8 @@
 #define to_goal_cost_gain 0.0
 #define speed_cost_gain 0.0
 #define robot_radius 0.19
-#define roomba_v_gain 2.5
-#define roomba_omega_gain 1.25
+#define roomba_v_gain 20
+#define roomba_omega_gain 0.5
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment;
 
