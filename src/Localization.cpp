@@ -362,7 +362,7 @@ int main(int argc, char** argv)
 				x_cov = sqrt(new_x_cov/N);
 				y_cov = sqrt(new_y_cov/N);
 				yaw_cov = sqrt(new_yaw_cov/N);
-		//	}
+			}
 
 			update_flag = false;
 		}
