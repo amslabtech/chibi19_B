@@ -4,6 +4,7 @@ import rospy
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 from matplotlib.patches import Circle, Polygon, Rectangle
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
@@ -11,6 +12,17 @@ from cv_bridge import CvBridge, CvBridgeError
 
 #fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 #out = cv2.VideoWriter('/home/amsl/Desktop/output.avi',fourcc, 20.0, (640,480))
+
+def calc_rect_area(rect_points):
+    x1, y1 = rect_points[0]
+    x2, y2 = rect_points[1]
+    x3, y3 = rect_points[2]
+
+    w = math.sqrt((x1-x2)**2 + (y1-y2)**2)
+    h = math.sqrt((x2-x3)**2 + (y2-y3)**2)
+
+    return w*h
+
 
 def draw_contours(ax, img, contours):
     ax.imshow(img)
@@ -31,20 +43,17 @@ def callback(data):
 
 
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    #cv2.imshow('gray', img_gray)
 
     img_blur = cv2.GaussianBlur(img_gray, (11, 11), 0)
-    #cv2.imshow('blur', img_blur)
 
     # binarization
     ret, img_threshold = cv2.threshold(img_blur, 200, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    cv2.imshow( 'threshold', img_threshold)
 
     contours = cv2.findContours(img_threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
     min_th_area = img.shape[0] * img.shape[1] / 100
-    max_th_area = img.shape[0] * img.shape[1] / 4
-    contours_lar = list(filter(lambda c:cv2.contourArea(c) > min_th_area, contours))
-    contours_large = list(filter(lambda c:cv2.contourArea(c) < max_th_area, contours_lar))
+    max_th_area = img.shape[0] * img.shape[1] / 3
+    contours_large = list(filter(lambda c:cv2.contourArea(c) > min_th_area, contours))
+    contours_large = list(filter(lambda c:cv2.contourArea(c) < max_th_area, contours_large))
 
     approx_contours = []
     for i, cnt in enumerate(contours_large):
@@ -57,36 +66,105 @@ def callback(data):
         if len(approx_contours[i]) < 10:
             approx_contours_large.append(approx_contours[i])
 
-    try:
-        for i, cnt in enumerate(approx_contours_large):
-            for j in range(len(cnt)):
-                x2, y2 = cnt[j][0]
-                if j is 0:
-                    num = len(cnt)-1
-                    x1, y1 = cnt[num][0]
-                    img_approx_contours_large = cv2.line(img, (x1,y1) , (x2,y2), (0,0,255), 3)
-                else:
-                    img_approx_contours_large = cv2.line(img, (x1,y1) , (x2,y2), (0,0,255), 3)
-                x1, y1 = x2, y2
-        cv2.imshow("approx_contours_large", img_approx_contours_large)
-        cv2.imwrite('/home/amsl/Desktop/white_line.jpg', img_approx_contours_large)
-    except:
-        cv2.imshow("approx_contours_large", img)
-        cv2.imwrite('/home/amsl/Desktop/white_line.jpg', img)
+    final_contours = []
+    for i, cnt in enumerate(approx_contours_large):
+        rect = cv2.minAreaRect(cnt)
+        (cx, cy), (width, height), angle = rect
+        rect_points = cv2.boxPoints(rect)
+        rect_area = calc_rect_area(rect_points)
+        area = cv2.contourArea(cnt)
+        if(area > rect_area * 0.80):
+            final_contours.append(cnt)
+
+    img_contours = img.copy()
+    for i, cnt in enumerate(contours):
+        for j in range(len(cnt)):
+            x2, y2 = cnt[j][0]
+            if j is 0:
+                num = len(cnt)-1
+                x1, y1 = cnt[num][0]
+                img_contours = cv2.line(img_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+            else:
+                img_contours = cv2.line(img_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+            x1, y1 = x2, y2
+
+
+    img_contours_large = img.copy()
+    for i, cnt in enumerate(contours_large):
+        for j in range(len(cnt)):
+            x2, y2 = cnt[j][0]
+            if j is 0:
+                num = len(cnt)-1
+                x1, y1 = cnt[num][0]
+                img_contours_large = cv2.line(img_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
+            else:
+                img_contours_large = cv2.line(img_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
+            x1, y1 = x2, y2
+
+
+    img_approx_contours = img.copy()
+    for i, cnt in enumerate(approx_contours):
+        for j in range(len(cnt)):
+            x2, y2 = cnt[j][0]
+            if j is 0:
+                num = len(cnt)-1
+                x1, y1 = cnt[num][0]
+                img_approx_contours = cv2.line(img_approx_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+            else:
+                img_approx_contours = cv2.line(img_approx_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+            x1, y1 = x2, y2
+
+
+    img_approx_contours_large = img.copy()
+    for i, cnt in enumerate(approx_contours_large):
+        for j in range(len(cnt)):
+            x2, y2 = cnt[j][0]
+            if j is 0:
+                num = len(cnt)-1
+                x1, y1 = cnt[num][0]
+                img_approx_contours_large = cv2.line(img_approx_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
+            else:
+                img_approx_contours_large = cv2.line(img_approx_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
+            x1, y1 = x2, y2
+    #cv2.imwrite('/home/amsl/Desktop/white_line.jpg', img_approx_contours_large)
     #out.write(img_approx_contours_large)
 
 
 
-    #img_canny = cv2.Canny(img_threshold, 50, 110) # edge detection
-    #cv2.imshow( 'canny', img_canny)
+    img_final_contours = img.copy()
+    for i, cnt in enumerate(final_contours):
+        for j in range(len(cnt)):
+            x2, y2 = cnt[j][0]
+            if j is 0:
+                num = len(cnt)-1
+                x1, y1 = cnt[num][0]
+                img_final_contours = cv2.line(img_final_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+            else:
+                img_final_contours = cv2.line(img_final_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+            x1, y1 = x2, y2
 
-    #lines = cv2.HoughLinesP(img_canny, rho=1, theta=np.pi/360, threshold=30, minLineLength=30, maxLineGap=80)
-    #for line in lines:
-    #    x1, y1, x2, y2 = line[0]
-    #    img_red_line = cv2.line(img, (x1,y1), (x2,y2), (0,0,255), 3)
-    #cv2.imshow("red_line", img_red_line)
 
+    #cv2.imshow("img", img)
+    #cv2.imshow('gray', img_gray)
+    #cv2.imshow('blur', img_blur)
+    #cv2.imshow('threshold', img_threshold)
+    #cv2.imshow("contours", img_contours)
+    #cv2.imshow("contours_large", img_contours_large)
+    #cv2.imshow("contours", img_approx_contours)
+    #cv2.imshow("approx_contours_large", img_approx_contours_large)
+    #cv2.imshow("final_contours", img_final_contours)
+
+    cv2.imwrite("/home/amsl/Desktop/img.jpg", img)
+    cv2.imwrite('/home/amsl/Desktop/gray.jpg', img_gray)
+    cv2.imwrite('/home/amsl/Desktop/blur.jpg', img_blur)
     cv2.imwrite('/home/amsl/Desktop/threshold.jpg', img_threshold)
+    cv2.imwrite("/home/amsl/Desktop/contours.jpg", img_contours)
+    cv2.imwrite("/home/amsl/Desktop/contours_large.jpg", img_contours_large)
+    cv2.imwrite("/home/amsl/Desktop/approx_contours.jpg", img_approx_contours)
+    cv2.imwrite("/home/amsl/Desktop/approx_contours_large.jpg", img_approx_contours_large)
+    cv2.imwrite("/home/amsl/Desktop/final_contours.jpg", img_final_contours)
+
+    #cv2.imwrite(threshold.jpg', img_threshold)
 
     if cv2.waitKey(3) == 'q':
         out.release()
