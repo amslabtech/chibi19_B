@@ -188,6 +188,7 @@ int main(int argc, char** argv)
 
 	while(ros::ok())
 	{
+		
 		if(map_get && !laser.ranges.empty())
 		{
 			estimated_pose.header.frame_id = "map";
@@ -235,10 +236,9 @@ int main(int argc, char** argv)
 
 			for(int i=0;i<N;i++)
 			{
-				Particles[i].motion_update(current_pose, previous_pose, i);
+				Particles[i].motion_update(current_pose, previous_pose, i);		//checked 2019-04-10
 			}
 
-				
 			for(int i=0;i<N;i++)
 			{
 				Particles[i].measurement_update();
@@ -346,7 +346,7 @@ int main(int argc, char** argv)
 
 				estimated_pose.pose.position.x = sum_x;
 				estimated_pose.pose.position.y = sum_y;
-				quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
+				quaternionTFToMsg(tf::createQuaternionFromYaw(sum_yaw), estimated_pose.pose.orientation);
 
 				double new_x_cov = 0.0;
 				double new_y_cov = 0.0;
@@ -362,7 +362,7 @@ int main(int argc, char** argv)
 				x_cov = sqrt(new_x_cov/N);
 				y_cov = sqrt(new_y_cov/N);
 				yaw_cov = sqrt(new_yaw_cov/N);
-			}
+		//	}
 
 			update_flag = false;
 		}
@@ -546,11 +546,11 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 		yaw_log = 0.0;
 	}
 
-	if(dx*dx + dy*dy<0.01)
+	if(sqrt(dx*dx + dy*dy)<0.01)
 		del_rot1 = 0;
 
 	else
-		del_rot1 = cul_angle_diff(atan2(dy,dx), Get_Yaw(previous.pose.orientation));
+		del_rot1 = dyaw;
 
 	del_trans = sqrt(dx*dx + dy*dy);
 	del_rot2 = cul_angle_diff(dyaw, del_rot1);
