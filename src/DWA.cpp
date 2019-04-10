@@ -134,7 +134,7 @@ double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 				return infinity;
 			}
 
-			ROS_INFO("x_od = %f, x_traj = %f, y_ob = %f, y_traj = %f", x_obstacle, x_traj, y_obstacle, y-traj);
+			ROS_INFO("x_od = %f, x_traj = %f, y_ob = %f, y_traj = %f", x_obstacle, x_traj, y_obstacle, y_traj);
 			ROS_INFO("r = %d\n", r);
 
 			if(min_r >= r){
