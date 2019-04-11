@@ -241,7 +241,7 @@ int main(int argc, char **argv)
 			break;
 		}*/
 	ctrl_pub.publish(msg);
-	ROS_INFO("x = %f, z = %f\n", msg.cntl.linear.x, msg.cntl.angular.z);
+	ROS_INFO("x = %f, z = %f, v = %f, omega = %f", msg.cntl.linear.x, msg.cntl.angular.z, roomba.v, roomba.omega);
 	loop_rate.sleep();
 	}
 	
