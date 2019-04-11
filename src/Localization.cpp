@@ -47,34 +47,34 @@ public:
 private:
 };
 
-const int N = 500;
-double init_x = 0.0;
-double init_y = 0.0;
-double init_yaw = 0.0;
-double init_x_cov = 0.5;
-double init_y_cov = 0.5;
-double init_yaw_cov = 0.5;
-double Max_Range = 20;
+int N;
+double init_x;
+double init_y;
+double init_yaw;
+double init_x_cov;
+double init_y_cov;
+double init_yaw_cov;
+double Max_Range;
 double w_slow = 0.0;
 double w_fast = 0.0;
 double sigma = 3.0;
-double a_slow = 0.001;
-double a_fast = 0.1;
-double range_count = 3;
-double a_1 = 0.3;
-double a_2 = 0.3;
-double a_3 = 0.1;
-double a_4 = 0.1;
+double a_slow;
+double a_fast;
+double range_count;
+double a_1;
+double a_2;
+double a_3;
+double a_4;
 
 double motion_log = 0.0;
 double yaw_log  =0.0;
 
-double x_thresh = 0.1;
-double y_thresh = 0.1;
+double x_thresh;
+double y_thresh;
 
-double x_cov = init_x_cov;
-double y_cov = init_y_cov;
-double yaw_cov = init_yaw_cov;
+double x_cov = 0.5;
+double y_cov = 0.5;
+double yaw_cov = 0.5;
 
 std::vector<Particle> Particles;
 
@@ -169,10 +169,28 @@ int main(int argc, char** argv)
 {
     ros::init(argc,argv,"Localization");
     ros::NodeHandle nh;
-    ros::NodeHandle local_nh("~");
+    ros::NodeHandle private_nh("~");
     
     ROS_INFO("Started\n");
-   
+
+	private_nh.getParam("N", N);
+	private_nh.getParam("init_x", init_x);
+	private_nh.getParam("init_y", init_y);
+	private_nh.getParam("init_yaw", init_yaw);
+	private_nh.getParam("init_x_cov", init_x_cov);
+	private_nh.getParam("init_y_cov", init_y_cov);
+	private_nh.getParam("init_yaw_cov", init_yaw_cov);
+	private_nh.getParam("Max_Range", Max_Range);
+	private_nh.getParam("range_count", range_count);
+	private_nh.getParam("a_slow", a_slow);
+	private_nh.getParam("a_fast", a_fast);
+	private_nh.getParam("a_1", a_1);
+	private_nh.getParam("a_2", a_2);
+	private_nh.getParam("a_3", a_3);
+	private_nh.getParam("a_4", a_4);
+	private_nh.getParam("X_thresh", x_thresh);
+	private_nh.getParam("y_thresh", y_thresh);
+
     ros::Subscriber map_sub = nh.subscribe("/map",100, map_callback);
 	ros::Subscriber laser_sub = nh.subscribe("/scan",100, laser_callback);
 	ros::Publisher pose_pub = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("/chibi19/estimated_pose",100);
@@ -217,7 +235,7 @@ int main(int argc, char** argv)
 			current_pose.pose.position.y = transform.getOrigin().y();
 			quaternionTFToMsg(transform.getRotation(), current_pose.pose.orientation);
 
-			if(x_cov < x_thresh && y_cov < y_thresh)
+			if(x_cov < x_thresh || y_cov < y_thresh)
 			{
 				std::vector<Particle> reset_particles;
 				
