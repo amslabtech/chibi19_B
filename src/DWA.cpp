@@ -8,8 +8,8 @@
 #define max_speed 0.40
 #define min_speed 0.1
 #define max_yawrate 0.85
-#define max_accel 0.2
-#define max_dyawrate 1.0
+#define max_accel 5.0
+#define max_dyawrate 2.0
 #define v_reso 0.05
 #define yawrate_reso 1.0
 #define dt 0.1f
