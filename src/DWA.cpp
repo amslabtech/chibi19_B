@@ -17,8 +17,6 @@
 #define to_goal_cost_gain 0.0
 #define speed_cost_gain 0.0
 #define robot_radius 0.19
-#define roomba_v_gain 20
-#define roomba_omega_gain 0.5
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment;
 
@@ -70,6 +68,8 @@ void calc_dynamic_window(double dw[4], State roomba){
 	dw[1] = std::min(Vs[1], Vd[1]);
 	dw[2] = std::min(Vs[2], Vd[2]);
 	dw[3] = std::min(Vs[3], Vd[3]);
+
+	ROS_INFO("[0] = %f, [1] = %f, [2] = %f, [3] = %f", dw[0], dw[1], dw[2], dw[3]);
 }
 
 void calc_trajectory(std::vector<State> &traj, double i, double j){
@@ -77,10 +77,17 @@ void calc_trajectory(std::vector<State> &traj, double i, double j){
 	State roomba = {0.0, 0.0, 0.0, 0.0, 0.0};
 	Speed u ={i,j}; 
 	traj.clear();
+	int k = 0;
 
 	for(double t = 0.0; t <= predict_time; t += dt){
-		motion(roomba, u);
+		roomba.yaw += u.omega * dt;
+		roomba.x += u.v * std::cos(roomba.yaw) * dt;
+		roomba.y += u.v * std::sin(roomba.yaw) * dt;
+		roomba.v = u.v;
+		roomba.omega = u.omega;
 		traj.push_back(roomba);
+		//ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
+		k++;
 	}
 }
 
@@ -122,8 +129,6 @@ double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 		
 		for(int j = 0;j < N;j += skip_j){
 			
-			ROS_INFO("j = %d\n", j);
-
 			r = 0;
 
 			angle_obstacle = Ldata[j].angle;
@@ -164,7 +169,6 @@ void calc_final_input(State roomba, Speed &u, double dw[4], Goal goal){
 			calc_trajectory(traj, i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal);
 			speed_cost = calc_speed_cost(traj);
-			ROS_INFO("1\n");
 			ob_cost = calc_obstacle_cost(roomba, traj, goal);
 
 			final_cost = to_goal_cost + speed_cost + ob_cost;
@@ -214,7 +218,7 @@ int main(int argc, char **argv)
 	//[x, y, yaw, v, omega]	
 	Goal goal = {10000, 10000};
 	Speed u = {0.0, 0.0};
-	double dw[] = {0.0, 0.0, 0.0, 0.0};
+	double dw[4] = {0.0, 0.0, 0.0, 0.0};
 
 	while(ros::ok())
 	{
@@ -230,8 +234,8 @@ int main(int argc, char **argv)
 	roomba.v = u.v;
 	roomba.omega = u.omega;
 
-	msg.cntl.linear.x = roomba.v * roomba_v_gain;
-	msg.cntl.angular.z = roomba.omega * roomba_omega_gain;
+	msg.cntl.linear.x = roomba.v / max_speed;
+	msg.cntl.angular.z = roomba.omega / max_yawrate;
 
 	//check goal
 /*	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
