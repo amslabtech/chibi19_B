@@ -75,6 +75,7 @@ void calc_trajectory(std::vector<State> &traj, double i, double j){
 	State roomba = {0.0, 0.0, 0.0, 0.0, 0.0};
 	Speed u ={i,j}; 
 	traj.clear();
+	int k = 0;
 
 	for(double t = 0.0; t <= predict_time; t += dt){
 		roomba.yaw += u.omega * dt;
@@ -83,6 +84,8 @@ void calc_trajectory(std::vector<State> &traj, double i, double j){
 		roomba.v = u.v;
 		roomba.omega = u.omega;
 		traj.push_back(roomba);
+		ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
+		k++;
 	}
 }
 
@@ -124,8 +127,6 @@ double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 		
 		for(int j = 0;j < N;j += skip_j){
 			
-			ROS_INFO("j = %d\n", j);
-
 			r = 0;
 
 			angle_obstacle = Ldata[j].angle;
