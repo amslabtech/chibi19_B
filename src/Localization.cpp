@@ -36,7 +36,7 @@ class Particle
 {
 public:
     Particle(void);
-    void p_init(double,double, double);
+    void p_init(double,double, double, double, double, double);
     void motion_update(geometry_msgs::PoseStamped, geometry_msgs::PoseStamped, int);
     void measurement_update();
     
@@ -51,9 +51,9 @@ const int N = 500;
 double init_x = 0.0;
 double init_y = 0.0;
 double init_yaw = 0.0;
-double x_cov = 0.5;
-double y_cov = 0.5;
-double yaw_cov = 0.5;
+double init_x_cov = 0.5;
+double init_y_cov = 0.5;
+double init_yaw_cov = 0.5;
 double Max_Range = 20;
 double w_slow = 0.0;
 double w_fast = 0.0;
@@ -72,6 +72,10 @@ double yaw_log  =0.0;
 double x_thresh = 0.1;
 double y_thresh = 0.1;
 
+double x_cov = init_x_cov;
+double y_cov = init_y_cov;
+double yaw_cov = init_yaw_cov;
+
 std::vector<Particle> Particles;
 
 double Get_Yaw(const geometry_msgs::Quaternion);
@@ -84,7 +88,7 @@ void map_callback(const nav_msgs::OccupancyGridConstPtr& msg)
     for(int i = 0;i < N;i++)
     {
         Particle p;
-		p.p_init(init_x, init_y, init_yaw);
+		p.p_init(init_x, init_y, init_yaw, init_x_cov, init_y_cov, init_yaw_cov);
 
 		geometry_msgs::Pose particle_pose;
 
@@ -224,7 +228,7 @@ int main(int argc, char** argv)
 				{
 					Particle p;
 
-					p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation));
+					p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation), x_cov, y_cov , yaw_cov);
 					reset_particles.push_back(p);
 				}
 
@@ -318,7 +322,7 @@ int main(int argc, char** argv)
 					else
 					{
 						Particle p;
-						p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation));
+						p.p_init(estimated_pose.pose.position.x, estimated_pose.pose.position.y, Get_Yaw(estimated_pose.pose.orientation), init_x_cov,init_y_cov, init_yaw_cov);
 						New_Particles.push_back(p);
 					}
 				}
@@ -514,12 +518,12 @@ double calc_range(double p_x, double p_y, double yaw)
 	return Max_Range;
 }
 
-void Particle::p_init(double x, double y, double theta)
+void Particle::p_init(double x, double y, double theta, double cov_1, double cov_2, double cov_3)
 {
     do{
-		pose.pose.position.x = rand_nomal(x, x_cov);
-    	pose.pose.position.y = rand_nomal(y, y_cov);
-    	quaternionTFToMsg(tf::createQuaternionFromYaw(rand_nomal(theta, yaw_cov)), pose.pose.orientation);
+		pose.pose.position.x = rand_nomal(x, cov_1);
+    	pose.pose.position.y = rand_nomal(y, cov_2);
+    	quaternionTFToMsg(tf::createQuaternionFromYaw(rand_nomal(theta, cov_3)), pose.pose.orientation);
 		}while(map.data[get_index(pose.pose.position.x, pose.pose.position.y)]!=0);
 }
 
@@ -576,19 +580,19 @@ void Particle::measurement_update()
 	double map_range; 
 	double angle;
 
-	double z_short = 0.1;
-	double z_hit = 0.7;
-	double z_max = 0.1;
-	double z_random = 0.1;
+	double z_short = 0.0;
+	double z_hit = 0.8;
+	double z_max = 0.0;
+	double z_random = 0.2;
 	
 	for(int i=0;i<laser.ranges.size();i+=range_count)
 	{
-		angle = i*laser.angle_increment - M_PI / 2;
+		angle = i*laser.angle_increment + laser.angle_min;
 		map_range = calc_range(pose.pose.position.x, pose.pose.position.y, Get_Yaw(pose.pose.orientation)+angle);
-		range_diff += laser.ranges[i] - map_range;
+		range_diff = laser.ranges[i] - map_range;
 		pz = 0.0;
 		
-		pz += exp(-1*(range_diff)/(2 * sigma* sigma)); 
+		pz += exp(-1*(range_diff * range_diff)/(2 * sigma* sigma)); 
 
 		if(range_diff < 0)
 		{
@@ -608,5 +612,5 @@ void Particle::measurement_update()
 		p += pow(pz,3);
 	}
 
-	weight *= p;
+	weight = p;
 }
