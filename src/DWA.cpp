@@ -68,6 +68,8 @@ void calc_dynamic_window(double dw[4], State roomba){
 	dw[1] = std::min(Vs[1], Vd[1]);
 	dw[2] = std::min(Vs[2], Vd[2]);
 	dw[3] = std::min(Vs[3], Vd[3]);
+
+	ROS_INFO("[0] = %f, [1] = %f, [2] = %f, [3] = %f", dw[0], dw[1], dw[2], dw[3]);
 }
 
 void calc_trajectory(std::vector<State> &traj, double i, double j){
@@ -84,7 +86,7 @@ void calc_trajectory(std::vector<State> &traj, double i, double j){
 		roomba.v = u.v;
 		roomba.omega = u.omega;
 		traj.push_back(roomba);
-		ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
+		//ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
 		k++;
 	}
 }
@@ -216,7 +218,7 @@ int main(int argc, char **argv)
 	//[x, y, yaw, v, omega]	
 	Goal goal = {10000, 10000};
 	Speed u = {0.0, 0.0};
-	double dw[] = {0.0, 0.0, 0.0, 0.0};
+	double dw[4] = {0.0, 0.0, 0.0, 0.0};
 
 	while(ros::ok())
 	{
