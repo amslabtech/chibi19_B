@@ -22,7 +22,28 @@ int delta[d][2] = {{-1,0,},
                      {1,1 },
                      {0,1 },
                      {-1,1}};
+
+//int delta[d][2] = {{-1,0,},
+//                   {-2,-1},
+//                   {-1,-1},
+//                   {-1,-2},
+//                   {0,-1 },
+//                   {1,-2 },
+//                   {1,-1 },
+//                   {2,-1 },
+//                   {1,0  },
+//                   {2,1  },
+//                   {1,1  },
+//                   {1,2  },
+//                   {0,1  },
+//                   {-1,2 },
+//                   {-1,1 },
+//                   {-2,1 }};
+//
 float delta_cost[d] = {1.0,sqrtf(2.0),1.0,sqrtf(2.0),1.0,sqrtf(2.0 ),1.0,sqrtf(2.0)}; 
+//
+
+//float delta_cost[d] = {1.0,sqrtf(5.0),sqrtf(2.0),sqrtf(5.0),1.0,sqrtf(5.0),sqrtf(2.0),sqrtf(5.0),1.0,sqrtf(5.0),sqrtf(2.0 ),sqrtf(5.0),1.0,sqrtf(5.0),sqrtf(2.0),sqrtf(5.0)}; 
 
 int grid[row][column];
 int open_grid[row][column];
@@ -31,6 +52,7 @@ int heuristic[row][column];
 
 nav_msgs::Path global_path;
 nav_msgs::Path connect_path;
+geometry_msgs::PointStamped target_point;
 
 struct Point
 {
@@ -42,7 +64,7 @@ struct Point
 
 	bool operator<(const Point &another) const
 	{
-        return cost > another.cost;//年齢を比較
+        return cost > another.cost;
     };
 };
 
@@ -140,9 +162,9 @@ int search(const int init[2],const int goal[2])
 		get_param(open_Point[open_Point.size()-1],cost,gvalue,x,y,direction);
 		open_Point.pop_back();
 		close_grid[y][x] = 1;
-		open_grid[y][x] = (direction+4)%8;
+		open_grid[y][x] = (direction+d/2)%d;
 		for(int i=0;i<d;i++){
-			direction2 = (direction+4)%8;
+			direction2 = (direction+d/2)%d;
 			if(i != direction2){
 				x2 = x + delta[i][1];
 				y2 = y + delta[i][0];
@@ -153,7 +175,7 @@ int search(const int init[2],const int goal[2])
 						//open_grid[y2][x2] = (i+4)%8;
 						open_Point.push_back(make_Point(cost2,gvalue2,x2,y2,i));
 						if(heuristic[y2][x2] == 0){
-							open_grid[y2][x2] = (i+4)%8;
+							open_grid[y2][x2] = (i+d/2)%d;
 							i=d;
 							step = row*column;
 							ROS_INFO("success");
@@ -213,20 +235,6 @@ void get_path(int goal[2])
 	ROS_INFO("get finish");
 }
 
-void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
-{   
-	int count = 0;
-    nav_msgs::OccupancyGrid _msg = *msg;
-    ROS_INFO("map received.");
-    for(int i=row-1;i>-1;i--){
-        for(int j=0;j<column;j++){
-            grid[i][j] = _msg.data[count];
-			count++;
-        }
-    }
-    global_path.header.frame_id = "map";
-}
-
 void set_randmark(const float x,const float y)
 {
 	int init[2];
@@ -238,25 +246,45 @@ void set_randmark(const float x,const float y)
 
 	to_gridnum(ini_x,ini_y,init);
 	to_gridnum(x,y,goal);
-	search(init,goal);
-	get_path(goal);
+	if(grid[goal[0]][goal[1]] == 0){
+		search(init,goal);
+		get_path(goal);
+	}
+	else ROS_INFO("goal is not free space.");
 }
 
 void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 {
-	int init[2];
-	int goal[2];
-	float x = global_path.poses.back().pose.position.x;
-	float y = global_path.poses.back().pose.position.y;
-
     geometry_msgs::PointStamped _msg = *msg;
-    ROS_INFO("%.2f,%.2f,%.2f",_msg.point.x,_msg.point.y,_msg.point.z);
-    ROS_INFO("%.2f,%.2f",x,y);
 
-	to_gridnum(x,y,init);
-	to_gridnum(_msg.point.x,_msg.point.y,goal);
-	search(init,goal);
-	get_path(goal);
+	int t_dis = 100;
+	int target_i;
+	float x = _msg.point.x;
+	float y = _msg.point.y;
+	float dis;
+
+    ROS_INFO("click point =(%.2f,%.2f)",x,y);
+	
+	float min = pow((x-global_path.poses[0].pose.position.x),2.0)+pow((y-global_path.poses[0].pose.position.y),2.0);
+	int min_i = 0;
+
+	for(int i=0;i<global_path.poses.size();i++){
+		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
+		if(dis < min){
+			min = dis;
+			min_i = i;
+		}
+	}
+	if((min_i+t_dis) > global_path.poses.size()-1) 
+		target_i = global_path.poses.size();
+	else 
+		target_i = min_i+t_dis;
+
+	target_point.point.x = global_path.poses[target_i].pose.position.x;
+	target_point.point.y = global_path.poses[target_i].pose.position.y;
+	target_point.point.z = 0;
+	target_point.header.frame_id = "map";
+	ROS_INFO("target = (%.2f,%.2f)",target_point.point.x ,target_point.point.y);
 }
 
 void set_init(const float x,const float y)
@@ -272,11 +300,33 @@ void set_init(const float x,const float y)
 void round_DF1()
 {	
 	set_init(0.0,0.0);
- 	set_randmark(-17.15,-0.10);
+
+	set_randmark(-17.15,-0.10);
  	set_randmark(-17.25,13.67);
  	set_randmark(16.0,14.17);
  	set_randmark(16.19,-0.18);
- 	set_randmark(0.0,0.0);
+
+// 	set_randmark(-16.00,-4.70);
+// 	set_randmark(-19.59,8.84);
+// 	set_randmark(12.55,17.27);
+// 	set_randmark(16.15,3.70);
+
+	set_randmark(0.0,0.0);
+}
+
+void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
+{   
+	int count = 0;
+    nav_msgs::OccupancyGrid _msg = *msg;
+    ROS_INFO("map received.");
+    for(int i=row-1;i>-1;i--){
+        for(int j=0;j<column;j++){
+            grid[i][j] = _msg.data[count];
+			count++;
+        }
+    }
+    global_path.header.frame_id = "map";
+	round_DF1();
 }
 
 int main(int argc, char **argv)
@@ -285,16 +335,19 @@ int main(int argc, char **argv)
 	ros::NodeHandle path;
     ros::NodeHandle map;
     ros::NodeHandle click;
+	ros::NodeHandle target;
     ros::Subscriber map_sub = map.subscribe("map",1,map_sub_callback);
     ros::Subscriber click_sub = click.subscribe("clicked_point",1,click_callback);
     ros::Publisher path_pub = path.advertise<nav_msgs::Path>("chibi19_b/global_path", 1);
-    ros::Rate loop_rate(0.3);
+	ros::Publisher target_pub = target.advertise<geometry_msgs::PointStamped>("chibi19_b/target", 1);
+    ros::Rate loop_rate(1.0);
 
-	round_DF1();
+	//round_DF1();
 
 	while (ros::ok()){
           path_pub.publish(global_path);
-		  ROS_INFO("path is published");
+		  target_pub.publish(target_point);
+		  ROS_INFO("path is published (point %lu)",global_path.poses.size());
           ros::spinOnce();
           loop_rate.sleep();
     }
