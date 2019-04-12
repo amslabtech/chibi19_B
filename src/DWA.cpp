@@ -160,7 +160,7 @@ double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 			}
 		}
 	}
-	ROS_INFO("obstacle_cost = %f", 1.0 / min_r);
+	//ROS_INFO("obstacle_cost = %f", 1.0 / min_r);
 	return 1.0 / min_r;
 }
 
@@ -255,11 +255,12 @@ int main(int argc, char **argv)
 /*	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
 			printf("Goal!!!");
 			msg.cntl.linear.x = 0.0;
+			B
 			msg.cntl.angular.z = 0.0;
 			break;
 		}*/
 	ctrl_pub.publish(msg);
-	//ROS_INFO("x = %f, z = %f, v = %f, omega = %f", msg.cntl.linear.x, msg.cntl.angular.z, roomba.v, roomba.omega);
+	ROS_INFO("x = %f, z = %f, v = %f, omega = %f", msg.cntl.linear.x, msg.cntl.angular.z, roomba.v, roomba.omega);
 	loop_rate.sleep();
 	}
 	
