@@ -145,9 +145,9 @@ double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 			x_obstacle = x_roomba + range_obstacle * std::cos(angle_obstacle);
 			y_obstacle = y_roomba + range_obstacle * std::sin(angle_obstacle);
 			r = std::sqrt(pow(x_obstacle - x_traj, 2.0) + pow(y_obstacle - y_traj, 2.0));
-
 			
 			ROS_INFO("l = %d, r = %f", l, r);
+			ROS_INFO("x_roomba = %f, range_obstacle = %f, angle = %f, cos = %f", roomba.x, range_obstacle, angle_obstacle, std::cos(angle_obstacle));
 			ROS_INFO("x_od = %f, x_traj = %f, y_ob = %f, y_traj = %f", x_obstacle, x_traj, y_obstacle, y_traj);
 
 			
