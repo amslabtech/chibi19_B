@@ -160,7 +160,7 @@ double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 			}
 		}
 	}
-	ROS_INFO("obstacle_cost = %f", 1.0 / min_r);
+	ROS_INFO("obstacle_cost = %f", min_r);
 	return 1.0 / min_r;
 }
 
