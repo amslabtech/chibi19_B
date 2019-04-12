@@ -116,8 +116,8 @@ double calc_speed_cost(std::vector<State> traj){
 
 double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 	
-	int skip_i = 2;
-	int skip_j = 20;
+	int skip_k = 2;
+	int skip_l = 20;
 	double min_r = std::numeric_limits<double>::infinity();
 	double infinity = std::numeric_limits<double>::infinity();	
 	double x_traj;
@@ -130,24 +130,24 @@ double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 	double x_obstacle;
 	double y_obstacle;
 	
-	for(int i = 0;i < traj.size();i += skip_i){
-		x_traj = traj[i].x;
-		y_traj = traj[i].y;
+	for(int k = 0;k < traj.size();k += skip_k){
+		x_traj = traj[k].x;
+		y_traj = traj[k].y;
 
-		ROS_INFO("i = %d", i);
+		ROS_INFO("i = %d", k);
 
-		for(int j = 0;j < N;j += skip_j){
+		for(int l = 0;l < N;l += skip_l){
 			
 			r = 0;
 
-			angle_obstacle = Ldata[j].angle;
-			range_obstacle = Ldata[j].range;
+			angle_obstacle = Ldata[l].angle;
+			range_obstacle = Ldata[l].range;
 			x_obstacle = x_roomba + range_obstacle * std::cos(angle_obstacle);
 			y_obstacle = y_roomba + range_obstacle * std::sin(angle_obstacle);
 			r = std::sqrt(pow(x_obstacle - x_traj, 2.0) + pow(y_obstacle - y_traj, 2.0));
 
 			
-			ROS_INFO("j = %d, r = %f", j, r);
+			ROS_INFO("j = %d, r = %d", k, l);
 			ROS_INFO("x_od = %f, x_traj = %f, y_ob = %f, y_traj = %f", x_obstacle, x_traj, y_obstacle, y_traj);
 
 			
@@ -215,14 +215,16 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {	
-	ros::init(argc, argv, "dwa");	
+	ros::init(argc, argv, "dwa");
 	ros::NodeHandle roomba_ctrl_pub;
+	ros::NodeHandle roomba_odometry_sub;
 	ros::NodeHandle scan_laser_sub;
 	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);	
 	ros::Subscriber laser_sub = scan_laser_sub.subscribe("scan", 1, lasercallback);	
 	ros::Rate loop_rate(10);
 	
 	roomba_500driver_meiji::RoombaCtrl msg;
+	nav_msgs::Odometry _msg;
 	msg.mode = 11;
 
 	State roomba = {0.0, 0.0, 0.0, 0.0, 0.0};
@@ -240,10 +242,13 @@ int main(int argc, char **argv)
 	dwa_control(roomba, u, goal, dw);
 	//motion(roomba, u);
 	roomba.yaw += u.omega * dt;
-	roomba.x += u.v * std::cos(roomba.yaw) * dt;
-	roomba.y += u.v * std::sin(roomba.yaw) * dt;
+	//roomba.x += u.v * std::cos(roomba.yaw) * dt;
+	//roomba.y += u.v * std::sin(roomba.yaw) * dt;
 	roomba.v = u.v;
 	roomba.omega = u.omega;
+
+	roomba.x = _msg.pose.pose.position.x;
+	roomba.y = _msg.pose.pose.position.y;
 
 	msg.cntl.linear.x = roomba.v / max_speed;
 	msg.cntl.angular.z = roomba.omega / max_yawrate;
