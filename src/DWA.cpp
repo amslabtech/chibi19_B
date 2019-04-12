@@ -225,6 +225,7 @@ int main(int argc, char **argv)
 	
 	roomba_500driver_meiji::RoombaCtrl msg;
 	nav_msgs::Odometry _msg;
+
 	msg.mode = 11;
 
 	State roomba = {0.0, 0.0, 0.0, 0.0, 0.0};
