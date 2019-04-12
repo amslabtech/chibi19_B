@@ -240,15 +240,14 @@ int main(int argc, char **argv)
 	
 	dwa_control(roomba, u, goal, dw);
 	//motion(roomba, u);
-	roomba.yaw += u.omega * dt;
+	//roomba.yaw += u.omega * dt;
 	//roomba.x += u.v * std::cos(roomba.yaw) * dt;
 	//roomba.y += u.v * std::sin(roomba.yaw) * dt;
 	roomba.v = u.v;
 	roomba.omega = u.omega;
-
 	roomba.x = _msg.pose.pose.position.x;
 	roomba.y = _msg.pose.pose.position.y;
-
+	
 	msg.cntl.linear.x = roomba.v / max_speed;
 	msg.cntl.angular.z = roomba.omega / max_yawrate;
 
