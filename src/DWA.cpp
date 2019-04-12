@@ -117,7 +117,7 @@ double calc_speed_cost(std::vector<State> traj){
 double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 	
 	int skip_i = 2;
-	int skip_j = 30;
+	int skip_j = 20;
 	double min_r = std::numeric_limits<double>::infinity();
 	double infinity = std::numeric_limits<double>::infinity();	
 	double x_traj;
@@ -158,7 +158,7 @@ double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 			}
 		}
 	}
-
+	ROS_INFO("obstacle_cost = %f", 1.0 / min_r);
 	return 1.0 / min_r;
 }
 
