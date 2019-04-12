@@ -238,8 +238,6 @@ int main(int argc, char **argv)
 	{
 	ros::spinOnce();
 	
-	ROS_INFO("loop");
-
 	dwa_control(roomba, u, goal, dw);
 	//motion(roomba, u);
 	roomba.yaw += u.omega * dt;
