@@ -170,10 +170,10 @@ void calc_final_input(State roomba, Speed &u, Dynamic_Window &dw, Goal goal){
 	Speed min_u = u;
 	min_u.v = 0.0;
 	std::vector<State> traj;
-	double to_goal_cost;
-	double speed_cost;
-	double ob_cost;
-	double final_cost;
+	double to_goal_cost = 0.0;
+	double speed_cost = 0.0;
+	double ob_cost = 0.0;
+	double final_cost = 0.0;
 
 	for(double i = dw.min_v ; i < dw.max_v ; i += v_reso ){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
