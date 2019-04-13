@@ -17,8 +17,8 @@
 #define to_goal_cost_gain 0.0
 #define speed_cost_gain 0.0
 #define robot_radius 0.19
-#define roomba_v_gain 0.5
-#define roomba_omega_gain 0.5
+#define roomba_v_gain 0.3
+#define roomba_omega_gain 0.3
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment;
 
@@ -148,8 +148,8 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj, Goal goal){
 				continue;
 			}
 
-			if(range_obstacle > 10.0){
-				range_obstacle = 10.0;
+			if(range_obstacle > 30.0){
+				range_obstacle = 30.0;
 			}
 
 			x_obstacle = x_roomba + range_obstacle * std::cos(angle_obstacle);
