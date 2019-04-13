@@ -141,6 +141,8 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj, Goal goal){
 			angle_obstacle = Ldata[l].angle;
 			range_obstacle = Ldata[l].range;
 
+			ROS_INFO("angle = %f, range = %f", angle_obstacle, range_obstacle);
+
 			if(range_obstacle > 10.0){
 				range_obstacle = 10.0;
 			}
@@ -151,7 +153,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj, Goal goal){
 			
 			//ROS_INFO("l = %d, r = %f", l, r);
 			//ROS_INFO("x_roomba = %f, range_obstacle = %f, angle = %f, cos = %f", roomba.x, range_obstacle, angle_obstacle, std::cos(angle_obstacle));
-			ROS_INFO("x_od = %f, y_ob = %f", x_obstacle, y_obstacle);
+			//ROS_INFO("x_od = %f, y_ob = %f", x_obstacle, y_obstacle);
 			
 			if(r <= robot_radius){
 				return infinity;
