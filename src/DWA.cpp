@@ -11,7 +11,7 @@
 #define max_accel 5.0
 #define max_dyawrate 2.0
 #define v_reso 0.05
-#define yawrate_reso 1.0
+#define yawrate_reso 0.05
 #define dt 0.1f
 #define predict_time 3.0
 #define to_goal_cost_gain 0.0
@@ -76,7 +76,7 @@ void calc_dynamic_window(Dynamic_Window &dw, State& roomba){
 	dw.min_omega = std::max(Vs.min_omega, Vd.min_omega);
 	dw.max_omega = std::min(Vs.max_omega, Vd.max_omega);
 
-	ROS_INFO("[0] = %f, [1] = %f, [2] = %f, [3] = %f", dw.min_v, dw.max_v, dw.min_omega, dw.max_omega);
+	//ROS_INFO("[0] = %f, [1] = %f, [2] = %f, [3] = %f", dw.min_v, dw.max_v, dw.min_omega, dw.max_omega);
 }
 
 void calc_trajectory(std::vector<State> &traj, double i, double j){
@@ -93,7 +93,7 @@ void calc_trajectory(std::vector<State> &traj, double i, double j){
 		roomba.v = u.v;
 		roomba.omega = u.omega;
 		traj.push_back(roomba);
-		//ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
+		ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
 		k++;
 	}
 }
