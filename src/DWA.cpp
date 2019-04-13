@@ -16,7 +16,7 @@
 #define predict_time 3.0
 #define to_goal_cost_gain 0.0
 #define speed_cost_gain 0.0
-#define robot_radius 0.19
+#define robot_radius 0.25
 #define roomba_v_gain 0.5
 #define roomba_omega_gain 0.3
 
