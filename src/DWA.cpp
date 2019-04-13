@@ -133,8 +133,9 @@ double calc_obstacle_cost(State roomba, std::vector<State> &traj, Goal goal){
 	for(int k = 0;k < traj.size();k += skip_k){
 		x_traj = traj[k].x;
 		y_traj = traj[k].y;
+		double size = traj.size();
 
-		//ROS_INFO("traj.size = %f", traj.size());
+		ROS_INFO("traj.size = %f", size);
 
 		for(int l = 0;l < N;l += skip_l){
 			
