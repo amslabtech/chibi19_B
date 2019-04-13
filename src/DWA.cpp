@@ -17,6 +17,8 @@
 #define to_goal_cost_gain 0.0
 #define speed_cost_gain 0.0
 #define robot_radius 0.19
+#define roomba_v_gain 0.5
+#define roomba_omega_gain 0.5
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment;
 
@@ -117,7 +119,7 @@ double calc_speed_cost(std::vector<State> traj){
 double calc_obstacle_cost(State roomba, std::vector<State>& traj, Goal goal){
 	
 	int skip_k = 2;
-	int skip_l = 20;
+	int skip_l = 5;
 	double min_r = std::numeric_limits<double>::infinity();
 	double infinity = std::numeric_limits<double>::infinity();	
 	double x_traj;
@@ -258,8 +260,8 @@ int main(int argc, char **argv)
 	
 	dwa_control(roomba, u, goal, dw);
 	
-	msg.cntl.linear.x = roomba.v / max_speed;
-	msg.cntl.angular.z = roomba.omega / max_yawrate;
+	msg.cntl.linear.x = roomba_v_gain * roomba.v / max_speed;
+	msg.cntl.angular.z = roomba_omega_gain * roomba.omega / max_yawrate;
 
 	//check goal
 /*	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
