@@ -93,7 +93,7 @@ void calc_trajectory(std::vector<State> &traj, double i, double j){
 		roomba.v = u.v;
 		roomba.omega = u.omega;
 		traj.push_back(roomba);
-		//ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
+		ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
 		k++;
 	}
 }
