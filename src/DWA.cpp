@@ -250,7 +250,7 @@ int main(int argc, char **argv)
 	dwa_control(roomba, u, goal, dw);
 	
 	msg.cntl.linear.x = roomba.v / (max_speed * 4);
-	msg.cntl.angular.z = roomba.omega / max_yawrate;
+	msg.cntl.angular.z = roomba.omega / (max_yawrate * 4);
 
 	//check goal
 /*	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
