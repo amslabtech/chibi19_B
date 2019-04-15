@@ -4,6 +4,8 @@
 #include "nav_msgs/Odometry.h"
 #include "math.h"
 #include <tf/tf.h>
+#include "geometry_msgs/PointStamped.h"
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 #define max_speed 0.40
 #define min_speed 0.1
@@ -53,6 +55,20 @@ struct Dynamic_Window{
 };
 
 LaserData Ldata[N];
+Goal goal = {0, 0};
+geometry_msgs::PoseWithCovarianceStamped est_pose_msg;
+
+void estpose_callback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+{
+	est_pose_msg = *msg;
+}
+void targetpose_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
+{
+	geometry_msgs::PointStamped _msg = *msg;
+	goal.x = _msg.point.x;
+	goal.y = _msg.point.y;
+}
+
 
 void motion(State& roomba, Speed u){
 	roomba.yaw += u.omega * dt;
@@ -229,18 +245,21 @@ int main(int argc, char **argv)
 	ros::NodeHandle roomba_ctrl_pub;
 	ros::NodeHandle roomba_odometry_sub;
 	ros::NodeHandle scan_laser_sub;
+	ros::NodeHandle est_pose;
+	ros::NodeHandle target_pose;
 	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);	
 	ros::Subscriber laser_sub = scan_laser_sub.subscribe("scan", 1, lasercallback);	
+	ros::Subscriber est_pose_sub = est_pose.subscribe("/chibi19/estimated_pose", 1, estpose_callback);	
+	ros::Subscriber target_pose_sub = target_pose.subscribe("chibi19_b/target", 1, targetpose_callback);	
 	ros::Rate loop_rate(10);
 	
 	roomba_500driver_meiji::RoombaCtrl msg;
-	nav_msgs::Odometry _msg;
 
 	msg.mode = 11;
 
 	State roomba = {0.0, 0.0, 0.0, 0.0, 0.0};
 	//[x, y, yaw, v, omega]	
-	Goal goal = {10000, 10000};
+	/////////////////Goal goal = {10000, 10000};
 	Speed u = {0.0, 0.0};
 	Dynamic_Window dw = {0.0, 0.0, 0.0, 0.0};
 
@@ -255,8 +274,8 @@ int main(int argc, char **argv)
 	roomba.yaw = u.omega * dt;
 	roomba.v = u.v;
 	roomba.omega = u.omega;
-	roomba.x = _msg.pose.pose.position.x;
-	roomba.y = _msg.pose.pose.position.y;
+	roomba.x = est_pose_msg.pose.pose.position.x;
+	roomba.y = est_pose_msg.pose.pose.position.y;
 	
 	dwa_control(roomba, u, goal, dw);
 	
