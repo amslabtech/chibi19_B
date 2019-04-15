@@ -5,6 +5,7 @@
 #include "nav_msgs/Path.h"
 #include "geometry_msgs/PointStamped.h"
 #include "geometry_msgs/PoseStamped.h"
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include <tf/transform_listener.h>
 //aaa
 
@@ -257,7 +258,7 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 {
     geometry_msgs::PointStamped _msg = *msg;
 
-	int t_dis = 100;
+	int t_dis = 50;
 	int target_i;
 	float x = _msg.point.x;
 	float y = _msg.point.y;
@@ -287,33 +288,68 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 	ROS_INFO("target = (%.2f,%.2f)",target_point.point.x ,target_point.point.y);
 }
 
-void set_init(const float x,const float y)
+
+void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
 {
-	geometry_msgs::PoseStamped path_point;
-	path_point.pose.position.x = x;
-	path_point.pose.position.y = y;
-	path_point.pose.position.z = 0;
-	path_point.pose.orientation=tf::createQuaternionMsgFromYaw(0);
-	global_path.poses.push_back(path_point);
+    geometry_msgs::PoseWithCovarianceStamped _msg = *msg;
+
+	int t_dis = 30;
+	int target_i;
+	float x = _msg.pose.pose.position.x;
+	float y = _msg.pose.pose.position.y;
+	float dis;
+
+    ROS_INFO("locali_p =(%.2f,%.2f)",x,y);
+	
+	float min = pow((x-global_path.poses[0].pose.position.x),2.0)+pow((y-global_path.poses[0].pose.position.y),2.0);
+	int min_i = 0;
+
+	for(int i=0;i<global_path.poses.size();i++){
+		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
+		if(dis < min){
+			min = dis;
+			min_i = i;
+		}
+	}
+	if((min_i+t_dis) > global_path.poses.size()-1) 
+		target_i = global_path.poses.size();
+	else 
+		target_i = min_i+t_dis;
+
+	target_point.point.x = global_path.poses[target_i].pose.position.x;
+	target_point.point.y = global_path.poses[target_i].pose.position.y;
+	target_point.point.z = 0;
+	target_point.header.frame_id = "map";
+	ROS_INFO("target = (%.2f,%.2f)",target_point.point.x ,target_point.point.y);
 }
 
-void round_DF1()
-{	
-	set_init(0.0,0.0);
+void set_init(const float x,const float y)
+ {
+ 	geometry_msgs::PoseStamped path_point;
+ 	path_point.pose.position.x = x;
+ 	path_point.pose.position.y = y;
+ 	path_point.pose.position.z = 0;
+ 	path_point.pose.orientation=tf::createQuaternionMsgFromYaw(0);
+ 	global_path.poses.push_back(path_point);
+ }
+ 
+ void round_DF1()
+ {	
+ 	set_init(0.0,0.0);
+ 
+ 	set_randmark(-17.15,-0.10);
+  	set_randmark(-17.25,13.67);
+  	set_randmark(16.0,14.17);
+  	set_randmark(16.19,-0.18);
+ 
+ // 	set_randmark(-16.00,-4.70);
+ // 	set_randmark(-19.59,8.84);
+ // 	set_randmark(12.55,17.27);
+ // 	set_randmark(16.15,3.70);
 
-	set_randmark(-17.15,-0.10);
- 	set_randmark(-17.25,13.67);
- 	set_randmark(16.0,14.17);
- 	set_randmark(16.19,-0.18);
-
-// 	set_randmark(-16.00,-4.70);
-// 	set_randmark(-19.59,8.84);
-// 	set_randmark(12.55,17.27);
-// 	set_randmark(16.15,3.70);
-
-	set_randmark(0.0,0.0);
-}
-
+ 	set_randmark(0.0,0.0);
+ }
+ 
 void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
 {   
 	int count = 0;
@@ -335,9 +371,11 @@ int main(int argc, char **argv)
 	ros::NodeHandle path;
     ros::NodeHandle map;
     ros::NodeHandle click;
+    ros::NodeHandle localization;
 	ros::NodeHandle target;
     ros::Subscriber map_sub = map.subscribe("map",1,map_sub_callback);
     ros::Subscriber click_sub = click.subscribe("clicked_point",1,click_callback);
+    ros::Subscriber localization_sub = localization.subscribe("/chibi19/estimated_pose",1,localization_callback);
     ros::Publisher path_pub = path.advertise<nav_msgs::Path>("chibi19_b/global_path", 1);
 	ros::Publisher target_pub = target.advertise<geometry_msgs::PointStamped>("chibi19_b/target", 1);
     ros::Rate loop_rate(1.0);
