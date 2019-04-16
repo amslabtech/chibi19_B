@@ -336,11 +336,12 @@ void set_init(const float x,const float y)
  void round_DF1()
  {	
  	set_init(0.0,0.0);
- 
- 	set_randmark(-17.15,-0.10);
-  	set_randmark(-17.25,13.67);
-  	set_randmark(16.0,14.17);
+
   	set_randmark(16.19,-0.18);
+  	set_randmark(16.0,14.17);
+  	set_randmark(-17.34,14.25);
+ 	set_randmark(-17.15,-0.10);
+ 
  
  // 	set_randmark(-16.00,-4.70);
  // 	set_randmark(-19.59,8.84);
