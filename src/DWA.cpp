@@ -7,22 +7,22 @@
 #include "geometry_msgs/PointStamped.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 
-#define max_speed 0.40
-#define min_speed 0.1
-#define max_yawrate 0.85
-#define max_accel 5.0
-#define max_dyawrate 2.0
-#define v_reso 0.05
-#define yawrate_reso 0.05
-#define dt 0.1f
-#define predict_time 3.0
-#define to_goal_cost_gain 1.0
-#define speed_cost_gain 0.0
-#define robot_radius 0.25
-#define roomba_v_gain 0.3
-#define roomba_omega_gain 0.3
+double max_speed;
+double min_speed;
+double max_yawrate;
+double max_accel;
+double max_dyawrate;
+double v_reso;
+double yawrate_reso;
+double dt;
+double predict_time;
+double to_goal_cost_gain;
+double speed_cost_gain;
+double robot_radius;
+double roomba_v_gain;
+double roomba_omega_gain;
 
-const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment;
+const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment
 
 struct State{
 	double x;
@@ -175,7 +175,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj, Goal goal){
 			r = std::sqrt(pow(x_obstacle - x_traj, 2.0) + pow(y_obstacle - y_traj, 2.0));
 			
 			//ROS_INFO("l = %d, r = %f", l, r);
-			//ROS_INFO("x_roomba = %f, range_obstacle = %f, angle = %f, cos = %f", roomba.x, range_obstacle, angle_obstacle, std::cos(angle_obstacle));
+			//ROS_INFO("x_roomba = %f, range_obstacle = %f, angle = %f, cos = %f", roomba.x, range_obstacle, angle_o bstacle, std::cos(angle_obstacle));
 			//ROS_INFO("x_od = %f, y_ob = %f", x_obstacle, y_obstacle);
 			
 			if(r <= robot_radius){
@@ -187,7 +187,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj, Goal goal){
 			}
 		}
 	}
-	ROS_INFO("obstacle_cost = %f", 1.0/min_r);
+	//ROS_INFO("obstacle_cost = %f", 1.0/min_r);
 	return 1.0 / min_r;
 }
 
@@ -249,6 +249,23 @@ int main(int argc, char **argv)
 	ros::NodeHandle scan_laser_sub;
 	ros::NodeHandle est_pose;
 	ros::NodeHandle target_pose;
+	ros::NodeHandle private_nh("~");
+
+	private_nh.getParam("max_speed", max_speed);
+	private_nh.getParam("min_speed", min_speed);
+	private_nh.getParam("max_yawrate", max_yawrate);
+	private_nh.getParam("max_accel", max_accel);
+	private_nh.getParam("max_dyawrate", max_dyawrate);
+	private_nh.getParam("v_reso", v_reso);
+	private_nh.getParam("yawrate_reso", yawrate_reso);
+	private_nh.getParam("dt", dt);
+	private_nh.getParam("predict_time", predict_time);
+	private_nh.getParam("to_goal_cost_gain", to_goal_cost_gain);
+	private_nh.getParam("speed_cost_gain", speed_cost_gain);
+	private_nh.getParam("robot_radius", robot_radius);
+	private_nh.getParam("roomba_v_gain", roomba_v_gain);
+	private_nh.getParam("roomba_omega_gain", roomba_omega_gain);
+
 	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);	
 	ros::Subscriber laser_sub = scan_laser_sub.subscribe("scan", 1, lasercallback);	
 	ros::Subscriber est_pose_sub = est_pose.subscribe("/chibi19/estimated_pose", 1, estpose_callback);	
