@@ -16,7 +16,6 @@
 
 #include <math.h>
 #include <random>
-
 //乱数の生成
 std::random_device rnd;
 std::mt19937 mt(rnd());
@@ -275,7 +274,7 @@ int main(int argc, char** argv)
 				w_ave += Particles[i].weight;
 				if(Particles[i].weight > Particles[max_index].weight)
 					max_index = i;
-				Particles[i].weight /= sum;
+					Particles[i].weight /= sum;
 			}
 
 			w_ave /= (double)N;
@@ -354,12 +353,15 @@ int main(int argc, char** argv)
 				double sum_y = 0;
 				double sum_yaw = 0;
 
-				for(int i=0;i<N;i++)
+				sort(New_Particles.begin(), New_Particles.end(),[](const Particle& x, const Particle& y) { return x.weight > y.weight;});
+
+ 
+				for(int i=0;i<N/2;i++)
 				{
-					poses.poses[i] = Particles[i].pose.pose;
-					sum_x += Particles[i].pose.pose.position.x;
-					sum_y += Particles[i].pose.pose.position.y;
-					sum_yaw += Get_Yaw(Particles[i].pose.pose.orientation);
+					poses.poses[i] = New_Particles[i].pose.pose;
+					sum_x += New_Particles[i].pose.pose.position.x;
+					sum_y += New_Particles[i].pose.pose.position.y;
+					sum_yaw += Get_Yaw(New_Particles[i].pose.pose.orientation);
 				}
 
 				sum_x /= N;
@@ -415,7 +417,7 @@ int main(int argc, char** argv)
 			}
 
 		ros::spinOnce();
-	rate.sleep();
+		rate.sleep();
 
 		previous_pose = current_pose;
 	}
