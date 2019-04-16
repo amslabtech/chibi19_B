@@ -219,7 +219,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 		}
 	}
 
-	ROS_INFO("final cost = %f", final_cost);
+	ROS_INFO("goal_cist = %f, speed_cost = %f, final cost = %f", to_goal_cost, speed_cost, final_cost);
 	u = min_u;
 }
 
