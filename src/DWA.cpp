@@ -94,7 +94,7 @@ void calc_dynamic_window(Dynamic_Window& dw, State& roomba){
 	dw.min_omega = std::max(Vs.min_omega, Vd.min_omega);
 	dw.max_omega = std::min(Vs.max_omega, Vd.max_omega);
 
-	//ROS_INFO("[0] = %f, [1] = %f, [2] = %f, [3] = %f", dw.min_v, dw.max_v, dw.min_omega, dw.max_omega);
+	ROS_INFO("[0] = %f, [1] = %f, [2] = %f, [3] = %f", dw.min_v, dw.max_v, dw.min_omega, dw.max_omega);
 }
 
 void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j){
