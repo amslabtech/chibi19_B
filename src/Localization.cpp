@@ -344,33 +344,34 @@ int main(int argc, char** argv)
 					}
 				}
 			
-				double est_yaw;
-				est_yaw = Get_Yaw(Particles[max_index].pose.pose.orientation);
-
 				Particles = New_Particles;
 
-				double sum_x = 0;
-				double sum_y = 0;
-				double sum_yaw = 0;
+				double ave_x = 0.0;
+				double ave_y = 0.0;
+				double ave_yaw = 0.0;
+
+				double est_x = 0.0;
+				double est_y = 0.0;
+				double est_yaw = 0.0;
 
 				sort(New_Particles.begin(), New_Particles.end(),[](const Particle& x, const Particle& y) { return x.weight > y.weight;});
 
  
 				for(int i=0;i<N/2;i++)
 				{
-					poses.poses[i] = New_Particles[i].pose.pose;
-					sum_x += New_Particles[i].pose.pose.position.x;
-					sum_y += New_Particles[i].pose.pose.position.y;
-					sum_yaw += Get_Yaw(New_Particles[i].pose.pose.orientation);
+					poses.poses[i] = Particles[i].pose.pose;
+					est_x += New_Particles[i].pose.pose.position.x;
+					est_y += New_Particles[i].pose.pose.position.y;
+					est_yaw += Get_Yaw(New_Particles[i].pose.pose.orientation);
 				}
 
-				sum_x /= N;
-				sum_y /= N;
-				sum_yaw /= N;
+				est_x /= N/2;
+				est_y /= N/2;
+				est_yaw /= N/2;
 
-				estimated_pose.pose.position.x = sum_x;
-				estimated_pose.pose.position.y = sum_y;
-				quaternionTFToMsg(tf::createQuaternionFromYaw(sum_yaw), estimated_pose.pose.orientation);
+				estimated_pose.pose.position.x = est_x;
+				estimated_pose.pose.position.y = est_y;
+				quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
 
 				double new_x_cov = 0.0;
 				double new_y_cov = 0.0;
@@ -378,9 +379,21 @@ int main(int argc, char** argv)
 
 				for(int i=0;i<N;i++)
 				{
-					new_x_cov += (Particles[i].pose.pose.position.x - sum_x) * (Particles[i].pose.pose.position.x - sum_x);
-					new_y_cov += (Particles[i].pose.pose.position.y - sum_y) * (Particles[i].pose.pose.position.y - sum_y);
-					new_yaw_cov += (Get_Yaw(Particles[i].pose.pose.orientation) - sum_yaw) * (Get_Yaw(Particles[i].pose.pose.orientation) - sum_yaw);
+					poses.poses[i] = New_Particles[i].pose.pose;
+					ave_x += Particles[i].pose.pose.position.x;
+					ave_y += Particles[i].pose.pose.position.x;
+					ave_yaw +=Get_Yaw(Particles[i].pose.pose.orientation);
+				}
+
+				ave_x /= N;
+				ave_y /= N;
+				ave_yaw /= N;
+
+				for(int i=0;i<N;i++)
+				{
+					new_x_cov += (Particles[i].pose.pose.position.x - ave_x) * (Particles[i].pose.pose.position.x - ave_x);
+					new_y_cov += (Particles[i].pose.pose.position.y - ave_y) * (Particles[i].pose.pose.position.y - ave_y);
+					new_yaw_cov += (Get_Yaw(Particles[i].pose.pose.orientation) - ave_yaw) * (Get_Yaw(Particles[i].pose.pose.orientation) - ave_yaw);
 				}
 
 				x_cov = sqrt(new_x_cov/N);
