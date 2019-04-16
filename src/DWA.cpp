@@ -16,10 +16,10 @@
 #define yawrate_reso 0.05
 #define dt 0.1f
 #define predict_time 3.0
-#define to_goal_cost_gain 0.0
+#define to_goal_cost_gain 1.0
 #define speed_cost_gain 0.0
 #define robot_radius 0.25
-#define roomba_v_gain 0.5
+#define roomba_v_gain 0.3
 #define roomba_omega_gain 0.3
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment;
@@ -97,20 +97,22 @@ void calc_dynamic_window(Dynamic_Window& dw, State& roomba){
 	//ROS_INFO("[0] = %f, [1] = %f, [2] = %f, [3] = %f", dw.min_v, dw.max_v, dw.min_omega, dw.max_omega);
 }
 
-void calc_trajectory(std::vector<State>& traj, double i, double j){
+void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j){
 	
-	State roomba = {0.0, 0.0, 0.0, 0.0, 0.0};
+	State roomba_traj = roomba;
 	Speed u ={i,j}; 
 	traj.clear();
 	int k = 0;
 
 	for(double t = 0.0; t <= predict_time; t += dt){
-		roomba.yaw += u.omega * dt;
-		roomba.x += u.v * std::cos(roomba.yaw) * dt;
-		roomba.y += u.v * std::sin(roomba.yaw) * dt;
-		roomba.v = u.v;
-		roomba.omega = u.omega;
-		traj.push_back(roomba);
+		roomba_traj.yaw += u.omega * dt;
+		roomba_traj.x += u.v * std::cos(roomba_traj.yaw) * dt;
+		roomba_traj.y += u.v * std::sin(roomba_traj.yaw) * dt;
+		roomba_traj.x = (roomba_traj.x * std::cos(roomba.yaw)) - (roomba_traj.y * std::sin(roomba.yaw));
+		roomba_traj.y = (roomba_traj.x * std::sin(roomba.yaw)) + (roomba_traj.y * std::sin(roomba.yaw));
+		roomba_traj.v = u.v;
+		roomba_traj.omega = u.omega;
+		traj.push_back(roomba_traj);
 		//ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
 		k++;
 	}
@@ -202,10 +204,10 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 
 	for(double i = dw.min_v ; i < dw.max_v ; i += v_reso ){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
-			calc_trajectory(traj, i, j);
+			calc_trajectory(traj, roomba,  i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal);
-			speed_cost = calc_speed_cost(traj);
-			ob_cost = calc_obstacle_cost(roomba, traj, goal);
+			//speed_cost = calc_speed_cost(traj);
+			//ob_cost = calc_obstacle_cost(roomba, traj, goal);
 
 			final_cost = to_goal_cost + speed_cost + ob_cost;
 
@@ -268,9 +270,6 @@ int main(int argc, char **argv)
 	ros::spinOnce();
 	
 	//motion(roomba, u);
-	//roomba.yaw += u.omega * dt;
-	//roomba.x += u.v * std::cos(roomba.yaw) * dt;
-	//roomba.y += u.v * std::sin(roomba.yaw) * dt;
 	roomba.yaw = u.omega * dt;
 	roomba.v = u.v;
 	roomba.omega = u.omega;
