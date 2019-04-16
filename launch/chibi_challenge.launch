@@ -19,4 +19,5 @@
 		<rosparam file="$(find chibi19_b)/config/param/Localization.yaml" command="load" />
 	
 	<node pkg="chibi19_b" type="global_path_planning" name="Global_path_planner" output="screen">
+	</node>
 </launch>
