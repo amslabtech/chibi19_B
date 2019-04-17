@@ -12,14 +12,17 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
     sensor_msgs::LaserScan _msg = *msg;
 
     const int N = int((_msg.angle_max - _msg.angle_min) / _msg.angle_increment);
-    float s = 0.0;
+    
+	ROS_INFO("max = %f, min = %f, increment = %f", _msg.angle_max, _msg.angle_min, _msg.angle_increment);
+	
+	float s = 0.0;
     float count = 0.0;
     LaserData Ldata[N];
     for(int i=0; i<N; i++){
         Ldata[i].angle = _msg.angle_min + i*_msg.angle_increment;
         Ldata[i].range = _msg.ranges[i];
 
-		if(Ldata[i].range < 0.17){
+		if(Ldata[i].range < 0.25){
 			printf("Ldata[%d].range = %.3f", i, Ldata[i].range);
 		}
     }
