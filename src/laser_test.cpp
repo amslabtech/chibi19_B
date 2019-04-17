@@ -23,7 +23,7 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         Ldata[i].range = _msg.ranges[i];
 
 		if(Ldata[i].range < 0.25){
-			printf("Ldata[%d].range = %.3f", i, Ldata[i].range);
+			ROS_INFO("Ldata[%d].range = %.3f", i, Ldata[i].range);
 		}
     }
 
