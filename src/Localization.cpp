@@ -365,9 +365,10 @@ int main(int argc, char** argv)
 					est_yaw += Get_Yaw(New_Particles[i].pose.pose.orientation);
 				}
 
-				est_x /= N/2;
-				est_y /= N/2;
-				est_yaw /= N/2;
+				double M = N/2;
+				est_x /= M;
+				est_y /= M;
+				est_yaw /= M;
 
 				estimated_pose.pose.position.x = est_x;
 				estimated_pose.pose.position.y = est_y;
@@ -381,8 +382,8 @@ int main(int argc, char** argv)
 				{
 					poses.poses[i] = New_Particles[i].pose.pose;
 					ave_x += Particles[i].pose.pose.position.x;
-					ave_y += Particles[i].pose.pose.position.x;
-					ave_yaw +=Get_Yaw(Particles[i].pose.pose.orientation);
+					ave_y += Particles[i].pose.pose.position.y;
+					ave_yaw += Get_Yaw(Particles[i].pose.pose.orientation);
 				}
 
 				ave_x /= N;
