@@ -1,5 +1,5 @@
 <launch>
-  <node pkg="chibi19_b" type="dwa" name="dwa" output="screen">
+  <node pkg="chibi19_b" type="DWA" name="DWA" output="screen">
 	<rosparam file="$(find chibi19_b)/config/param/DWA.yaml" command="load" />
   </node>
 </launch>
