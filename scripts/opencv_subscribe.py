@@ -76,58 +76,56 @@ def callback(data):
         if(area > rect_area * 0.80):
             final_contours.append(cnt)
 
-    img_contours = img.copy()
-    for i, cnt in enumerate(contours):
-        for j in range(len(cnt)):
-            x2, y2 = cnt[j][0]
-            if j is 0:
-                num = len(cnt)-1
-                x1, y1 = cnt[num][0]
-                img_contours = cv2.line(img_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
-            else:
-                img_contours = cv2.line(img_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
-            x1, y1 = x2, y2
+ #   img_contours = img.copy()
+ #   for i, cnt in enumerate(contours):
+ #       for j in range(len(cnt)):
+ #           x2, y2 = cnt[j][0]
+ #           if j is 0:
+ #               num = len(cnt)-1
+ #               x1, y1 = cnt[num][0]
+ #               img_contours = cv2.line(img_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+ #           else:
+ #               img_contours = cv2.line(img_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+ #           x1, y1 = x2, y2
 
 
-    img_contours_large = img.copy()
-    for i, cnt in enumerate(contours_large):
-        for j in range(len(cnt)):
-            x2, y2 = cnt[j][0]
-            if j is 0:
-                num = len(cnt)-1
-                x1, y1 = cnt[num][0]
-                img_contours_large = cv2.line(img_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
-            else:
-                img_contours_large = cv2.line(img_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
-            x1, y1 = x2, y2
+#    img_contours_large = img.copy()
+#    for i, cnt in enumerate(contours_large):
+#        for j in range(len(cnt)):
+#            x2, y2 = cnt[j][0]
+#            if j is 0:
+#                num = len(cnt)-1
+#                x1, y1 = cnt[num][0]
+#                img_contours_large = cv2.line(img_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
+#            else:
+#                img_contours_large = cv2.line(img_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
+#            x1, y1 = x2, y2
 
 
-    img_approx_contours = img.copy()
-    for i, cnt in enumerate(approx_contours):
-        for j in range(len(cnt)):
-            x2, y2 = cnt[j][0]
-            if j is 0:
-                num = len(cnt)-1
-                x1, y1 = cnt[num][0]
-                img_approx_contours = cv2.line(img_approx_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
-            else:
-                img_approx_contours = cv2.line(img_approx_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
-            x1, y1 = x2, y2
+#    img_approx_contours = img.copy()
+#    for i, cnt in enumerate(approx_contours):
+#        for j in range(len(cnt)):
+#            x2, y2 = cnt[j][0]
+#            if j is 0:
+#                num = len(cnt)-1
+#                x1, y1 = cnt[num][0]
+#                img_approx_contours = cv2.line(img_approx_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+#            else:
+#                img_approx_contours = cv2.line(img_approx_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
+#            x1, y1 = x2, y2
 
 
-    img_approx_contours_large = img.copy()
-    for i, cnt in enumerate(approx_contours_large):
-        for j in range(len(cnt)):
-            x2, y2 = cnt[j][0]
-            if j is 0:
-                num = len(cnt)-1
-                x1, y1 = cnt[num][0]
-                img_approx_contours_large = cv2.line(img_approx_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
-            else:
-                img_approx_contours_large = cv2.line(img_approx_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
-            x1, y1 = x2, y2
-    #cv2.imwrite('/home/amsl/Desktop/white_line.jpg', img_approx_contours_large)
-    #out.write(img_approx_contours_large)
+#    img_approx_contours_large = img.copy()
+#    for i, cnt in enumerate(approx_contours_large):
+#        for j in range(len(cnt)):
+#            x2, y2 = cnt[j][0]
+#            if j is 0:
+#                num = len(cnt)-1
+#                x1, y1 = cnt[num][0]
+#                img_approx_contours_large = cv2.line(img_approx_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
+#            else:
+#                img_approx_contours_large = cv2.line(img_approx_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
+#            x1, y1 = x2, y2
 
 
 
@@ -152,27 +150,34 @@ def callback(data):
     #cv2.imshow("contours_large", img_contours_large)
     #cv2.imshow("contours", img_approx_contours)
     #cv2.imshow("approx_contours_large", img_approx_contours_large)
-    #cv2.imshow("final_contours", img_final_contours)
+    cv2.imshow("final_contours", img_final_contours)
 
-    cv2.imwrite("/home/amsl/Desktop/img.jpg", img)
-    cv2.imwrite('/home/amsl/Desktop/gray.jpg', img_gray)
-    cv2.imwrite('/home/amsl/Desktop/blur.jpg', img_blur)
-    cv2.imwrite('/home/amsl/Desktop/threshold.jpg', img_threshold)
-    cv2.imwrite("/home/amsl/Desktop/contours.jpg", img_contours)
-    cv2.imwrite("/home/amsl/Desktop/contours_large.jpg", img_contours_large)
-    cv2.imwrite("/home/amsl/Desktop/approx_contours.jpg", img_approx_contours)
-    cv2.imwrite("/home/amsl/Desktop/approx_contours_large.jpg", img_approx_contours_large)
-    cv2.imwrite("/home/amsl/Desktop/final_contours.jpg", img_final_contours)
+    #cv2.imwrite("/home/amsl/Desktop/img.jpg", img)
+    #cv2.imwrite('/home/amsl/Desktop/gray.jpg', img_gray)
+    #cv2.imwrite('/home/amsl/Desktop/blur.jpg', img_blur)
+    #cv2.imwrite('/home/amsl/Desktop/threshold.jpg', img_threshold)
+    #cv2.imwrite("/home/amsl/Desktop/contours.jpg", img_contours)
+    #cv2.imwrite("/home/amsl/Desktop/contours_large.jpg", img_contours_large)
+    #cv2.imwrite("/home/amsl/Desktop/approx_contours.jpg", img_approx_contours)
+    #cv2.imwrite("/home/amsl/Desktop/approx_contours_large.jpg", img_approx_contours_large)
+    #cv2.imwrite("/home/amsl/Desktop/final_contours.jpg", img_final_contours)
 
     #cv2.imwrite(threshold.jpg', img_threshold)
 
-    if cv2.waitKey(3) == 'q':
-        out.release()
+    cv2.waitKey(3) == 'q':
+
+    if(final_contours):
+        res = True
+
+
 
 def listener():
     rospy.init_node('opencv_subscribe', anonymous=True)
     rospy.Subscriber("/usb_cam/image_raw", Image, callback)
     rospy.spin()
+
+res = False
+
 
 if __name__ == '__main__':
     listener()
