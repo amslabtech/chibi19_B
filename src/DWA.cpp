@@ -307,6 +307,7 @@ int main(int argc, char **argv)
 			break;
 		}*/
 	ctrl_pub.publish(msg);
+	ROS_INFO("roomba.x = %f, roomba.y = %f", roomba.x, roomba.y);
 	ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);
 	loop_rate.sleep();
 	}
