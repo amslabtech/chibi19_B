@@ -161,7 +161,7 @@ def callback(data):
     #cv2.imwrite("/home/amsl/Desktop/approx_contours.jpg", img_approx_contours)
     #cv2.imwrite("/home/amsl/Desktop/approx_contours_large.jpg", img_approx_contours_large)
     #cv2.imwrite("/home/amsl/Desktop/final_contours.jpg", img_final_contours)
-#
+
     #cv2.imwrite(threshold.jpg', img_threshold)
 
     cv2.waitKey(3) == 'q':
