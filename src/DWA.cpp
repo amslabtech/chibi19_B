@@ -24,6 +24,8 @@ double roomba_omega_gain;
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment
 
+bool turn = false;//false = Rigit, true = Left
+
 struct State{
 	double x;
 	double y;
@@ -122,11 +124,16 @@ void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j
 	}
 }
 
-double calc_to_goal_cost(std::vector<State>& traj, Goal goal){
+double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
+	
+	traj.back().x += roomba.x;
+	traj.back().y += roomba.y;
+	
 	double goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
 	double traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
 	double dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
 	double error = dot_product / (goal_magnitude * traj_magnitude);
+
 	double error_angle = std::acos(error);
 
 	return to_goal_cost_gain * error_angle;
@@ -217,8 +224,8 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 	for(double i = dw.min_v ; i < dw.max_v ; i += v_reso ){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
-			//to_goal_cost = calc_to_goal_cost(traj, goal);
-			//speed_cost = calc_speed_cost(traj);
+			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
+			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
 			final_cost = to_goal_cost + speed_cost + ob_cost;
