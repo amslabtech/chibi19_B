@@ -117,7 +117,7 @@ double Get_Yaw(const geometry_msgs::Quaternion q)
     return yaw;
 }
 
-double cul_angle_diff(double a, double b)
+double cal_angle_diff(double a, double b)
 {
     a = atan2(sin(a),cos(a));
     b = atan2(sin(b),cos(b));
@@ -572,7 +572,7 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 	double del_rot1_noise, del_rot2_noise;
     dx = current.pose.position.x - previous.pose.position.x;
     dy = current.pose.position.y - previous.pose.position.y;
-    dyaw = cul_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
+    dyaw = cal_angle_diff(Get_Yaw(current.pose.orientation), Get_Yaw(previous.pose.orientation));
 
 	motion_log +=sqrt(dx*dx + dy*dy);
 	yaw_log += fabs(dyaw);
@@ -591,14 +591,14 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 		del_rot1 = dyaw;
 
 	del_trans = sqrt(dx*dx + dy*dy);
-	del_rot2 = cul_angle_diff(dyaw, del_rot1);
+	del_rot2 = cal_angle_diff(dyaw, del_rot1);
 	
-	del_rot1_noise = std::min(fabs(cul_angle_diff(del_rot1, 0.0)),fabs(cul_angle_diff(del_rot1, M_PI)));
-	del_rot2_noise = std::min(fabs(cul_angle_diff(del_rot2, 0.0)),fabs(cul_angle_diff(del_rot2, M_PI)));
+	del_rot1_noise = std::min(fabs(cal_angle_diff(del_rot1, 0.0)),fabs(cal_angle_diff(del_rot1, M_PI)));
+	del_rot2_noise = std::min(fabs(cal_angle_diff(del_rot2, 0.0)),fabs(cal_angle_diff(del_rot2, M_PI)));
 	
-	del_rot1_hat = cul_angle_diff(del_rot1, rand_nomal(0.0, a_1*del_rot1_noise*del_rot1_noise - a_2*del_trans*del_trans));
+	del_rot1_hat = cal_angle_diff(del_rot1, rand_nomal(0.0, a_1*del_rot1_noise*del_rot1_noise - a_2*del_trans*del_trans));
 	del_trans_hat = del_trans - rand_nomal(0.0, a_3*del_trans*del_trans + a_4*del_rot1_noise*del_rot1_noise + a_4*del_rot2_noise*del_rot2_noise);
-	del_rot2_hat = cul_angle_diff(del_rot2, rand_nomal(0.0, a_1*del_rot2_noise*del_rot2_noise - a_2*del_trans*del_trans));
+	del_rot2_hat = cal_angle_diff(del_rot2, rand_nomal(0.0, a_1*del_rot2_noise*del_rot2_noise - a_2*del_trans*del_trans));
 	
     pose.pose.position.x += del_trans_hat * cos(yaw + del_rot1_hat);
     pose.pose.position.y += del_trans_hat * sin(yaw + del_rot1_hat);
