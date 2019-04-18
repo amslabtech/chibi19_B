@@ -17,6 +17,6 @@ speed_cost_gain: 1.0
 
 robot_radius: 0.25
 
-roomba_v_gain: 0.2
-roomba_omega_gain: 0.2
+roomba_v_gain: 1.0
+roomba_omega_gain: 1.0
                         
