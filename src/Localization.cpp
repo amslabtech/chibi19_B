@@ -274,7 +274,8 @@ int main(int argc, char** argv)
 				w_ave += Particles[i].weight;
 				if(Particles[i].weight > Particles[max_index].weight)
 					max_index = i;
-					Particles[i].weight /= sum;
+
+				Particles[i].weight /= sum;
 			}
 
 			w_ave /= (double)N;
@@ -357,7 +358,7 @@ int main(int argc, char** argv)
 				sort(New_Particles.begin(), New_Particles.end(),[](const Particle& x, const Particle& y) { return x.weight > y.weight;});
 
  
-				for(int i=0;i<N/2;i++)
+				for(int i=0;i<3*N/4;i++)
 				{
 					poses.poses[i] = Particles[i].pose.pose;
 					est_x += New_Particles[i].pose.pose.position.x;
@@ -365,11 +366,11 @@ int main(int argc, char** argv)
 					est_yaw += Get_Yaw(New_Particles[i].pose.pose.orientation);
 				}
 
-				double M = N/2;
+				double M = 3*N/4;
 				est_x /= M;
 				est_y /= M;
 				est_yaw /= M;
-
+				
 				estimated_pose.pose.position.x = est_x;
 				estimated_pose.pose.position.y = est_y;
 				quaternionTFToMsg(tf::createQuaternionFromYaw(est_yaw), estimated_pose.pose.orientation);
@@ -380,7 +381,7 @@ int main(int argc, char** argv)
 
 				for(int i=0;i<N;i++)
 				{
-					poses.poses[i] = New_Particles[i].pose.pose;
+					poses.poses[i] = Particles[i].pose.pose;
 					ave_x += Particles[i].pose.pose.position.x;
 					ave_y += Particles[i].pose.pose.position.y;
 					ave_yaw += Get_Yaw(Particles[i].pose.pose.orientation);
