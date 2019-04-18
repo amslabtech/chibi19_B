@@ -154,7 +154,9 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 	double angle_obstacle; 
 	double range_obstacle;
 	double x_obstacle;
+	double xx_obstacle;
 	double y_obstacle;
+	double yy_obstacle;
 	
 	for(int k = 0;k < traj.size();k += skip_k){
 		x_traj = roomba.x + traj[k].x;
@@ -179,15 +181,15 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 
 			u_obstacle = range_obstacle * std::cos(angle_obstacle);
 			v_obstacle = range_obstacle * std::cos(angle_obstacle);
-			x_obstacle = (u_obstacle * std::cos(roomba.yaw)) - (v_obstacle * std::sin(roomba.yaw));
-			y_obstacle = (v_obstacle * std::sin(roomba.yaw)) + (v_obstacle * std::cos(roomba.yaw));
-			x_obstacle = x_roomba + x_obstacle;
-			y_obstacle = y_roomba + y_obstacle;
+			xx_obstacle = (u_obstacle * std::cos(roomba.yaw)) - (v_obstacle * std::sin(roomba.yaw));
+			yy_obstacle = (v_obstacle * std::sin(roomba.yaw)) + (v_obstacle * std::cos(roomba.yaw));
+			x_obstacle = x_roomba + xx_obstacle;
+			y_obstacle = y_roomba + yy_obstacle;
 			r = std::sqrt(pow(x_obstacle - x_traj, 2.0) + pow(y_obstacle - y_traj, 2.0));
 			
 			//ROS_INFO("l = %d, r = %f", l, r);
 			//ROS_INFO("x_roomba = %f, range_obstacle = %f, angle = %f, cos = %f", roomba.x, range_obstacle, angle_o bstacle, std::cos(angle_obstacle));
-			ROS_INFO("x_od = %f, y_ob = %f", x_obstacle, y_obstacle);
+			//ROS_INFO("x_od = %f, y_ob = %f", x_obstacle, y_obstacle);
 			
 			if(r <= robot_radius){
 				return infinity;
