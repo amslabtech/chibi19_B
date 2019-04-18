@@ -319,7 +319,7 @@ int main(int argc, char **argv)
 		}*/
 
 	ctrl_pub.publish(msg);
-	//ROS_INFO("roomba.x = %f, roomba.y = %f", roomba.x, roomba.y);
+	ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
 	//ROS_INFO("goal.x = %f, goal.y = %f", goal.x, goal.y);
 	//ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);
 	loop_rate.sleep();
