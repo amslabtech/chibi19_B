@@ -360,7 +360,6 @@ int main(int argc, char** argv)
  
 				for(int i=0;i<3*N/4;i++)
 				{
-					poses.poses[i] = Particles[i].pose.pose;
 					est_x += New_Particles[i].pose.pose.position.x;
 					est_y += New_Particles[i].pose.pose.position.y;
 					est_yaw += Get_Yaw(New_Particles[i].pose.pose.orientation);
