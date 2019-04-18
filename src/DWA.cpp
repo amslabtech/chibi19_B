@@ -113,7 +113,7 @@ void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j
 		roomba_traj_u += u.v * std::cos(roomba_traj.yaw) * dt;
 		roomba_traj_v += u.v * std::sin(roomba_traj.yaw) * dt;
 		roomba_traj.x = (roomba_traj_u * std::cos(roomba.yaw)) - (roomba_traj_v * std::sin(roomba.yaw));
-		roomba_traj.y = (roomba_traj_u * std::sin(roomba.yaw)) + (roomba_traj_v * std::sin(roomba.yaw));
+		roomba_traj.y = (roomba_traj_u * std::sin(roomba.yaw)) + (roomba_traj_v * std::cos(roomba.yaw));
 		roomba_traj.v = u.v;
 		roomba_traj.omega = u.omega;
 		traj.push_back(roomba_traj);
@@ -180,7 +180,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 			}
 
 			u_obstacle = range_obstacle * std::cos(angle_obstacle);
-			v_obstacle = range_obstacle * std::cos(angle_obstacle);
+			v_obstacle = range_obstacle * std::sin(angle_obstacle);
 			xx_obstacle = (u_obstacle * std::cos(roomba.yaw)) - (v_obstacle * std::sin(roomba.yaw));
 			yy_obstacle = (v_obstacle * std::sin(roomba.yaw)) + (v_obstacle * std::cos(roomba.yaw));
 			x_obstacle = x_roomba + xx_obstacle;
