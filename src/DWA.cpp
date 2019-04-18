@@ -186,7 +186,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 			
 			//ROS_INFO("l = %d, r = %f", l, r);
 			//ROS_INFO("x_roomba = %f, range_obstacle = %f, angle = %f, cos = %f", roomba.x, range_obstacle, angle_o bstacle, std::cos(angle_obstacle));
-			//ROS_INFO("x_od = %f, y_ob = %f", x_obstacle, y_obstacle);
+			ROS_INFO("x_od = %f, y_ob = %f", x_obstacle, y_obstacle);
 			
 			if(r <= robot_radius){
 				return infinity;
@@ -318,9 +318,9 @@ int main(int argc, char **argv)
 		}*/
 
 	ctrl_pub.publish(msg);
-	ROS_INFO("roomba.x = %f, roomba.y = %f", roomba.x, roomba.y);
-	ROS_INFO("goal.x = %f, goal.y = %f", goal.x, goal.y);
-	ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);
+	//ROS_INFO("roomba.x = %f, roomba.y = %f", roomba.x, roomba.y);
+	//ROS_INFO("goal.x = %f, goal.y = %f", goal.x, goal.y);
+	//ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);
 	loop_rate.sleep();
 	}
 	
