@@ -141,7 +141,7 @@ double calc_speed_cost(std::vector<State> traj){
 double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 	
 	int skip_k = 2;
-	int skip_l = 5;
+	int skip_l = 10;
 	double min_r = std::numeric_limits<double>::infinity();
 	double infinity = std::numeric_limits<double>::infinity();	
 	double x_traj;
@@ -217,8 +217,8 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 	for(double i = dw.min_v ; i < dw.max_v ; i += v_reso ){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
-			to_goal_cost = calc_to_goal_cost(traj, goal);
-			speed_cost = calc_speed_cost(traj);
+			//to_goal_cost = calc_to_goal_cost(traj, goal);
+			//speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
 			final_cost = to_goal_cost + speed_cost + ob_cost;
