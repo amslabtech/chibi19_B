@@ -169,6 +169,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 
 			//ROS_INFO("l = %d angle = %f, range = %f", l, angle_obstacle, range_obstacle);
 			if(range_obstacle < robot_radius){
+				ROS_INFO("range_obastacle = %f", range_obstacle);
 				continue;
 			}
 
@@ -179,7 +180,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 			u_obstacle = range_obstacle * std::cos(angle_obstacle);
 			v_obstacle = range_obstacle * std::cos(angle_obstacle);
 			x_obstacle = (u_obstacle * std::cos(roomba.yaw)) - (v_obstacle * std::sin(roomba.yaw));
-			y_obstacle = (v_obstacle * std::sin(roomba.yaw)) - (v_obstacle * std::cos(roomba.yaw));
+			y_obstacle = (v_obstacle * std::sin(roomba.yaw)) + (v_obstacle * std::cos(roomba.yaw));
 			x_obstacle = x_roomba + x_obstacle;
 			y_obstacle = y_roomba + y_obstacle;
 			r = std::sqrt(pow(x_obstacle - x_traj, 2.0) + pow(y_obstacle - y_traj, 2.0));
@@ -215,8 +216,8 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 	for(double i = dw.min_v ; i < dw.max_v ; i += v_reso ){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
-			to_goal_cost = calc_to_goal_cost(traj, goal);
-			speed_cost = calc_speed_cost(traj);
+			//to_goal_cost = calc_to_goal_cost(traj, goal);
+			//speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
 			final_cost = to_goal_cost + speed_cost + ob_cost;
