@@ -112,8 +112,8 @@ void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j
 		roomba_traj.yaw += u.omega * dt;
 		roomba_traj_u += u.v * std::cos(roomba_traj.yaw) * dt;
 		roomba_traj_v += u.v * std::sin(roomba_traj.yaw) * dt;
-		//roomba_traj.x = (roomba_traj_u * std::cos(roomba.yaw)) - (roomba_traj_v * std::sin(roomba.yaw));
-		//roomba_traj.y = (roomba_traj_u * std::sin(roomba.yaw)) + (roomba_traj_v * std::sin(roomba.yaw));
+		roomba_traj.x = (roomba_traj_u * std::cos(roomba.yaw)) - (roomba_traj_v * std::sin(roomba.yaw));
+		roomba_traj.y = (roomba_traj_u * std::sin(roomba.yaw)) + (roomba_traj_v * std::sin(roomba.yaw));
 		roomba_traj.v = u.v;
 		roomba_traj.omega = u.omega;
 		traj.push_back(roomba_traj);
@@ -146,6 +146,8 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 	double infinity = std::numeric_limits<double>::infinity();	
 	double x_traj;
 	double y_traj;
+	double u_obstacle = 0.0;
+	double v_obstacle = 0.0;
 	double x_roomba = roomba.x;
 	double y_roomba= roomba.y;
 	double r = 0;
@@ -155,8 +157,8 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 	double y_obstacle;
 	
 	for(int k = 0;k < traj.size();k += skip_k){
-		x_traj = traj[k].x;
-		y_traj = traj[k].y;
+		x_traj = roomba.x + traj[k].x;
+		y_traj = roomba.y + traj[k].y;
 
 		for(int l = 0;l < N;l += skip_l){
 			
@@ -174,8 +176,12 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 				range_obstacle = 30.0;
 			}
 
-			x_obstacle = x_roomba + range_obstacle * std::cos(angle_obstacle);
-			y_obstacle = y_roomba + range_obstacle * std::sin(angle_obstacle);
+			u_obstacle = range_obstacle * std::cos(angle_obstacle);
+			v_obstacle = range_obstacle * std::cos(angle_obstacle);
+			x_obstacle = (u_obstacle * std::cos(roomba.yaw)) - (v_obstacle * std::sin(roomba.yaw));
+			y_obstacle = (v_obstacle * std::sin(roomba.yaw)) - (v_obstacle * std::cos(roomba.yaw));
+			x_obstacle = x_roomba + x_obstacle;
+			y_obstacle = y_roomba + y_obstacle;
 			r = std::sqrt(pow(x_obstacle - x_traj, 2.0) + pow(y_obstacle - y_traj, 2.0));
 			
 			//ROS_INFO("l = %d, r = %f", l, r);
