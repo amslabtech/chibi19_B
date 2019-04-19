@@ -115,27 +115,26 @@ void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j
 		roomba_traj.yaw += u.omega * dt;
 		roomba_traj_u += u.v * std::cos(roomba_traj.yaw) * dt;
 		roomba_traj_v += u.v * std::sin(roomba_traj.yaw) * dt;
-		roomba_traj.x = (roomba_traj_u * std::cos(roomba.yaw)) - (roomba_traj_v * std::sin(roomba.yaw));
-		roomba_traj.y = (roomba_traj_u * std::sin(roomba.yaw)) + (roomba_traj_v * std::cos(roomba.yaw));
+		roomba_traj.x = roomba.x + (roomba_traj_u * std::cos(roomba.yaw)) - (roomba_traj_v * std::sin(roomba.yaw));
+		roomba_traj.y = roomba.y + (roomba_traj_u * std::sin(roomba.yaw)) + (roomba_traj_v * std::cos(roomba.yaw));
 		roomba_traj.v = u.v;
 		roomba_traj.omega = u.omega;
 		traj.push_back(roomba_traj);
 		//ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
 		//k++;
 	}
+
+	
 }
 
 double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
-	
-	traj.back().x += roomba.x;
-	traj.back().y += roomba.y;
 	
 	//double goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
 	//double traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
 	//double dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
 	//double error = dot_product / (goal_magnitude * traj_magnitude);
 	
-	double goal_magnitude = std::sqrt((goal.x - roomba.x) * (goal.x - roomba.x) + (goal.y - roomba.y) * (goal.y - roomba.y));
+	double goal_magnitude = std::sqrt(pow(goal.x - traj.back().x,2) + pow(goal.y - traj.back().y,2));
 	double traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
 	double dot_product = (goal.x - roomba.x) * traj.back().x + (goal.y - roomba.y) * traj.back().y;
 	double error = dot_product / (goal_magnitude * traj_magnitude);
@@ -151,8 +150,8 @@ double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 
 double calc_goal_dist(std::vector<State>& traj, Goal goal, State roomba){
   
-  double x = goal.x - (traj.back().x + roomba.x);  
-  double y = goal.y - (traj.back().y + roomba.y);
+  double x = goal.x - traj.back().x;  
+  double y = goal.y - traj.back().y;
   double dist =std::sqrt(pow(x,2) + pow(y,2));
 
   return dist;
@@ -185,8 +184,8 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 	double yy_obstacle;
 	
 	for(int k = 0;k < traj.size();k += skip_k){
-		x_traj = roomba.x + traj[k].x;
-		y_traj = roomba.y + traj[k].y;
+		x_traj = traj[k].x;
+		y_traj = traj[k].y;
 
 		for(int l = 0;l < N;l += skip_l){
 			
