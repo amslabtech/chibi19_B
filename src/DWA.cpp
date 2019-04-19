@@ -112,7 +112,7 @@ void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j
 	//int k = 0;
 
 	for(double t = 0.0; t <= predict_time; t += dt){
-		roomba_traj.yaw += u.omega * dt;
+		roomba_traj.yaw = u.omega * t;
 		roomba_traj_u += u.v * std::cos(roomba_traj.yaw) * dt;
 		roomba_traj_v += u.v * std::sin(roomba_traj.yaw) * dt;
 		roomba_traj.x = roomba.x + (roomba_traj_u * std::cos(roomba.yaw)) - (roomba_traj_v * std::sin(roomba.yaw));
