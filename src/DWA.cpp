@@ -112,7 +112,7 @@ void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j
 	//int k = 0;
 
 	for(double t = 0.0; t <= predict_time; t += dt){
-		roomba_traj.yaw = u.omega * t;
+		roomba_traj.yaw += u.omega * dt;
 		roomba_traj_u += u.v * std::cos(roomba_traj.yaw) * dt;
 		roomba_traj_v += u.v * std::sin(roomba_traj.yaw) * dt;
 		roomba_traj.x = roomba.x + (roomba_traj_u * std::cos(roomba.yaw)) - (roomba_traj_v * std::sin(roomba.yaw));
@@ -135,8 +135,8 @@ double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 	//double error = dot_product / (goal_magnitude * traj_magnitude);
 	
 	double goal_magnitude = std::sqrt(pow(goal.x - traj.back().x,2) + pow(goal.y - traj.back().y,2));
-	double traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
-	double dot_product = (goal.x - roomba.x) * traj.back().x + (goal.y - roomba.y) * traj.back().y;
+	double traj_magnitude = std::sqrt(pow(traj.back().x, 2) + pow(traj.back().y, 2));
+	double dot_product = (goal.x - traj.back().x) * traj.back().x + (goal.y - traj.back().y) * traj.back().y;
 	double error = dot_product / (goal_magnitude * traj_magnitude);
 
 	double error_angle = std::acos(error);
