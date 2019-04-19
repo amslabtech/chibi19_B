@@ -126,6 +126,7 @@ void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j
 
 double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 	
+	/*
 	traj.back().x += roomba.x;
 	traj.back().y += roomba.y;
 	
@@ -135,6 +136,10 @@ double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 	double error = dot_product / (goal_magnitude * traj_magnitude);
 
 	double error_angle = std::acos(error);
+*/
+	double goal_theta = atan(goal.y / goal.x);
+	double error_angle = roomba.yaw - goal_theta;
+
 
 	return to_goal_cost_gain * error_angle;
 }
@@ -188,7 +193,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 			u_obstacle = range_obstacle * std::cos(angle_obstacle);
 			v_obstacle = range_obstacle * std::sin(angle_obstacle);
 			xx_obstacle = (u_obstacle * std::cos(roomba.yaw)) - (v_obstacle * std::sin(roomba.yaw));
-			yy_obstacle = (v_obstacle * std::sin(roomba.yaw)) + (v_obstacle * std::cos(roomba.yaw));
+			yy_obstacle = (u_obstacle * std::sin(roomba.yaw)) + (v_obstacle * std::cos(roomba.yaw));
 			x_obstacle = x_roomba + xx_obstacle;
 			y_obstacle = y_roomba + yy_obstacle;
 			r = std::sqrt(pow(x_obstacle - x_traj, 2.0) + pow(y_obstacle - y_traj, 2.0));
