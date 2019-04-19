@@ -259,7 +259,7 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 {
     geometry_msgs::PointStamped _msg = *msg;
 
-	int t_dis = 50;
+	int t_dis = 60;
 	int target_i;
 	float x = _msg.point.x;
 	float y = _msg.point.y;
