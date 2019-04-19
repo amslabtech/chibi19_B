@@ -17,6 +17,7 @@ double yawrate_reso;
 double dt;
 double predict_time;
 double to_goal_cost_gain;
+double dist_gain;
 double speed_cost_gain;
 double obstacle_cost_gain;
 double robot_radius;
@@ -148,13 +149,13 @@ double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 	return to_goal_cost_gain * error_angle;
 }
 
-double calc_goal_dist(std::vector<State>& traj, Goal goal, State roomba){
+double calc_goal_dist(std::vector<State>& traj, Goal goal){
   
   double x = goal.x - traj.back().x;  
   double y = goal.y - traj.back().y;
   double dist =std::sqrt(pow(x,2) + pow(y,2));
 
-  return dist;
+  return dist_gain * dist;
 }
 
 double calc_speed_cost(std::vector<State> traj){
@@ -244,7 +245,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
-			goal_dist = calc_goal_dist(traj, goal, roomba);
+			goal_dist = calc_goal_dist(traj, goal);
 			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
