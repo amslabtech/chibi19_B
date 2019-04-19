@@ -259,7 +259,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 		}
 	}
 
-	ROS_INFO("goal_cost = %f, speed_cost = %f, obstacle_cost = %f, final cost = %f", to_goal_cost, speed_cost, ob_cost, final_cost);
+	ROS_INFO("goal_cost = %f, dist_cost = %f, speed_cost = %f, obstacle_cost = %f, final cost = %f", to_goal_cost, goal_dist, speed_cost, ob_cost, final_cost);
 	//ROS_INFO("min_v = %f, min_omega = %f", min_u.v, min_u.omega);
 	u = min_u;
 }
