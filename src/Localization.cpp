@@ -614,8 +614,8 @@ void Particle::measurement_update()
 	double map_range; 
 	double angle;
 
-	double z_short = 0.0;
-	double z_hit = 0.8;
+	double z_short = 0.1;
+	double z_hit = 0.7;
 	double z_max = 0.0;
 	double z_random = 0.2;
 	
