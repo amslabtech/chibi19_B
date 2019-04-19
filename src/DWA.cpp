@@ -142,6 +142,11 @@ double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 
 	double error_angle = std::acos(error);
 
+	if(error_angle < 0){
+		error_angle += M_PI / 2;
+	
+	}
+
 	//double goal_theta = atan(goal.y / goal.x);
 	//double error_angle = roomba.yaw - goal_theta;
 
