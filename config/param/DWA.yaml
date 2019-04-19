@@ -14,7 +14,7 @@ predict_time: 3.0
 
 to_goal_cost_gain: 1.2
 speed_cost_gain: 1.0
-obstacle_cost_gain: 0.1
+obstacle_cost_gain: 0.5
 
 robot_radius: 0.25
 
