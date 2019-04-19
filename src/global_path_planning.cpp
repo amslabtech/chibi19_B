@@ -259,7 +259,7 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 {
     geometry_msgs::PointStamped _msg = *msg;
 
-	int t_dis = 100;
+	int t_dis = 50;
 	int target_i;
 	float x = _msg.point.x;
 	float y = _msg.point.y;
@@ -296,7 +296,7 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 {
     geometry_msgs::PoseWithCovarianceStamped _msg = *msg;
 
-	int t_dis = 30;
+	int t_dis = 60;
 	int target_i; 
 	float x = _msg.pose.pose.position.x;
 	float y = _msg.pose.pose.position.y;
