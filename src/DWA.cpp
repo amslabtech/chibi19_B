@@ -18,6 +18,7 @@ double dt;
 double predict_time;
 double to_goal_cost_gain;
 double speed_cost_gain;
+double obstacle_cost_gain;
 double robot_radius;
 double roomba_v_gain;
 double roomba_omega_gain;
@@ -114,34 +115,46 @@ void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j
 		roomba_traj.yaw += u.omega * dt;
 		roomba_traj_u += u.v * std::cos(roomba_traj.yaw) * dt;
 		roomba_traj_v += u.v * std::sin(roomba_traj.yaw) * dt;
-		roomba_traj.x = (roomba_traj_u * std::cos(roomba.yaw)) - (roomba_traj_v * std::sin(roomba.yaw));
-		roomba_traj.y = (roomba_traj_u * std::sin(roomba.yaw)) + (roomba_traj_v * std::cos(roomba.yaw));
+		roomba_traj.x = roomba.x + (roomba_traj_u * std::cos(roomba.yaw)) - (roomba_traj_v * std::sin(roomba.yaw));
+		roomba_traj.y = roomba.y + (roomba_traj_u * std::sin(roomba.yaw)) + (roomba_traj_v * std::cos(roomba.yaw));
 		roomba_traj.v = u.v;
 		roomba_traj.omega = u.omega;
 		traj.push_back(roomba_traj);
 		//ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
 		//k++;
 	}
+
+	
 }
 
 double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 	
-	/*
-	traj.back().x += roomba.x;
-	traj.back().y += roomba.y;
+	//double goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
+	//double traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
+	//double dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
+	//double error = dot_product / (goal_magnitude * traj_magnitude);
 	
-	double goal_magnitude = std::sqrt(goal.x * goal.x + goal.y *goal.y);
-	double traj_magnitude = std::sqrt(traj.back().x * traj.back().x + traj.back().y * traj.back().y);
-	double dot_product = goal.x * traj.back().x + goal.y * traj.back().y;
+	double goal_magnitude = std::sqrt(pow(goal.x - traj.back().x,2) + pow(goal.y - traj.back().y,2));
+	double traj_magnitude = std::sqrt(pow(traj.back().x, 2) + pow(traj.back().y, 2));
+	double dot_product = (goal.x - traj.back().x) * traj.back().x + (goal.y - traj.back().y) * traj.back().y;
 	double error = dot_product / (goal_magnitude * traj_magnitude);
 
 	double error_angle = std::acos(error);
-*/
-	double goal_theta = atan(goal.y / goal.x);
-	double error_angle = roomba.yaw - goal_theta;
+
+	//double goal_theta = atan(goal.y / goal.x);
+	//double error_angle = roomba.yaw - goal_theta;
 
 
 	return to_goal_cost_gain * error_angle;
+}
+
+double calc_goal_dist(std::vector<State>& traj, Goal goal, State roomba){
+  
+  double x = goal.x - traj.back().x;  
+  double y = goal.y - traj.back().y;
+  double dist =std::sqrt(pow(x,2) + pow(y,2));
+
+  return dist;
 }
 
 double calc_speed_cost(std::vector<State> traj){
@@ -171,8 +184,8 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 	double yy_obstacle;
 	
 	for(int k = 0;k < traj.size();k += skip_k){
-		x_traj = roomba.x + traj[k].x;
-		y_traj = roomba.y + traj[k].y;
+		x_traj = traj[k].x;
+		y_traj = traj[k].y;
 
 		for(int l = 0;l < N;l += skip_l){
 			
@@ -212,7 +225,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 		}
 	}
 	//ROS_INFO("obstacle_cost = %f", 1.0/min_r);
-	return 1.0 / min_r;
+	return obstacle_cost_gain / min_r;
 }
 
 void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
@@ -222,6 +235,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 	min_u.v = 0.0;
 	std::vector<State> traj;
 	double to_goal_cost = 0.0;
+	double goal_dist = 0.0;
 	double speed_cost = 0.0;
 	double ob_cost = 0.0;
 	double final_cost = 0.0;
@@ -230,10 +244,11 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
+			goal_dist = calc_goal_dist(traj, goal, roomba);
 			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
-			final_cost = to_goal_cost + speed_cost + ob_cost;
+			final_cost = to_goal_cost + goal_dist + speed_cost + ob_cost;
 
 			if(min_cost >= final_cost){
 				min_cost = final_cost;
@@ -244,7 +259,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 	}
 
 	ROS_INFO("goal_cost = %f, speed_cost = %f, obstacle_cost = %f, final cost = %f", to_goal_cost, speed_cost, ob_cost, final_cost);
-	ROS_INFO("min_v = %f, min_omega = %f", min_u.v, min_u.omega);
+	//ROS_INFO("min_v = %f, min_omega = %f", min_u.v, min_u.omega);
 	u = min_u;
 }
 
@@ -332,7 +347,7 @@ int main(int argc, char **argv)
 		}*/
 
 	ctrl_pub.publish(msg);
-	ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
+	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
 	//ROS_INFO("goal.x = %f, goal.y = %f", goal.x, goal.y);
 	//ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);
 	loop_rate.sleep();
