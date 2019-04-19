@@ -264,7 +264,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 		}
 	}
 
-	ROS_INFO("goal_cost = %f, dist_cost = %f, speed_cost = %f, obstacle_cost = %f, final cost = %f", to_goal_cost, goal_dist, speed_cost, ob_cost, final_cost);
+	//ROS_INFO("goal_cost = %f, dist_cost = %f, speed_cost = %f, obstacle_cost = %f, final cost = %f", to_goal_cost, goal_dist, speed_cost, ob_cost, final_cost);
 	//ROS_INFO("min_v = %f, min_omega = %f", min_u.v, min_u.omega);
 	u = min_u;
 }
@@ -353,7 +353,7 @@ int main(int argc, char **argv)
 		}*/
 
 	ctrl_pub.publish(msg);
-	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
+	ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
 	//ROS_INFO("goal.x = %f, goal.y = %f", goal.x, goal.y);
 	//ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);
 	loop_rate.sleep();
