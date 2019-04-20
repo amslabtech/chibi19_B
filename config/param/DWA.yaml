@@ -19,6 +19,6 @@ obstacle_cost_gain: 0.5
 
 robot_radius: 0.25
 
-roomba_v_gain: 0.3
-roomba_omega_gain: 0.3
+roomba_v_gain: 0.6
+roomba_omega_gain: 0.6
                         
