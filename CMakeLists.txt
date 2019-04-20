@@ -278,3 +278,7 @@ target_link_libraries(test_domega ${catkin_LIBRARIES})
 
 add_executable(Localizer src/Localizer.cpp)
 target_link_libraries(Localizer ${catkin_LIBRARIES})
+
+add_executable(WhiteLineListener_test src/WhiteLineListener_test.cpp)
+target_link_libraries(WhiteLineListener_test ${catkin_LIBRARIES})
+

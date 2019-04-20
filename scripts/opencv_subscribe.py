@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# coding: UTF-8
 
 import rospy
 import cv2
@@ -11,50 +10,46 @@ from sensor_msgs.msg import Image
 from std_msgs.msg import Bool
 from cv_bridge import CvBridge, CvBridgeError
 
+res = False
 
 #fourcc = cv2.VideoWriter_fourcc(*'MJPG')
 #out = cv2.VideoWriter('/home/amsl/Desktop/output.avi',fourcc, 20.0, (640,480))
 
-
-def listener():
-    rospy.init_node('opencv_subscribe', anonymous=True)
-    rospy.Subscriber("/usb_cam/image_raw", Image, callback)
-    rospy.spin()
-
 def callback(data):
+    global res
     rospy.loginfo(rospy.get_caller_id()+"I heard %s",data.encoding)
     try:
         img = CvBridge().imgmsg_to_cv2(data,"bgr8")
     except CvBridgeError as e:
         print(e)
+    
     #cv2.imshow("original",img)
     #cv2.imwrite("/home/amsl/Desktop/img.jpg", img)
-
-    # グレー化
+    #cv2.waitKey(1)
+    
     img_gray = Gray(img)
 
-    # ぼかし
     img_blur = Blur(img_gray)
 
-    # 二値化
     img_threshold = Threshold(img_blur)
 
-    # 白と黒の境界を構成している点群の取得
     contours = cv2.findContours(img_threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
-
-    # 面積フィルター
+    
     contours_large = AreaFilter(contours, img)
 
-    # 輪郭を構成する点群の近似化
     approx_contours = Approximation(contours_large, img)
 
-    # 近似化した点群の点の数を対象としたフィルター
     approx_contours_large = PointFilter(approx_contours, img)
 
-    # 点群を矩形で囲み、点群の面積と矩形の面積を比較することで、点群が矩形か判断する
     approx_contours_rectangle = RectangleFilter(approx_contours_large, img)
 
-    ShowContoursImage(approx_contours_rectangle, img, "final_image")
+    if(approx_contours_rectangle):
+        res = True
+    else:
+        res = False
+    
+    #ShowContoursImage(approx_contours_rectangle, img, "final_image")
+    
 
 def Gray(img):
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -145,103 +140,34 @@ def RectangleFilter(contours, img):
 def ShowContoursImage(contours, img, name):
     try:
         ret_img = cv2.drawContours(img.copy(), contours, -1, color=(0, 255, 0), thickness=3)
-        cv2.imshow(ret_img)
+        cv2.imshow(name, ret_img)
         #output_place = "/home/amsl/Desktop/" + name + ".jpg"
         #cv2.imwrite(output_place, ret_img)
+        
     except:
-        cv2.imshow(img)
+        cv2.imshow(name,img)
         #output_place = "/home/amsl/Desktop/" + name + ".jpg"
         #cv2.imwrite(output_place, img)
 
+    cv2.waitKey(1)
 
+def PublishRes():
+    pub = rospy.Publisher('whiteline', Bool, queue_size=1)
+    rospy.init_node('opencv_subscribe', anonymous=True)
+    rospy.Subscriber("/usb_cam/image_raw", Image, callback)
+    r = rospy.Rate(10)
+    while not rospy.is_shutdown():
+        rospy.loginfo(res)
+        pub.publish(res)
+        r.sleep()
 
- #   img_contours = img.copy()
- #   for i, cnt in enumerate(contours):
- #       for j in range(len(cnt)):
- #           x2, y2 = cnt[j][0]
- #           if j is 0:
- #               num = len(cnt)-1
- #               x1, y1 = cnt[num][0]
- #               img_contours = cv2.line(img_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
- #           else:
- #               img_contours = cv2.line(img_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
- #           x1, y1 = x2, y2
-
-
-#    img_contours_large = img.copy()
-#    for i, cnt in enumerate(contours_large):
-#        for j in range(len(cnt)):
-#            x2, y2 = cnt[j][0]
-#            if j is 0:
-#                num = len(cnt)-1
-#                x1, y1 = cnt[num][0]
-#                img_contours_large = cv2.line(img_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
-#            else:
-#                img_contours_large = cv2.line(img_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
-#            x1, y1 = x2, y2
-
-
-#    img_approx_contours = img.copy()
-#    for i, cnt in enumerate(approx_contours):
-#        for j in range(len(cnt)):
-#            x2, y2 = cnt[j][0]
-#            if j is 0:
-#                num = len(cnt)-1
-#                x1, y1 = cnt[num][0]
-#                img_approx_contours = cv2.line(img_approx_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
-#            else:
-#                img_approx_contours = cv2.line(img_approx_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
-#            x1, y1 = x2, y2
-
-
-#    img_approx_contours_large = img.copy()
-#    for i, cnt in enumerate(approx_contours_large):
-#        for j in range(len(cnt)):
-#            x2, y2 = cnt[j][0]
-#            if j is 0:
-#                num = len(cnt)-1
-#                x1, y1 = cnt[num][0]
-#                img_approx_contours_large = cv2.line(img_approx_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
-#            else:
-#                img_approx_contours_large = cv2.line(img_approx_contours_large, (x1,y1) , (x2,y2), (0,0,255), 3)
-#            x1, y1 = x2, y2
-
-
-
-#    img_final_contours = img.copy()
-#    for i, cnt in enumerate(final_contours):
-#        for j in range(len(cnt)):
-#            x2, y2 = cnt[j][0]
-#            if j is 0:
-#                num = len(cnt)-1
-#                x1, y1 = cnt[num][0]
-#                img_final_contours = cv2.line(img_final_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
-#            else:
-#                img_final_contours = cv2.line(img_final_contours, (x1,y1) , (x2,y2), (0,0,255), 3)
-#            x1, y1 = x2, y2
-
-
-    #cv2.imshow("contours_large", img_contours_large)
-    #cv2.imshow("contours", img_approx_contours)
-    #cv2.imshow("approx_contours_large", img_approx_contours_large)
-    #cv2.imshow("final_contours", img_final_contours)
-
-    #cv2.imshow("contours", img_contours)
-    #cv2.imwrite("/home/amsl/Desktop/contours.jpg", img_contours)
-    #cv2.imwrite("/home/amsl/Desktop/contours_large.jpg", img_contours_large)
-    #cv2.imwrite("/home/amsl/Desktop/approx_contours.jpg", img_approx_contours)
-    #cv2.imwrite("/home/amsl/Desktop/approx_contours_large.jpg", img_approx_contours_large)
-
-    #cv2.imwrite(threshold.jpg', img_threshold)
-
-    
-
-
-
-
+def main():
+    try:
+        PublishRes()
+    except rospy.ROSInterruptException: pass
 
 
 if __name__ == '__main__':
-    listener()
+    main()
 
 
