@@ -139,12 +139,13 @@ double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 	double traj_magnitude = std::sqrt(pow(traj.back().x, 2) + pow(traj.back().y, 2));
 	double dot_product = (goal.x - traj.back().x) * traj.back().x + (goal.y - traj.back().y) * traj.back().y;
 	double error = dot_product / (goal_magnitude * traj_magnitude);
+	
+	if(error < -0.8){
+		return 0;
+	}
 
 	double error_angle = std::acos(error);
 
-	if(error_angle < -0.8){
-		return 0;
-	}
 	
 	if(error_angle < 0){
 		error_angle += M_PI / 2;
