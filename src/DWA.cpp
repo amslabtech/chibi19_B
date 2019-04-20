@@ -291,6 +291,15 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
     }
 }
 
+void GOAL(){
+
+	roomba_500driver_meiji::RoombaCtrl msg;
+
+	msg.cntl.linear.x = 0.0;
+	msg.cntl.angular.z = 0.0;
+
+}
+
 int main(int argc, char **argv)
 {	
 	ros::init(argc, argv, "dwa");
@@ -350,8 +359,9 @@ int main(int argc, char **argv)
 	//check goal
 	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
 			printf("Goal!!!");
-			msg.cntl.linear.x = 0.0;
-			msg.cntl.angular.z = 0.0;
+			GOAL;
+			//msg.cntl.linear.x = 0.0;
+			//msg.cntl.angular.z = 0.0;
 			break;
 		}
 
