@@ -124,7 +124,6 @@ void calc_trajectory(std::vector<State>& traj, State roomba,  double i, double j
 		//ROS_INFO("i = %f, j = %f, traj.yaw = %f, trac.x = %f, traj.y = %f",i ,j ,traj[k].yaw, traj[k].x, traj[k].y);
 		//k++;
 	}
-
 	
 }
 
@@ -147,10 +146,10 @@ double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 	double error_angle = std::acos(error);
 
 	
-	/*if(error_angle < 0){
+	if(error_angle < 0){
 		error_angle += M_PI / 2;
 	
-	}*/
+	}
 
 	//double goal_theta = atan(goal.y / goal.x);
 	//double error_angle = roomba.yaw - goal_theta;
