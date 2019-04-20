@@ -362,7 +362,6 @@ int main(int argc, char **argv)
 			GOAL;
 			//msg.cntl.linear.x = 0.0;
 			//msg.cntl.angular.z = 0.0;
-			break;
 		}
 
 	ctrl_pub.publish(msg);
