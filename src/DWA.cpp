@@ -142,6 +142,10 @@ double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 
 	double error_angle = std::acos(error);
 
+	if(error_angle < -0.8){
+		return 0;
+	}
+	
 	if(error_angle < 0){
 		error_angle += M_PI / 2;
 	
@@ -344,13 +348,13 @@ int main(int argc, char **argv)
 	msg.cntl.angular.z = roomba_omega_gain * u.omega / max_yawrate;
 
 	//check goal
-/*	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
+	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
 			printf("Goal!!!");
 			msg.cntl.linear.x = 0.0;
 			B
 			msg.cntl.angular.z = 0.0;
 			break;
-		}*/
+		}
 
 	ctrl_pub.publish(msg);
 	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
