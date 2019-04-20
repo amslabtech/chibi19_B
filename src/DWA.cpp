@@ -258,7 +258,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
-			ROS_INFO("goal_dist = %f, goal_cost = %f", goal_dist, to_goal_cost);
+			ROS_INFO("goal_dist = %f, goal_cost = %f, ob_cost = %f", goal_dist, to_goal_cost, ob_cost);
 			final_cost = to_goal_cost + goal_dist + speed_cost + ob_cost;
 
 			if(min_cost >= final_cost){
