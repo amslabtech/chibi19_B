@@ -258,6 +258,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
+			ROS_INFO("goal_dist = %f, goal_cost = %f", goal_dist, to_goal_cost);
 			final_cost = to_goal_cost + goal_dist + speed_cost + ob_cost;
 
 			if(min_cost >= final_cost){
@@ -367,7 +368,7 @@ int main(int argc, char **argv)
 	ctrl_pub.publish(msg);
 	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
 	//ROS_INFO("goal.x = %f, goal.y = %f", goal.x, goal.y);
-	ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);
+	//ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);
 	loop_rate.sleep();
 	}
 	
