@@ -147,10 +147,10 @@ double calc_to_goal_cost(std::vector<State>& traj, Goal goal, State roomba){
 	double error_angle = std::acos(error);
 
 	
-	if(error_angle < 0){
+	/*if(error_angle < 0){
 		error_angle += M_PI / 2;
 	
-	}
+	}*/
 
 	//double goal_theta = atan(goal.y / goal.x);
 	//double error_angle = roomba.yaw - goal_theta;
@@ -186,7 +186,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 	double v_obstacle = 0.0;
 	double x_roomba = roomba.x;
 	double y_roomba= roomba.y;
-	double r = 0;
+	double r = 0.0;
 	double angle_obstacle; 
 	double range_obstacle;
 	double x_obstacle;
@@ -200,7 +200,7 @@ double calc_obstacle_cost(State roomba, std::vector<State>& traj){
 
 		for(int l = 0;l < N;l += skip_l){
 			
-			r = 0;
+			r = 0.0;
 
 			angle_obstacle = Ldata[l].angle;
 			range_obstacle = Ldata[l].range;
@@ -255,7 +255,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
-			goal_dist = 1.8 *  calc_goal_dist(traj, goal);
+			goal_dist = 2.0 *  calc_goal_dist(traj, goal);
 			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
