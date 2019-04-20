@@ -351,7 +351,6 @@ int main(int argc, char **argv)
 	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < robot_radius){
 			printf("Goal!!!");
 			msg.cntl.linear.x = 0.0;
-			B
 			msg.cntl.angular.z = 0.0;
 			break;
 		}
