@@ -7,11 +7,12 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include <tf/transform_listener.h>
-//aaa
+//ac
 
 const int row = 4000;
 const int column = 4000;
 int search_count=0;
+int sg = 0;
 
 const int d = 8;//houkousyurui
 
@@ -258,7 +259,7 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 {
     geometry_msgs::PointStamped _msg = *msg;
 
-	int t_dis = 50;
+	int t_dis = 60;
 	int target_i;
 	float x = _msg.point.x;
 	float y = _msg.point.y;
@@ -269,7 +270,9 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 	float min = pow((x-global_path.poses[0].pose.position.x),2.0)+pow((y-global_path.poses[0].pose.position.y),2.0);
 	int min_i = 0;
 
-	for(int i=0;i<global_path.poses.size();i++){
+     if(y > 13.0) sg = 1;
+
+	 for(int i=0+500*sg;i<global_path.poses.size()-500*(1-sg);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
@@ -293,8 +296,8 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 {
     geometry_msgs::PoseWithCovarianceStamped _msg = *msg;
 
-	int t_dis = 30;
-	int target_i;
+	int t_dis = 60;
+	int target_i; 
 	float x = _msg.pose.pose.position.x;
 	float y = _msg.pose.pose.position.y;
 	float dis;
@@ -304,7 +307,9 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 	float min = pow((x-global_path.poses[0].pose.position.x),2.0)+pow((y-global_path.poses[0].pose.position.y),2.0);
 	int min_i = 0;
 
-	for(int i=0;i<global_path.poses.size();i++){
+	if(y > 13.0) sg = 1;
+
+	for(int i=0+500*sg;i<global_path.poses.size()-500*(1-sg);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;

@@ -70,6 +70,7 @@ double yaw_log  =0.0;
 
 double x_thresh;
 double y_thresh;
+double yaw_thresh;
 
 double x_cov = 0.5;
 double y_cov = 0.5;
@@ -234,12 +235,13 @@ int main(int argc, char** argv)
 			current_pose.pose.position.y = transform.getOrigin().y();
 			quaternionTFToMsg(transform.getRotation(), current_pose.pose.orientation);
 
-			if(x_cov < x_thresh || y_cov < y_thresh)
+			if(x_cov < x_thresh || y_cov < y_thresh || yaw_cov < yaw_thresh)
 			{
 				std::vector<Particle> reset_particles;
 				
 				x_cov = 0.3;
 				y_cov = 0.3;
+				yaw_cov = 0.3;
 				
 				for(int i=0;i<N;i++)
 				{
