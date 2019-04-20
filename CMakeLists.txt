@@ -275,3 +275,6 @@ target_link_libraries(test_omega ${catkin_LIBRARIES})
 
 add_executable(test_domega src/test_domega.cpp)
 target_link_libraries(test_domega ${catkin_LIBRARIES})
+
+add_executable(Localizer src/Localizer.cpp)
+target_link_libraries(Localizer ${catkin_LIBRARIES})
