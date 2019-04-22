@@ -356,23 +356,24 @@ int main(int argc, char **argv)
 	
 	msg.cntl.linear.x = roomba_v_gain * u.v / max_speed;
 	msg.cntl.angular.z = roomba_omega_gain * u.omega / max_yawrate;
-	if(fabs(msg.cntl.angular.z) < 0.12){
-	  if(0.12 < msg.cntl.angular.z && msg.cntl.angular.z < 0.7){
-		msg.cntl.angular.z = -0.12;
-	  }else if(0.7 < msg.cntl.angular.z && msg.cntl.angular.z < 0.12){
-		msg.cntl.angular.z = 0.12;
+	if(fabs(msg.cntl.angular.z) < 0.10){
+	  if(-0.10 < msg.cntl.angular.z && msg.cntl.angular.z < 0.5){
+		msg.cntl.angular.z = -0.10;
+	  }else if(0.5 < msg.cntl.angular.z && msg.cntl.angular.z < 0.10){
+		msg.cntl.angular.z = 0.10;
 	  }else{
 		msg.cntl.angular.z = 0.0;
 	  }
 	}
 
 	//check goal
-	/*if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.1){
+	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.1){
 			printf("Goal!!!");
 			GOAL;
 			//msg.cntl.linear.x = 0.0;
 			//msg.cntl.angular.z = 0.0;
-		}*/
+			//break;
+		}
 
 	ctrl_pub.publish(msg);
 	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
