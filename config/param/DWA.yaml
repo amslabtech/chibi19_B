@@ -12,7 +12,7 @@ yawrate_reso: 0.05
 dt: 0.1
 predict_time: 3.0
 
-to_goal_cost_gain: 4.0
+to_goal_cost_gain: 8.0
 speed_cost_gain: 0.7
 obstacle_cost_gain: 0.2
 
