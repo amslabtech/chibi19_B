@@ -56,7 +56,7 @@ double init_yaw_cov;
 double Max_Range;
 double w_slow = 0.0;
 double w_fast = 0.0;
-double sigma = 3.0;
+double sigma = 1.0;
 double a_slow;
 double a_fast;
 double range_count;
@@ -190,6 +190,7 @@ int main(int argc, char** argv)
 	private_nh.getParam("a_4", a_4);
 	private_nh.getParam("X_thresh", x_thresh);
 	private_nh.getParam("y_thresh", y_thresh);
+	private_nh.getParam("yaw_thresh", yaw_thresh);
 
     ros::Subscriber map_sub = nh.subscribe("/map",100, map_callback);
 	ros::Subscriber laser_sub = nh.subscribe("/scan",100, laser_callback);
@@ -205,7 +206,6 @@ int main(int argc, char** argv)
 	current_pose.pose.position.y = 0.0;
 	quaternionTFToMsg(tf::createQuaternionFromYaw(0), current_pose.pose.orientation);
 	previous_pose = current_pose;
-	estimated_pose = current_pose;
 	ros::Rate rate(10.0);
 
 	while(ros::ok())
@@ -241,7 +241,7 @@ int main(int argc, char** argv)
 				
 				x_cov = 0.3;
 				y_cov = 0.3;
-				yaw_cov = 0.3;
+				yaw_cov = 0.2; 
 				
 				for(int i=0;i<N;i++)
 				{
@@ -255,7 +255,7 @@ int main(int argc, char** argv)
 			}
 
 
-			double sum = 0;
+			double w_sum = 0;
 
 			for(int i=0;i<N;i++)
 			{
@@ -265,7 +265,7 @@ int main(int argc, char** argv)
 			for(int i=0;i<N;i++)
 			{
 				Particles[i].measurement_update();
-				sum += Particles[i].weight;
+				w_sum += Particles[i].weight;
 			}
 
 			double w_ave = 0.0;
@@ -277,7 +277,7 @@ int main(int argc, char** argv)
 				if(Particles[i].weight > Particles[max_index].weight)
 					max_index = i;
 
-				Particles[i].weight /= sum;
+				Particles[i].weight /= w_sum;
 			}
 
 			w_ave /= (double)N;
@@ -611,41 +611,42 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 void Particle::measurement_update()
 {
 	double range_diff = 0;
-	double p = 1.0;
-	double pz;
+	double p = 0.0;
 	double map_range; 
 	double angle;
 
 	double z_short = 0.1;
 	double z_hit = 0.7;
-	double z_max = 0.0;
-	double z_random = 0.2;
+	double z_max = 0.1;
+	double z_random = 0.1;
+
+	double lambda_short = 0.2;
 	
 	for(int i=0;i<laser.ranges.size();i+=range_count)
 	{
 		angle = i*laser.angle_increment + laser.angle_min;
 		map_range = calc_range(pose.pose.position.x, pose.pose.position.y, Get_Yaw(pose.pose.orientation)+angle);
 		range_diff = laser.ranges[i] - map_range;
-		pz = 0.0;
-		
-		pz += exp(-1*(range_diff * range_diff)/(2 * sigma* sigma)); 
+	
+		if(laser.ranges[i] < Max_Range)
+		{
+			p += z_hit * exp(-1*(range_diff * range_diff)/(2 * sigma* sigma));
+		}
 
 		if(range_diff < 0)
 		{
-			pz += z_short * exp(-z_short * map_range);
+			p += lambda_short * z_short * exp(-lambda_short * laser.ranges[i]);
 		}
 
-		if(map_range == Max_Range)
+		if(laser.ranges[i] >= Max_Range)
 		{
-			pz += z_max * 1.0;
+			p += z_max * 1.0;
 		}
 
-		if(map_range < Max_Range)
+		if(laser.ranges[i] < Max_Range)
 		{
-			pz += z_random * 1.0 / Max_Range;
+			p += z_random * 1.0 / Max_Range;
 		}
-
-		p += pow(pz,3);
 	}
 
 	weight = p;
