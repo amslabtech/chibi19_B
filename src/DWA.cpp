@@ -367,7 +367,7 @@ int main(int argc, char **argv)
 	}
 
 	//check goal
-	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.1){
+	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.5){
 			printf("Goal!!!");
 			GOAL;
 			//msg.cntl.linear.x = 0.0;
