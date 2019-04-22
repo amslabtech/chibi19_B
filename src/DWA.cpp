@@ -258,7 +258,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
-			ROS_INFO("goal_dist = %f, goal_cost = %f, ob_cost = %f", goal_dist, to_goal_cost, ob_cost);
+			//ROS_INFO("goal_dist = %f, goal_cost = %f, ob_cost = %f", goal_dist, to_goal_cost, ob_cost);
 			final_cost = to_goal_cost + goal_dist + speed_cost + ob_cost;
 
 			if(min_cost >= final_cost){
@@ -356,9 +356,9 @@ int main(int argc, char **argv)
 	
 	msg.cntl.linear.x = roomba_v_gain * u.v / max_speed;
 	msg.cntl.angular.z = roomba_omega_gain * u.omega / max_yawrate;
-	if(msg.cntl.angular.z < 0.15){
-	  msg.cntl.angular.z = 0.15;
-	}
+	//if(msg.cntl.angular.z < 0.15){
+	  //msg.cntl.angular.z = 0.15;
+	//}
 
 	//check goal
 	/*if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.1){
