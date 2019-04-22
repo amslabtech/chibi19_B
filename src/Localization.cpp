@@ -253,7 +253,7 @@ int main(int argc, char** argv)
 			}
 
 
-			double sum = 0;
+			double w_sum = 0;
 
 			for(int i=0;i<N;i++)
 			{
@@ -263,7 +263,7 @@ int main(int argc, char** argv)
 			for(int i=0;i<N;i++)
 			{
 				Particles[i].measurement_update();
-				sum += Particles[i].weight;
+				w_sum += Particles[i].weight;
 			}
 
 			double w_ave = 0.0;
@@ -275,7 +275,7 @@ int main(int argc, char** argv)
 				if(Particles[i].weight > Particles[max_index].weight)
 					max_index = i;
 
-				Particles[i].weight /= sum;
+				Particles[i].weight /= w_sum;
 			}
 
 			w_ave /= (double)N;
@@ -616,12 +616,8 @@ void Particle::measurement_update()
 
 	double z_short = 0.1;
 	double z_hit = 0.7;
-	double z_max = 0.0;
-<<<<<<< HEAD
+	double z_max = 0.1;
 	double z_random = 0.1;
-=======
-	double z_random = 0.2;
->>>>>>> 1b686ab57da0fcce85cd8b1d0cc36b6f4782f6b8
 	
 	for(int i=0;i<laser.ranges.size();i+=range_count)
 	{
