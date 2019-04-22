@@ -4,7 +4,7 @@ max_speed: 0.40
 min_speed: 0.0
 max_yawrate: 1.0
 max_accel: 4.0
-max_dyawrate: 5.0         
+max_dyawrate: 1.5         
  
 v_reso: 0.05
 yawrate_reso: 0.05
