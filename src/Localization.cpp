@@ -616,7 +616,7 @@ void Particle::measurement_update()
 
 	double z_short = 0.1;
 	double z_hit = 0.7;
-	double z_max = 0.1;
+	double z_max = 0.0;
 	double z_random = 0.1;
 	
 	for(int i=0;i<laser.ranges.size();i+=range_count)
@@ -646,5 +646,5 @@ void Particle::measurement_update()
 		p += pow(pz,3);
 	}
 
-	weight = p;
+	weight *= p;
 }
