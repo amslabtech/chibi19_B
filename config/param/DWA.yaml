@@ -1,8 +1,8 @@
 N: 720
 
-max_speed: 0.30
-min_speed: 0.1
-max_yawrate: 0.80
+max_speed: 0.40
+min_speed: 0.0
+max_yawrate: 1.0
 max_accel: 4.0
 max_dyawrate: 1.5         
  
