@@ -356,9 +356,15 @@ int main(int argc, char **argv)
 	
 	msg.cntl.linear.x = roomba_v_gain * u.v / max_speed;
 	msg.cntl.angular.z = roomba_omega_gain * u.omega / max_yawrate;
-	//if(msg.cntl.angular.z < 0.15){
-	  //msg.cntl.angular.z = 0.15;
-	//}
+	if(fabs(msg.cntl.angular.z) < 0.12){
+	  if(msg.cntl.angular.z < 0.0){
+		msg.cntl.angular.z = -0.12;
+	  }else if(msg.cntl.angular.z > 0.0){
+		msg.cntl.angular.z = 0.12;
+	  }else{
+		msg.cntl.angular.z = 0.0;
+	  }
+	}
 
 	//check goal
 	/*if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.1){
