@@ -204,7 +204,6 @@ int main(int argc, char** argv)
 	current_pose.pose.position.y = 0.0;
 	quaternionTFToMsg(tf::createQuaternionFromYaw(0), current_pose.pose.orientation);
 	previous_pose = current_pose;
-	estimated_pose = current_pose;
 	ros::Rate rate(10.0);
 
 	while(ros::ok())
@@ -609,7 +608,7 @@ void Particle::motion_update(geometry_msgs::PoseStamped current, geometry_msgs::
 void Particle::measurement_update()
 {
 	double range_diff = 0;
-	double p = 1.0;
+	double p = 0.0;
 	double pz;
 	double map_range; 
 	double angle;
@@ -625,20 +624,21 @@ void Particle::measurement_update()
 		map_range = calc_range(pose.pose.position.x, pose.pose.position.y, Get_Yaw(pose.pose.orientation)+angle);
 		range_diff = laser.ranges[i] - map_range;
 		pz = 0.0;
-		
+	
+		if(laser.ranges[i] < Max_Range)
 		pz += exp(-1*(range_diff * range_diff)/(2 * sigma* sigma)); 
 
 		if(range_diff < 0)
 		{
-			pz += z_short * exp(-z_short * map_range);
+			pz += z_short * exp(-laser.ranges[i]);
 		}
 
-		if(map_range == Max_Range)
+		if(laser.ranges[i] >= Max_Range)
 		{
 			pz += z_max * 1.0;
 		}
 
-		if(map_range < Max_Range)
+		if(laser.ranges[i] < Max_Range)
 		{
 			pz += z_random * 1.0 / Max_Range;
 		}
@@ -646,5 +646,5 @@ void Particle::measurement_update()
 		p += pow(pz,3);
 	}
 
-	weight *= p;
+	weight = p;
 }
