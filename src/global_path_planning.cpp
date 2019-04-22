@@ -252,7 +252,7 @@ void get_path(int goal[2])
 	}
 	std::reverse(connect_path.poses.begin(),connect_path.poses.end());
 	global_path.poses.insert(global_path.poses.end(),connect_path.poses.begin(),connect_path.poses.end());
-	ROS_INFO("get path");
+	ROS_INFO("get path\n");
 }
 
 void set_randmark(const float x,const float y)
@@ -262,7 +262,7 @@ void set_randmark(const float x,const float y)
 	float ini_x = global_path.poses.back().pose.position.x;
 	float ini_y = global_path.poses.back().pose.position.y;
 
-    ROS_INFO("randmark = (%.2f,%.2f)\n",x,y);
+    ROS_INFO("randmark = (%.2f,%.2f)",x,y);
 
 	to_gridnum(ini_x,ini_y,init);
 	to_gridnum(x,y,goal);
@@ -289,8 +289,13 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 	int min_i = 0;
 
      if(y > 13.0) sg = 1;
+	 if(sg == 1){
+		 min = pow((x-global_path.poses[100].pose.position.x),2.0)+pow((y-global_path.poses[100].pose.position.y),2.0);
+		 min_i = 100;
+	 }
 
-	 for(int i=0+500*sg;i<global_path.poses.size()-500*(1-sg);i++){
+
+	 for(int i=0+100*sg;i<global_path.poses.size()-300*(1-sg);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
@@ -301,6 +306,7 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 		target_i = global_path.poses.size();
 	else 
 		target_i = min_i+t_dis;
+	ROS_INFO("min_i = %d target_i = %d sg=%d",min_i,target_i,sg);
 
 	target_point.point.x = global_path.poses[target_i].pose.position.x;
 	target_point.point.y = global_path.poses[target_i].pose.position.y;
@@ -319,15 +325,17 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 	float x = _msg.pose.pose.position.x;
 	float y = _msg.pose.pose.position.y;
 	float dis;
+	int start_i = 0;
 
-    ROS_INFO("locali_p =(%.2f,%.2f)",x,y);
+    //ROS_INFO("locali_p =(%.2f,%.2f)",x,y);
 	
-	float min = pow((x-global_path.poses[0].pose.position.x),2.0)+pow((y-global_path.poses[0].pose.position.y),2.0);
-	int min_i = 0;
-
 	if(y > 13.0) sg = 1;
 
-	for(int i=0+500*sg;i<global_path.poses.size()-500*(1-sg);i++){
+	if(sg == 1) start_i = 100;
+	float min = pow((x-global_path.poses[start_i].pose.position.x),2.0)+pow((y-global_path.poses[start_i].pose.position.y),2.0);
+	int min_i = start_i;
+
+	for(int i=0+start_i*sg;i<global_path.poses.size()-start_i*3*(1-sg);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
@@ -343,7 +351,7 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 	target_point.point.y = global_path.poses[target_i].pose.position.y;
 	target_point.point.z = 0;
 	target_point.header.frame_id = "map";
-	ROS_INFO("target = (%.2f,%.2f)",target_point.point.x ,target_point.point.y);
+	//ROS_INFO("target = (%.2f,%.2f)",target_point.point.x ,target_point.point.y);
 }
 
 void set_init(const float x,const float y)
