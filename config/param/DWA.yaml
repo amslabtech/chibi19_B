@@ -1,10 +1,10 @@
 N: 720
 
-max_speed: 0.35
+max_speed: 0.30
 min_speed: 0.1
-max_yawrate: 0.85
-max_accel: 5.0
-max_dyawrate: 2.0          
+max_yawrate: 0.80
+max_accel: 4.0
+max_dyawrate: 1.5         
  
 v_reso: 0.05
 yawrate_reso: 0.05
@@ -12,12 +12,12 @@ yawrate_reso: 0.05
 dt: 0.1
 predict_time: 3.0
 
-to_goal_cost_gain: 1.0
-speed_cost_gain: 1.0
-obstacle_cost_gain: 0.05
+to_goal_cost_gain: 2.0
+speed_cost_gain: 0.7
+obstacle_cost_gain: 0.2
 
 robot_radius: 0.25
 
-roomba_v_gain: 0.5
-roomba_omega_gain: 0.5
+roomba_v_gain: 0.4
+roomba_omega_gain: 0.4
                         

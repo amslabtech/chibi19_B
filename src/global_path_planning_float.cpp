@@ -50,7 +50,7 @@ float delta_cost[d] = {1.0,sqrtf(2.0),1.0,sqrtf(2.0),1.0,sqrtf(2.0 ),1.0,sqrtf(2
 int grid[row][column];
 int open_grid[row][column];
 int close_grid[row][column];
-int heuristic[row][column];
+float heuristic[row][column];
 
 nav_msgs::Path global_path;
 nav_msgs::Path connect_path;
@@ -104,13 +104,15 @@ void show_farray(float array[row][column]){
      printf("]\n");
 }
 
-void set_heuristic(int array[row][column],const int goal[2]){
+void set_heuristic(float array[row][column],const int goal[2]){
     array[goal[0]][goal[1]] = 0;
     for(int i=0;i<row;i++){
         for(int j=0;j<column;j++){
-            array[i][j] = abs(goal[0]-i)+abs(goal[1]-j);
+            array[i][j] = sqrt(pow(abs(goal[0]-i),2)+pow(abs(goal[1]-j),2));
+			//array[i][j] = abs(goal[0]-i)+abs(goal[1]-j);
         }
     }
+	ROS_INFO("heuristic is done.");
 }
 
 
@@ -161,22 +163,29 @@ int search(const int init[2],const int goal[2])
 			break;
 		}
 		std::sort(open_Point.begin(),open_Point.end());
-		get_param(open_Point[open_Point.size()-1],cost,gvalue,x,y,direction);
+		get_param(open_Point.back(),cost,gvalue,x,y,direction);
 		open_Point.pop_back();
 		close_grid[y][x] = 1;
 		open_grid[y][x] = (direction+d/2)%d;
+		ROS_INFO("close is done.(%d,%d) size=%lu",x,y,open_Point.size());
 		for(int i=0;i<d;i++){
 			direction2 = (direction+d/2)%d;
 			if(i != direction2){
 				x2 = x + delta[i][1];
 				y2 = y + delta[i][0];
+
+				if(x == 2312){
+					ROS_INFO("heuristic = %f",heuristic[y2][x2]);
+				}
+
+
 				if(x2<column && x2>-1 && y2<row && y2>-1){
 					if(close_grid[y2][x2] < 0 && grid[y2][x2] == 0){
 						gvalue2 = gvalue + delta_cost[i];
 						cost2 = gvalue2 + heuristic[y2][x2];
 						//open_grid[y2][x2] = (i+4)%8;
 						open_Point.push_back(make_Point(cost2,gvalue2,x2,y2,i));
-						if(heuristic[y2][x2] == 0){
+						if(heuristic[y2][x2] < 1.0 ){
 							open_grid[y2][x2] = (i+d/2)%d;
 							i=d;
 							step = row*column;
@@ -343,17 +352,17 @@ void set_init(const float x,const float y)
  	set_init(0.0,0.0);
 
   	set_randmark(16.19,-0.18);
-  	set_randmark(16.0,14.17);
-  	set_randmark(-17.34,14.25);
- 	set_randmark(-17.15,-0.10);
+//  	set_randmark(16.0,14.17);
+//  	set_randmark(-17.34,14.25);
+//	 	set_randmark(-17.15,-0.10);
  
  
- // 	set_randmark(-16.00,-4.70);
- // 	set_randmark(-19.59,8.84);
- // 	set_randmark(12.55,17.27);
- // 	set_randmark(16.15,3.70);
+// 	set_randmark(-16.00,-4.70);
+// 	set_randmark(-19.59,8.84);
+// 	set_randmark(12.55,17.27);
+// 	set_randmark(16.15,3.70);
 
- 	set_randmark(0.0,0.0);
+// 	set_randmark(0.0,0.0);
  }
  
 void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)

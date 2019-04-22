@@ -1,0 +1,32 @@
+#Number of Particles
+N: 500
+
+#Init Pose
+init_x: 0.0
+init_y: 0.0
+init_yaw: 0.0
+
+#Covariance
+init_x_cov: 0.5
+init_y_cov: 0.5
+init_yaw_cov: 0.5
+
+#Laser Data
+Max_Range: 20
+range_count: 3
+
+#Param for Resampling
+a_slow: 0.001
+a_fast: 0.1
+
+#Noises of Motion
+a_1: 0.3
+a_2: 0.3
+a_3: 0.1
+a_4: 0.1
+
+#Threshould for Reset
+
+x_thresh: 0.1
+y_thresh: 0.1
+yaw_thresh: 0.1
