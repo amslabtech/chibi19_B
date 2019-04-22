@@ -7,13 +7,13 @@ init_y: 0.0
 init_yaw: 0.0
 
 #Covariance
-init_x_cov: 0.5
-init_y_cov: 0.5
+init_x_cov: 1.0
+init_y_cov: 1.0
 init_yaw_cov: 0.5
 
 #Laser Data
-Max_Range: 20
-range_count: 3
+Max_Range: 25
+range_count: 1
 
 #Param for Resampling
 a_slow: 0.001
