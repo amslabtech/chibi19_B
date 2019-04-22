@@ -358,12 +358,12 @@ int main(int argc, char **argv)
 	msg.cntl.angular.z = roomba_omega_gain * u.omega / max_yawrate;
 
 	//check goal
-	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.1){
+	/*if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.1){
 			printf("Goal!!!");
 			GOAL;
 			//msg.cntl.linear.x = 0.0;
 			//msg.cntl.angular.z = 0.0;
-		}
+		}*/
 
 	ctrl_pub.publish(msg);
 	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
