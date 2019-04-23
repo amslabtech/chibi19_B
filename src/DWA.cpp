@@ -254,11 +254,11 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
-			goal_dist = 2.0 *  calc_goal_dist(traj, goal);
+			goal_dist = 3.0 *  calc_goal_dist(traj, goal);
 			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
-			ROS_INFO("goal_dist = %f, goal_cost = %f, ob_cost = %f", goal_dist, to_goal_cost, ob_cost);
+			//ROS_INFO("goal_dist = %f, goal_cost = %f, ob_cost = %f", goal_dist, to_goal_cost, ob_cost);
 			final_cost = to_goal_cost + goal_dist + speed_cost + ob_cost;
 
 			if(min_cost >= final_cost){
@@ -356,19 +356,30 @@ int main(int argc, char **argv)
 	
 	msg.cntl.linear.x = roomba_v_gain * u.v / max_speed;
 	msg.cntl.angular.z = roomba_omega_gain * u.omega / max_yawrate;
+	if(fabs(msg.cntl.angular.z) < 0.10){
+	  if(-0.10 < msg.cntl.angular.z && msg.cntl.angular.z < 0.5){
+		msg.cntl.angular.z = -0.10;
+	  }else if(0.5 < msg.cntl.angular.z && msg.cntl.angular.z < 0.10){
+		msg.cntl.angular.z = 0.10;
+	  }else{
+		msg.cntl.angular.z = 0.0;
+	  }
+	}
 
 	//check goal
-	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.1){
+	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.5){
 			printf("Goal!!!");
 			GOAL;
 			//msg.cntl.linear.x = 0.0;
 			//msg.cntl.angular.z = 0.0;
+			//break;
 		}
 
 	ctrl_pub.publish(msg);
 	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
 	//ROS_INFO("goal.x = %f, goal.y = %f", goal.x, goal.y);
-	//ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);
+	//ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);	
+	ROS_INFO("v = %f, omega = %f", roomba.v, roomba.omega);
 	loop_rate.sleep();
 	}
 	
