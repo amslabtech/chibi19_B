@@ -320,39 +320,34 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 {
     geometry_msgs::PoseWithCovarianceStamped _msg = *msg;
 
-	int t_dis = 60;
+	int t_dis = 60; // t_dis*0.05[m]far is goal
 	int target_i,min_i; 
 	float x = _msg.pose.pose.position.x;
 	float y = _msg.pose.pose.position.y;
 	float dis,min;
 	int start_i = 0;
+	int half_size = global_path.poses.size()/2;
 
-    //ROS_INFO("locali_p =(%.2f,%.2f)",x,y);
-	
 	if(y > 13.0) sg = 1;
 
-	if(sg == 1) start_i = 1000;
-	else start_i = 0;
-		min = pow((x-global_path.poses[start_i].pose.position.x),2.0)+pow((y-global_path.poses[start_i].pose.position.y),2.0);
-		min_i = start_i;
+	if(sg == 1) start_i = half_size;
+	min = pow((x-global_path.poses[start_i].pose.position.x),2.0)+pow((y-global_path.poses[start_i].pose.position.y),2.0);
+	min_i = start_i;
 
-	for(int i=0+1000*sg;i<global_path.poses.size()-1000*(1-sg);i++){
+	for(int i=0+start_i;i<global_path.poses.size()-(half_size-start_i);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
 			min_i = i;
 		}
 	}
-	if((min_i+t_dis) > global_path.poses.size()-1) 
-		target_i = global_path.poses.size();
-	else 
-		target_i = min_i+t_dis;
+	if((min_i+t_dis) > global_path.poses.size()-1) target_i = global_path.poses.size();
+	else target_i = min_i+t_dis;
 
 	target_point.point.x = global_path.poses[target_i].pose.position.x;
 	target_point.point.y = global_path.poses[target_i].pose.position.y;
 	target_point.point.z = 0;
 	target_point.header.frame_id = "map";
-	//ROS_INFO("target = (%.2f,%.2f)",target_point.point.x ,target_point.point.y);
 }
 
 void set_init(const float x,const float y)
