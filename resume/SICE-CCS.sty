@@ -1,0 +1,106 @@
+%
+% SICE-CCS.sty
+% Atsushi Konno March 5, 2005
+\typeout{Document Style Option `SICE-CCS.sty' <5 March 2005>}
+
+\twocolumn
+\sloppy
+\flushbottom
+\parindent 0.7em
+\leftmargini 2em
+\leftmarginv .5em
+\leftmarginvi .5em
+\oddsidemargin -5.4mm
+\evensidemargin -5.4mm
+\marginparwidth 48pt 
+\marginparsep 10pt 
+\textwidth 170mm
+\textheight 250mm
+\topmargin -20mm
+\columnsep 7mm
+\parindent 1zw
+\renewcommand{\baselinestretch}{0.84} % Modify the value, if needed. 0.82
+
+\def\topfraction{0.99}
+\def\bottomfraction{0.99}
+\def\textfraction{0.01}
+\def\floatpagefraction{0.99}
+\def\dbltopfraction{0.99}
+\def\dblfloatpagefraction{0.99}
+\floatsep .5\floatsep
+\textfloatsep .5\textfloatsep
+\intextsep .5\intextsep
+\dblfloatsep .5\dblfloatsep
+\dbltextfloatsep .5\dbltextfloatsep
+\abovecaptionskip 0pt
+
+\def\title#1{\gdef\@title{#1}}
+\def\engtitle#1{\gdef\@engtitle{#1}}
+\def\author#1{\gdef\@author{#1}}
+\def\engauthor#1{\gdef\@engauthor{#1}}
+\def\keyword#1{\gdef\@keyword{#1}}
+\def\confnum#1{\gdef\@confnum{#1}}     % \UTF{0091}\UTF{00E6}\UTF{0089}\UTF{0153}\UTF{0089}\UTF{00F1}\UTF{0096}\UTF{00DA}\UTF{0082}\UTF{00CC}\UTF{0089}\UTF{00EF}\UTF{008B}c\UTF{0082}\UTF{00A9}%
+\def\confdate#1{\gdef\@confdate{#1}}   % \UTF{008A}J\UTF{008D}\UTF{00C3}\UTF{0093}\UTF{00FA}\UTF{008E}\UTF{009E}%
+\def\confplace#1{\gdef\@confplace{#1}} % \UTF{008A}J\UTF{008D}\UTF{00C3}\UTF{008F}\UTF{00EA}\UTF{008F}\UTF{008A}%
+\def\@maketitle{\newpage
+  \null
+  \vskip 1.5em
+  \begin{center}%
+    {\LARGE\bf \@title}%
+    \vskip 1em
+    {\large \@author}%
+    \vskip 1em
+  %  {\large\bf \@engtitle}%
+    \vskip 1em
+ %   {\large \@engauthor}%
+  \end{center}
+  \@ifundefined{@abstract}{}{%
+    \small
+    \begin{center}%
+      \begin{minipage}{.9\textwidth}%
+        {\bf Abstract-- }\@abstract
+      \end{minipage}%
+    \end{center}%
+    \gdef\@abstract{}}
+   \vspace*{-1em}
+  \@ifundefined{@keyword}{}{%
+    \small
+    \begin{center}%
+      \begin{minipage}{.9\textwidth}%
+        {\bf Key Words: }\@keyword
+      \end{minipage}%
+    \end{center}%
+    \gdef\@keyword{}}
+    \vskip 1em}
+\long\def\abstract#1{\long\gdef\@abstract{#1}}
+
+% \UTF{0090}}\UTF{0094}\UTF{00D4}\UTF{0081}C\UTF{0095}\\UTF{0094}\UTF{00D4}\UTF{0082}\UTF{00CD}\UTF{0081}CFig.??, Table ??\UTF{0082}\UTF{00CC}\UTF{008C}`\UTF{008E}\UTF{00AE}%
+\def\fnum@figure{Fig.~\thefigure}
+\def\fnum@table{Table~\thetable}
+
+% \UTF{008F}\UTF{00CD}\UTF{0081}C\UTF{0090}\UTF{00DF}\UTF{0083}^\UTF{0083}C\UTF{0083}g\UTF{0083}\UTF{008B}\UTF{0082}\UTF{00CC}\UTF{0083}t\UTF{0083}H\UTF{0081}[\UTF{0083}}\UTF{0083}b\UTF{0083}g
+\def\section{\@startsection {section}{1}{\z@}%
+  {.8ex plus .5ex minus .2ex}{.5ex plus .2ex}{\large\bf}}
+\def\subsection{\@startsection{subsection}{2}{\z@}%
+  {.8ex plus .5ex minus .2ex}{.5ex plus .2ex}{\normalsize\bf}}
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+  {.8ex plus .5ex minus .2ex}{.5ex plus .2ex}{\normalsize\bf}}
+\def\paragraph{\@startsection {paragraph}{4}{\z@}%
+  {0.5ex plus .3ex minus .2ex}{-1em}{\normalsize\bf}}
+\def\subparagraph{\@startsection {subparagraph}{4}{\parindent}%
+  {0.5ex plus .3ex minus .2ex}{-1em}{\normalsize\bf}}
+
+% \UTF{008E}Q\UTF{008D}l\UTF{0095}¶\UTF{008C}£\UTF{0082}\UTF{00CC}\UTF{0083}\UTF{008A}\UTF{0083}X\UTF{0083}g\UTF{0094}\UTF{00D4}\UTF{008D}\UTF{0086}\UTF{0082}\UTF{00F0} 1) \UTF{0082}\UTF{00CC}\UTF{008C}`\UTF{008E}\UTF{00AE}\UTF{0082}\UTF{00C9}\UTF{0082}\UTF{00B7}\UTF{0082}\UTF{00E9}\UTF{0081}D
+\def\thebibliography#1{\section*{参考文献\markboth
+{参考文献}{参考文献}}\list
+ {{\arabic{enumi}})}{\settowidth\labelwidth{{#1})}\leftmargin\labelwidth
+ \advance\leftmargin\labelsep
+ \usecounter{enumi}}
+ \def\newblock{\hskip .11em plus .33em minus .07em}
+ \sloppy
+ \sfcode`\.=1000\relax}
+\let\endthebibliography=\endlist
+
+% \UTF{0088}\UTF{00F8}\UTF{0097}p\UTF{0082}\UTF{00CD} 1) \UTF{008C}`\UTF{008E}\UTF{00AE}\UTF{0082}\UTF{00CC}\UTF{008F}\UTF{00E3}\UTF{0095}t\UTF{0082}\UTF{00AB}\UTF{0082}\UTF{00C9}\UTF{0082}\UTF{00B7}\UTF{0082}\UTF{00E9}\UTF{0081}D
+\def\@cite#1#2{$^{\hbox{\scriptsize{#1\if@tempswa , #2\fi}})}$}
+
