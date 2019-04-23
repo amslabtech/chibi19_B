@@ -124,6 +124,7 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -281,4 +282,8 @@ target_link_libraries(Localizer ${catkin_LIBRARIES})
 
 add_executable(WhiteLineListener_test src/WhiteLineListener_test.cpp)
 target_link_libraries(WhiteLineListener_test ${catkin_LIBRARIES})
+
+add_executable(make_heatmap src/make_heatmap.cpp)
+target_link_libraries(make_heatmap ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+
 
