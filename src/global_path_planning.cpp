@@ -290,12 +290,12 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 
      if(y > 13.0) sg = 1;
 	 if(sg == 1){
-		 min = pow((x-global_path.poses[100].pose.position.x),2.0)+pow((y-global_path.poses[100].pose.position.y),2.0);
-		 min_i = 100;
+		 min = pow((x-global_path.poses[1000].pose.position.x),2.0)+pow((y-global_path.poses[1000].pose.position.y),2.0);
+		 min_i = 1000;
 	 }
 
 
-	 for(int i=0+100*sg;i<global_path.poses.size()-300*(1-sg);i++){
+	 for(int i=0+1000*sg;i<global_path.poses.size()-300*(1-sg);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
@@ -321,21 +321,22 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
     geometry_msgs::PoseWithCovarianceStamped _msg = *msg;
 
 	int t_dis = 60;
-	int target_i; 
+	int target_i,min_i; 
 	float x = _msg.pose.pose.position.x;
 	float y = _msg.pose.pose.position.y;
-	float dis;
+	float dis,min;
 	int start_i = 0;
 
     //ROS_INFO("locali_p =(%.2f,%.2f)",x,y);
 	
 	if(y > 13.0) sg = 1;
 
-	if(sg == 1) start_i = 100;
-	float min = pow((x-global_path.poses[start_i].pose.position.x),2.0)+pow((y-global_path.poses[start_i].pose.position.y),2.0);
-	int min_i = start_i;
+	if(sg == 1) start_i = 1000;
+	else start_i = 0;
+		min = pow((x-global_path.poses[start_i].pose.position.x),2.0)+pow((y-global_path.poses[start_i].pose.position.y),2.0);
+		min_i = start_i;
 
-	for(int i=0+start_i*sg;i<global_path.poses.size()-start_i*3*(1-sg);i++){
+	for(int i=0+1000*sg;i<global_path.poses.size()-1000*(1-sg);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
