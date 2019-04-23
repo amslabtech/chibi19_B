@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include "std_msgs/Bool.h"
 #include "roomba_500driver_meiji/RoombaCtrl.h"
 #include "sensor_msgs/LaserScan.h"
 #include "nav_msgs/Odometry.h"
@@ -23,6 +24,7 @@ double obstacle_cost_gain;
 double robot_radius;
 double roomba_v_gain;
 double roomba_omega_gain;
+bool white_line_detector = false;
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment
 
@@ -71,6 +73,10 @@ void targetpose_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 	geometry_msgs::PointStamped _msg = *msg;
 	goal.x = _msg.point.x;
 	goal.y = _msg.point.y;
+}
+void whiteline_callback(const std_msgs::Bool msg)
+{
+	white_line_detector = msg.data;
 }
 
 
@@ -309,6 +315,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle scan_laser_sub;
 	ros::NodeHandle est_pose;
 	ros::NodeHandle target_pose;
+	ros::NodeHandle whiteline;
 	ros::NodeHandle private_nh("~");
 
 	private_nh.getParam("max_speed", max_speed);
@@ -329,7 +336,8 @@ int main(int argc, char **argv)
 	ros::Publisher ctrl_pub = roomba_ctrl_pub.advertise<roomba_500driver_meiji::RoombaCtrl>("roomba/control", 1);	
 	ros::Subscriber laser_sub = scan_laser_sub.subscribe("scan", 1, lasercallback);	
 	ros::Subscriber est_pose_sub = est_pose.subscribe("/chibi19/estimated_pose", 1, estpose_callback);	
-	ros::Subscriber target_pose_sub = target_pose.subscribe("chibi19_b/target", 1, targetpose_callback);	
+	ros::Subscriber target_pose_sub = target_pose.subscribe("chibi19_b/target", 1, targetpose_callback);
+	ros::Subscriber whiteline_sub = whiteline.subscribe("whiteline", 1, whiteline_callback);
 	ros::Rate loop_rate(10);
 	
 	roomba_500driver_meiji::RoombaCtrl msg;
