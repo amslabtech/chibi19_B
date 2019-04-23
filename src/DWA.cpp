@@ -25,6 +25,7 @@ double robot_radius;
 double roomba_v_gain;
 double roomba_omega_gain;
 bool white_line_detector = false;
+bool dist = false;
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment
 
@@ -389,8 +390,12 @@ int main(int argc, char **argv)
 	  }
 	}
 
+	if(roomba.y > 2.0){
+	  dist = true;
+	}
+
 	//check goal
-	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 1.0){
+	if(dist == true && sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 1.0){
 			printf("Goal!!!");
 			GOAL;
 			//msg.cntl.linear.x = 0.0;
