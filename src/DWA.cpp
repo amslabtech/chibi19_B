@@ -348,6 +348,7 @@ int main(int argc, char **argv)
 	//[x, y, yaw, v, omega]	
 	Speed u = {0.0, 0.0};
 	Dynamic_Window dw = {0.0, 0.0, 0.0, 0.0};
+	double yaw = 0.0;
 
 	while(ros::ok())
 	{
@@ -365,12 +366,26 @@ int main(int argc, char **argv)
 	msg.cntl.linear.x = roomba_v_gain * u.v / max_speed;
 	msg.cntl.angular.z = roomba_omega_gain * u.omega / max_yawrate;
 	if(fabs(msg.cntl.angular.z) < 0.10){
-	  if(-0.10 < msg.cntl.angular.z && msg.cntl.angular.z < 0.5){
+	  if(-0.10 < msg.cntl.angular.z && msg.cntl.angular.z < -0.5){
 		msg.cntl.angular.z = -0.10;
 	  }else if(0.5 < msg.cntl.angular.z && msg.cntl.angular.z < 0.10){
 		msg.cntl.angular.z = 0.10;
 	  }else{
 		msg.cntl.angular.z = 0.0;
+	  }
+	}
+	
+	//yaw = roomba.yaw;
+	while(white_line_detector == true){
+	  ROS_INFO("white = %d", white_line_detector);
+	  msg.cntl.angular.x = 0.0;
+	  msg.cntl.angular.z = 0.5;
+	  
+	  if(fabs(tf::getYaw(est_pose_msg.pose.pose.orientation) - roomba.yaw) < 0.05){
+		msg.cntl.angular.x = 0.5;
+		msg.cntl.angular.z = 0.0;
+		sleep(2);
+		break;
 	  }
 	}
 
@@ -381,7 +396,7 @@ int main(int argc, char **argv)
 			//msg.cntl.linear.x = 0.0;
 			//msg.cntl.angular.z = 0.0;
 			//break;
-		}
+	}
 
 	ctrl_pub.publish(msg);
 	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
