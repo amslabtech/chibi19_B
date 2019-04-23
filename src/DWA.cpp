@@ -390,12 +390,12 @@ int main(int argc, char **argv)
 	}
 
 	//check goal
-	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.5){
+	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 1.0){
 			printf("Goal!!!");
 			GOAL;
 			//msg.cntl.linear.x = 0.0;
 			//msg.cntl.angular.z = 0.0;
-			//break;
+			break;
 	}
 
 	ctrl_pub.publish(msg);
