@@ -2,6 +2,7 @@
 
 import rospy
 import cv2
+import time
 import matplotlib.pyplot as plt
 import numpy as np
 import math
@@ -22,14 +23,18 @@ def callback(data):
         img = CvBridge().imgmsg_to_cv2(data,"bgr8")
     except CvBridgeError as e:
         print(e)
-    
+
     #cv2.imshow("original",img)
-    #cv2.imwrite("/home/amsl/Desktop/img.jpg", img)
     #cv2.waitKey(1)
+    #cv2.imwrite("/home/amsl/Desktop/img.jpg", img)   
     
     img_gray = Gray(img)
 
     img_blur = Blur(img_gray)
+
+    #img_remove_black = RemoveBlack(img_blur)
+
+    #img_threshold = Threshold(img_remove_black)
 
     img_threshold = Threshold(img_blur)
 
@@ -47,8 +52,8 @@ def callback(data):
         res = True
     else:
         res = False
-    
-    #ShowContoursImage(approx_contours_rectangle, img, "final_image")
+     
+    ShowContoursImage(approx_contours_rectangle, img, "final_image")
     
 
 def Gray(img):
@@ -69,14 +74,31 @@ def Blur(img):
 
     return img_blur
 
+def RemoveBlack(img):
+
+    height, width = img.shape
+    
+    for high in range(height):
+        for wide in range(width):
+            if img[high][wide] < 160:
+                img[high][wide] = 160
+            else:
+                pass
+
+    cv2.imshow('remove_black', img)
+    cv2.waitKey(1)
+    #cv2.imwrite('/home/amsl/Desktop/blur.jpg', img_blur)
+
+    return img
+
 def Threshold(img):
-    ret, img_threshold = cv2.threshold(img, 200, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    ret, img_threshold = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
     if not ret:
         rospy.signal_shutdown("error in Threshold")
 
-    #cv2.imshow('threshold', img_threshold)
-    #cv2.waitKey(1)
+    cv2.imshow('threshold', img_threshold)
+    cv2.waitKey(1)
     #cv2.imwrite('/home/amsl/Desktop/threshold.jpg', img_threshold)
 
     return img_threshold
