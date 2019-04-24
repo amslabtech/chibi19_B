@@ -205,7 +205,7 @@ int search(const int init[2],const int goal[2])
 	open_grid[y][x] = 10;
 
 	for(int step=0; step<row*column; step++){
-		if(step == 5000){
+		if(step == 50000){
 			printf("\n<<<<<<<<<<<<timeover>>>>>>>>>>>>>>>>\n");
 			break;
 		}
@@ -356,7 +356,7 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 {
     geometry_msgs::PoseWithCovarianceStamped _msg = *msg;
 
-	int t_dis = 60; // t_dis*0.05[m]far is goal
+	int t_dis = 45; // t_dis*0.05[m]far is goal
 	int target_i,min_i; 
 	float x = _msg.pose.pose.position.x;
 	float y = _msg.pose.pose.position.y;
@@ -442,7 +442,7 @@ int main(int argc, char **argv)
     ros::Subscriber localization_sub = localization.subscribe("/chibi19/estimated_pose",1,localization_callback);
     ros::Publisher path_pub = path.advertise<nav_msgs::Path>("chibi19_b/global_path", 1);
 	ros::Publisher target_pub = target.advertise<geometry_msgs::PointStamped>("chibi19_b/target", 1);
-    ros::Rate loop_rate(1.0);
+    ros::Rate loop_rate(5.0);
 
 	//round_DF1();
 
