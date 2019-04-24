@@ -329,7 +329,7 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 	 }
 
 
-	 for(int i=0+400*sg;i<global_path.poses.size()-400*(1-sg);i++){
+	 for(int i=0;i<global_path.poses.size();i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
@@ -337,7 +337,7 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 		}
 	}
 	if((min_i+t_dis) > global_path.poses.size()-1) 
-		target_i = global_path.poses.size();
+		target_i = global_path.poses.size()-1;
 	else 
 		target_i = min_i+t_dis;
 	ROS_INFO("min_i = %d target_i = %d sg=%d",min_i,target_i,sg);
@@ -363,7 +363,6 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 	int quater_size = global_path.poses.size()/4;
 
 	if(y > 13.0) sg = 1;
-	else sg = 1;
 
 	if(sg == 1) start_i = quater_size;
 	min = pow((x-global_path.poses[start_i].pose.position.x),2.0)+pow((y-global_path.poses[start_i].pose.position.y),2.0);
@@ -376,7 +375,7 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 			min_i = i;
 		}
 	}
-	if((min_i+t_dis) > global_path.poses.size()-1) target_i = global_path.poses.size();
+	if((min_i+t_dis) > global_path.poses.size()-1) target_i = global_path.poses.size() - 1;
 	else target_i = min_i+t_dis;
 
 	target_point.point.x = global_path.poses[target_i].pose.position.x;
@@ -400,16 +399,16 @@ void set_init(const float x,const float y)
  	set_init(0.0,0.0);
 
   	set_randmark(16.19,-0.18);
-  	set_randmark(16.0,14.17);
-  	set_randmark(-17.34,14.25);
- 	set_randmark(-17.15,-0.10);
- 
-// 	set_randmark(16.15,3.70);
-// 	set_randmark(12.55,17.27);
-// 	set_randmark(-19.59,8.84);
-// 	set_randmark(-16.00,-4.70);
-
- 	set_randmark(0.0,0.0);
+//  	set_randmark(16.0,14.17);
+//  	set_randmark(-17.34,14.25);
+// 	set_randmark(-17.15,-0.10);
+// 
+//// 	set_randmark(16.15,3.70);
+//// 	set_randmark(12.55,17.27);
+//// 	set_randmark(-19.59,8.84);
+//// 	set_randmark(-16.00,-4.70);
+//
+// 	set_randmark(0.0,0.0);
 }
  
 void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
