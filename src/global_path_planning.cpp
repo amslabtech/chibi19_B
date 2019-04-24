@@ -400,15 +400,15 @@ void set_init(const float x,const float y)
  {	
  	set_init(0.0,0.0);
 
-//  	set_randmark(16.19,-0.18);
-//  	set_randmark(16.0,14.17);
-//  	set_randmark(-17.34,14.25);
-// 	set_randmark(-17.15,-0.10);
+  	set_randmark(16.19,-0.18);
+  	set_randmark(16.0,14.17);
+  	set_randmark(-17.34,14.25);
+ 	set_randmark(-17.15,-0.10);
  
- 	set_randmark(16.15,3.70);
- 	set_randmark(12.55,17.27);
- 	set_randmark(-19.59,8.84);
- 	set_randmark(-16.00,-4.70);
+// 	set_randmark(16.15,3.70);
+// 	set_randmark(12.55,17.27);
+// 	set_randmark(-19.59,8.84);
+// 	set_randmark(-16.00,-4.70);
 
  	set_randmark(0.0,0.0);
 }
