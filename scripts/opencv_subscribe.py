@@ -13,8 +13,10 @@ from cv_bridge import CvBridge, CvBridgeError
 
 res = False
 
-#fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-#out = cv2.VideoWriter('/home/amsl/Desktop/output.avi',fourcc, 20.0, (640,480))
+fourcc_thres = cv2.VideoWriter_fourcc('F','L','V','1')
+fourcc_final = cv2.VideoWriter_fourcc(*'MJPG')
+thres_video = cv2.VideoWriter('/home/amsl/Desktop/thres_center.avi',fourcc_thres, 20.0, (640,480), False)
+final_video = cv2.VideoWriter('/home/amsl/Desktop/final_center.avi',fourcc_final, 20.0, (640,480))
 
 def callback(data):
     global res
@@ -32,17 +34,15 @@ def callback(data):
 
     img_blur = Blur(img_gray)
 
-    #img_remove_black = RemoveBlack(img_blur)
-
-    #img_threshold = Threshold(img_remove_black)
-
     img_threshold = Threshold(img_blur)
 
     contours = cv2.findContours(img_threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[1]
     
     contours_large = AreaFilter(contours, img)
 
-    approx_contours = Approximation(contours_large, img)
+    contours_center = CenterFilter(contours_large, img)
+
+    approx_contours = Approximation(contours_center, img)
 
     approx_contours_large = PointFilter(approx_contours, img)
 
@@ -53,6 +53,7 @@ def callback(data):
     else:
         res = False
      
+    thres_video.write(img_threshold)
     ShowContoursImage(approx_contours_rectangle, img, "final_image")
     
 
@@ -92,7 +93,7 @@ def RemoveBlack(img):
     return img
 
 def Threshold(img):
-    ret, img_threshold = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    ret, img_threshold = cv2.threshold(img, 160, 255, cv2.THRESH_BINARY)
 
     if not ret:
         rospy.signal_shutdown("error in Threshold")
@@ -109,9 +110,25 @@ def AreaFilter(contours, img):
     contours_large = list(filter(lambda c:cv2.contourArea(c) > min_th_area, contours))
     contours_large = list(filter(lambda c:cv2.contourArea(c) < max_th_area, contours_large))
 
-    #ShowContoursImage(contours_large, img, "AreaFilter")
+    ShowContoursImage(contours_large, img, "AreaFilter")
 
     return contours_large
+
+def CenterFilter(contours, img):
+    contours_center = []
+    height = img.shape[0]
+    print(img.shape)
+    for i, cnt in enumerate(contours):
+        M = cv2.moments(cnt)
+        cy = int(M['m01']/M['m00'])
+        print(cy)
+        if cy > (height/2):
+            contours_center.append(cnt)
+
+    ShowContoursImage(contours_center, img, "CenterFilter")
+
+    return contours_center
+
 
 def Approximation(contours, img):
     approx_contours = []
@@ -163,15 +180,19 @@ def ShowContoursImage(contours, img, name):
     try:
         ret_img = cv2.drawContours(img.copy(), contours, -1, color=(0, 255, 0), thickness=3)
         cv2.imshow(name, ret_img)
+        final_video.write(ret_img)
         #output_place = "/home/amsl/Desktop/" + name + ".jpg"
         #cv2.imwrite(output_place, ret_img)
         
     except:
         cv2.imshow(name,img)
+        final_video.write(img)
         #output_place = "/home/amsl/Desktop/" + name + ".jpg"
         #cv2.imwrite(output_place, img)
 
     cv2.waitKey(1)
+
+
 
 def PublishRes():
     pub = rospy.Publisher('whiteline', Bool, queue_size=1)
