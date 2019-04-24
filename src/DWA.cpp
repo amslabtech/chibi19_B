@@ -384,7 +384,8 @@ int main(int argc, char **argv)
 			ROS_INFO("Goal!!!");
 			msg.cntl.linear.x = 0.0;
 			msg.cntl.angular.z = 0.0;
-			sleep(2);
+			msg.mode = 0;
+			sleep(1);
 			return 0;
 	}
 
