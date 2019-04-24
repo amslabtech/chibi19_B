@@ -257,8 +257,8 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 	double ob_cost = 0.0;
 	double final_cost = 0.0;
 
-	for(double i = dw.min_v ; i < dw.max_v ; i += v_reso ){
-		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
+	for(double i = dw.max_v ; i > dw.min_v ; i -= v_reso ){
+		for(double j = dw.max_omega ; j > dw.min_omega ; j -= yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
 			goal_dist = 3.0 *  calc_goal_dist(traj, goal);
