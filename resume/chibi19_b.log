@@ -1,4 +1,4 @@
-This is e-pTeX, Version 3.14159265-p3.7.1-161114-2.6 (utf8.euc) (TeX Live 2017/Debian) (preloaded format=platex 2019.4.16)  23 APR 2019 16:23
+This is e-pTeX, Version 3.14159265-p3.7.1-161114-2.6 (utf8.euc) (TeX Live 2017/Debian) (preloaded format=platex 2019.4.16)  24 APR 2019 11:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -250,12 +250,12 @@ Overfull \hbox (9.95847pt too wide) in paragraph at lines 45--46
 File: ./picture/DWA.png Graphic file (type bmp)
 <./picture/DWA.png>
 
-Overfull \hbox (9.95847pt too wide) in paragraph at lines 67--68
+Overfull \hbox (9.95847pt too wide) in paragraph at lines 76--77
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 73--74
+Underfull \hbox (badness 10000) in paragraph at lines 82--83
 []\JY1/mc/m/n/10 白線検知にはオ ープンソ ースソフトウ ェ アの
  []
 
@@ -264,7 +264,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 73--74
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 94--95
+Underfull \hbox (badness 10000) in paragraph at lines 103--104
 []\OT1/cmr/m/n/7 https://www.raspberrypi.org/products/raspberry-pi-3-
  []
 
@@ -276,12 +276,12 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 2240 strings out of 494662
- 27201 string characters out of 6174544
- 89222 words of memory out of 5000000
- 5724 multiletter control sequences out of 15000+600000
+ 2241 strings out of 494662
+ 27209 string characters out of 6174544
+ 90222 words of memory out of 5000000
+ 5725 multiletter control sequences out of 15000+600000
  14716 words of font info for 59 fonts, out of 8000000 for 9000
  309 hyphenation exceptions out of 8191
- 27i,5n,26p,871b,267s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 27i,15n,26p,871b,267s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on chibi19_b.dvi (2 pages, 11528 bytes).
+Output written on chibi19_b.dvi (2 pages, 11988 bytes).
