@@ -256,10 +256,11 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 	double speed_cost = 0.0;
 	double ob_cost = 0.0;
 	double final_cost = 0.0;
+	double center = (dw.max_omega + dw.min_omega) / 2;
 
 	for(double i = dw.max_v ; i > dw.min_v ; i -= v_reso ){
-		for(double j = dw.max_omega ; j > dw.min_omega ; j -= yawrate_reso){
-			calc_trajectory(traj, roomba,  i, j);
+		for(double j = 0 ; (center + j) < dw.max_omega ; j += yawrate_reso){
+			calc_trajectory(traj, roomba,  i, center + j);
 			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
 			goal_dist = 3.0 *  calc_goal_dist(traj, goal);
 			//speed_cost = calc_speed_cost(traj);
@@ -271,7 +272,22 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 			if(min_cost >= final_cost){
 				min_cost = final_cost;
 				min_u.v = i;
-				min_u.omega = j;
+				min_u.omega = center + j;
+			}
+			
+			calc_trajectory(traj, roomba,  i, center - j);
+			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
+			goal_dist = 3.0 *  calc_goal_dist(traj, goal);
+			//speed_cost = calc_speed_cost(traj);
+			ob_cost = calc_obstacle_cost(roomba, traj);
+
+			//ROS_INFO("goal_dist = %f, goal_cost = %f, ob_cost = %f", goal_dist, to_goal_cost, ob_cost);
+			final_cost = to_goal_cost + goal_dist + speed_cost + ob_cost;
+
+			if(min_cost >= final_cost){
+				min_cost = final_cost;
+				min_u.v = i;
+				min_u.omega = center + j;
 			}
 		}
 	}
