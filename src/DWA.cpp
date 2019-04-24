@@ -384,12 +384,13 @@ int main(int argc, char **argv)
 	ROS_INFO("x = %f, goal_dist = %f", roomba.x, sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)));
 	
 	if(dist == true && sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 1.0){
-			ROS_INFO("Goal!!!");
-			msg.cntl.linear.x = 0.0;
-			msg.cntl.angular.z = 0.0;
-			msg.mode = 0;
-			sleep(1);
-			return 0;
+	  ROS_INFO("Goal!!!");
+	  msg.cntl.linear.x = 0.0;
+	  msg.cntl.angular.z = 0.0;
+	  msg.mode = 0;
+	  ctrl_pub.publish(msg);
+	  loop_rate.sleep();
+	  return 0;
 	}
 
 	ctrl_pub.publish(msg);
