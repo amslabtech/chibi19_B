@@ -109,6 +109,7 @@ void set_heuristic(float array[row][column],const int goal[2]){
     for(int i=0;i<row;i++){
         for(int j=0;j<column;j++){
             array[i][j] =sqrt(  pow((goal[0]-i),2) + pow((goal[1]-j),2)) ;
+            //array[i][j] = abs(goal[0]-i) + abs(goal[1]-j) ;
         }
     }
 }
@@ -194,7 +195,7 @@ int search(const int init[2],const int goal[2])
 
 	float a = 1.0;
 	float b = 1.1;
-	float c = 0;
+	float c = 10.0;
 
 	open_Point.push_back(make_Point(cost,gvalue,x,y,direction));
 
@@ -204,10 +205,12 @@ int search(const int init[2],const int goal[2])
 	open_grid[y][x] = 10;
 
 	for(int step=0; step<row*column; step++){
-		if(step == 5000) break;
+		if(step == 5000){
+			printf("\n<<<<<<<<<<<<timeover>>>>>>>>>>>>>>>>\n");
+			break;
+		}
 		if (open_Point.size() < 1){
-			//printf("-----------mis----------\n");
-			ROS_INFO("miss");
+			ROS_INFO("analysis impossible");
 			break;
 		}
 		std::sort(open_Point.begin(),open_Point.end());
@@ -215,7 +218,7 @@ int search(const int init[2],const int goal[2])
 		open_Point.pop_back();
 		close_grid[y][x] = 1;
 		open_grid[y][x] = (direction+d/2)%d;
-		printf("\rclose is done.(%d,%d) H_grid=%f cost=%f",x,y,heuristic[y][x],cost);
+		printf("\rclose is done.(%6d,%6d) H_grid=%5.1f cost=%5.1f (%3.1lf[parsent])",x,y,heuristic[y][x],cost,(double)step);
 		for(int i=0;i<d;i++){
 			direction2 = (direction+d/2)%d;
 			if(i != direction2){
@@ -232,7 +235,8 @@ int search(const int init[2],const int goal[2])
 							open_grid[y2][x2] = (i+d/2)%d;
 							i=d;
 							step = row*column;
-							printf("\nsuccess!!!!\n");
+							printf("\n");
+							ROS_INFO("success!!!!");
 							break;
 						}
 					}
@@ -286,7 +290,7 @@ void get_path(int goal[2])
 	}
 	std::reverse(connect_path.poses.begin(),connect_path.poses.end());
 	global_path.poses.insert(global_path.poses.end(),connect_path.poses.begin(),connect_path.poses.end());
-	ROS_INFO("get path\n");
+	ROS_INFO("get path (size = %lu)\n",global_path.poses.size());
 }
 
 void set_randmark(const float x,const float y)
@@ -396,15 +400,15 @@ void set_init(const float x,const float y)
  {	
  	set_init(0.0,0.0);
 
-  	set_randmark(16.19,-0.18);
-  	set_randmark(16.0,14.17);
-  	set_randmark(-17.34,14.25);
- 	set_randmark(-17.15,-0.10);
+//  	set_randmark(16.19,-0.18);
+//  	set_randmark(16.0,14.17);
+//  	set_randmark(-17.34,14.25);
+// 	set_randmark(-17.15,-0.10);
  
-// 	set_randmark(16.15,3.70);
-// 	set_randmark(12.55,17.27);
-// 	set_randmark(-19.59,8.84);
-// 	set_randmark(-16.00,-4.70);
+ 	set_randmark(16.15,3.70);
+ 	set_randmark(12.55,17.27);
+ 	set_randmark(-19.59,8.84);
+ 	set_randmark(-16.00,-4.70);
 
  	set_randmark(0.0,0.0);
 }
