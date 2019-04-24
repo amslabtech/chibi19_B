@@ -380,7 +380,10 @@ int main(int argc, char **argv)
 	}
 
 	//check goal
-	if(dist == true && sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.3){
+	
+	ROS_INFO("x = %f, goal_dist = %f", roomba.x, sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)));
+	
+	if(dist == true && sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 1.0){
 			ROS_INFO("Goal!!!");
 			msg.cntl.linear.x = 0.0;
 			msg.cntl.angular.z = 0.0;
@@ -393,7 +396,7 @@ int main(int argc, char **argv)
 	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
 	//ROS_INFO("goal.x = %f, goal.y = %f", goal.x, goal.y);
 	//ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);	
-	ROS_INFO("v = %f, omega = %f", roomba.v, roomba.omega);
+	//ROS_INFO("v = %f, omega = %f", roomba.v, roomba.omega);
 	loop_rate.sleep();
 	}
 	
