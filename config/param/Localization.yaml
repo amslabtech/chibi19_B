@@ -13,7 +13,7 @@ init_yaw_cov: 0.5
 
 #Laser Data
 Max_Range: 25
-range_count: 1
+range_count: 5
 
 #Param for Resampling
 a_slow: 0.001
