@@ -356,7 +356,7 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 {
     geometry_msgs::PoseWithCovarianceStamped _msg = *msg;
 
-	int t_dis = 30; // t_dis*0.05[m]far is goal
+	int t_dis = 45; // t_dis*0.05[m]far is goal
 	int target_i,min_i; 
 	float x = _msg.pose.pose.position.x;
 	float y = _msg.pose.pose.position.y;
