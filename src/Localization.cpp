@@ -357,14 +357,14 @@ int main(int argc, char** argv)
 				sort(New_Particles.begin(), New_Particles.end(),[](const Particle& x, const Particle& y) { return x.weight > y.weight;});
 
  
-				for(int i=0;i<3*N/4;i++)
+				for(int i=0;i<2*N/4;i++)
 				{
 					est_x += New_Particles[i].pose.pose.position.x;
 					est_y += New_Particles[i].pose.pose.position.y;
 					est_yaw += Get_Yaw(New_Particles[i].pose.pose.orientation);
 				}
 
-				double M = 3*N/4;
+				double M = 2*N/4;
 				est_x /= M;
 				est_y /= M;
 				est_yaw /= M;
