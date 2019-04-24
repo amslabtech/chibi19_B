@@ -381,9 +381,9 @@ int main(int argc, char **argv)
 
 	//check goal
 	
-	ROS_INFO("x = %f, goal_dist = %f", roomba.x, sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)));
+	//ROS_INFO("x = %f, goal_dist = %f", roomba.x, sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)));
 	
-	if(dist == true && sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 1.0){
+	if(dist == true && sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.4){
 	  ROS_INFO("Goal!!!");
 	  msg.cntl.linear.x = 0.0;
 	  msg.cntl.angular.z = 0.0;
