@@ -14,10 +14,10 @@ predict_time: 3.0
 
 to_goal_cost_gain: 3.0
 speed_cost_gain: 0.1
-obstacle_cost_gain: 0.01
+obstacle_cost_gain: 0.1
 
 robot_radius: 0.25
 
-roomba_v_gain: 0.4
+roomba_v_gain: 0.3
 roomba_omega_gain: 0.5
                         
