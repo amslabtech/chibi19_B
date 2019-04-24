@@ -20,10 +20,11 @@ int grid[row][column];
 float wallcost_grid[row][column];
 
 void set_wallcost(float array[row][column]){
-    int range = 20;
+    int range = 35;
 	float near_kl = 0;
 	float far = sqrt((range/2)*(range/2)*2);
 	int count = 0;
+	int adjust = 3;
     for(int i=0;i<row;i++){
          for(int j=0;j<column;j++){
              if(grid[i][j] == 0){
@@ -39,7 +40,7 @@ void set_wallcost(float array[row][column]){
 						}
                      }
                  }
-				 array[i][j] = (255.0/far) * near_kl;
+				 array[i][j] = (255.0/(far+adjust)) * (near_kl+adjust);
              }
 			 else array[i][j] = 0;
          }
@@ -50,19 +51,23 @@ void set_wallcost(float array[row][column]){
 void make_heatmap(float array[row][column])
 {
 	const int size = row+1;
-	cv::Mat_<uchar> mat3(row,column);
+	cv::Mat hsv_image(row,column,CV_8UC3);
+	cv::Mat thsv_image(row,column,CV_8UC3);
+	cv::Mat rgb_image(row,column,CV_8UC3);
 
-	mat3 = 0;
 	for(int i = 0;i<row;i++){
 		for(int j=0;j<column;j++){
-			mat3(i,j) = array[i][j]; //max255
+			if(array[i][j] == 0) hsv_image.at<cv::Vec3b>(i,j) = cv::Vec3b(100,100,100); 
+			else hsv_image.at<cv::Vec3b>(i,j) = cv::Vec3b(array[i][j],0,255-array[i][j]); //bgr
+			//else hsv_image.at<cv::Vec3b>(i,j) = cv::Vec3b(array[i][j],array[i][j],array[i][j]);
 		}
 	}
 
-	//cv::imshow("title2", mat3);
-	cv::imwrite("heatmap.png",mat3);
-	cv::waitKey(0);
-	cv::destroyAllWindows();
+	//cvtColor(hsv_image, thsv_image, CV_BGR2GRAY);
+	//cvtColor(thsv_image, rgb_image, CV_GRAY2RGB);
+	
+	cv::imwrite("heatmap_hsv.png",hsv_image);
+	//cv::imwrite("heatmap.png",rgb_image);
 }
 
 void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)

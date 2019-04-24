@@ -290,12 +290,12 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 
      if(y > 13.0) sg = 1;
 	 if(sg == 1){
-		 min = pow((x-global_path.poses[1000].pose.position.x),2.0)+pow((y-global_path.poses[1000].pose.position.y),2.0);
+		 min = pow((x-global_path.poses[400].pose.position.x),2.0)+pow((y-global_path.poses[410].pose.position.y),2.0);
 		 min_i = 1000;
 	 }
 
 
-	 for(int i=0+1000*sg;i<global_path.poses.size()-300*(1-sg);i++){
+	 for(int i=0+400*sg;i<global_path.poses.size()-400*(1-sg);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
@@ -326,15 +326,15 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 	float y = _msg.pose.pose.position.y;
 	float dis,min;
 	int start_i = 0;
-	int half_size = global_path.poses.size()/2;
+	int quater_size = global_path.poses.size()/4;
 
 	if(y > 13.0) sg = 1;
 
-	if(sg == 1) start_i = half_size;
+	if(sg == 1) start_i = quater_size;
 	min = pow((x-global_path.poses[start_i].pose.position.x),2.0)+pow((y-global_path.poses[start_i].pose.position.y),2.0);
 	min_i = start_i;
 
-	for(int i=0+start_i;i<global_path.poses.size()-(half_size-start_i);i++){
+	for(int i=0+start_i;i<global_path.poses.size()-(quater_size-start_i);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
