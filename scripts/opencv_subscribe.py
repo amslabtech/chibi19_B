@@ -15,8 +15,8 @@ res = False
 
 fourcc_thres = cv2.VideoWriter_fourcc('F','L','V','1')
 fourcc_final = cv2.VideoWriter_fourcc(*'MJPG')
-thres_video = cv2.VideoWriter('/home/amsl/Desktop/thres_center.avi',fourcc_thres, 20.0, (640,480), False)
-final_video = cv2.VideoWriter('/home/amsl/Desktop/final_center.avi',fourcc_final, 20.0, (640,480))
+#thres_video = cv2.VideoWriter('/home/amsl/Desktop/thres_center.avi',fourcc_thres, 20.0, (640,480), False)
+#final_video = cv2.VideoWriter('/home/amsl/Desktop/final_center.avi',fourcc_final, 20.0, (640,480))
 
 def callback(data):
     global res
@@ -53,7 +53,7 @@ def callback(data):
     else:
         res = False
      
-    thres_video.write(img_threshold)
+    #thres_video.write(img_threshold)
     ShowContoursImage(approx_contours_rectangle, img, "final_image")
     
 
@@ -98,8 +98,8 @@ def Threshold(img):
     if not ret:
         rospy.signal_shutdown("error in Threshold")
 
-    cv2.imshow('threshold', img_threshold)
-    cv2.waitKey(1)
+    #cv2.imshow('threshold', img_threshold)
+    #cv2.waitKey(1)
     #cv2.imwrite('/home/amsl/Desktop/threshold.jpg', img_threshold)
 
     return img_threshold
@@ -110,7 +110,7 @@ def AreaFilter(contours, img):
     contours_large = list(filter(lambda c:cv2.contourArea(c) > min_th_area, contours))
     contours_large = list(filter(lambda c:cv2.contourArea(c) < max_th_area, contours_large))
 
-    ShowContoursImage(contours_large, img, "AreaFilter")
+    #ShowContoursImage(contours_large, img, "AreaFilter")
 
     return contours_large
 
@@ -125,7 +125,7 @@ def CenterFilter(contours, img):
         if cy > (height/2):
             contours_center.append(cnt)
 
-    ShowContoursImage(contours_center, img, "CenterFilter")
+    #ShowContoursImage(contours_center, img, "CenterFilter")
 
     return contours_center
 
@@ -180,13 +180,13 @@ def ShowContoursImage(contours, img, name):
     try:
         ret_img = cv2.drawContours(img.copy(), contours, -1, color=(0, 255, 0), thickness=3)
         cv2.imshow(name, ret_img)
-        final_video.write(ret_img)
+        #final_video.write(ret_img)
         #output_place = "/home/amsl/Desktop/" + name + ".jpg"
         #cv2.imwrite(output_place, ret_img)
         
     except:
         cv2.imshow(name,img)
-        final_video.write(img)
+        #final_video.write(img)
         #output_place = "/home/amsl/Desktop/" + name + ".jpg"
         #cv2.imwrite(output_place, img)
 
