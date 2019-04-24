@@ -108,26 +108,55 @@ void show_farray(float array[row][column]){
 void set_heuristic(float array[row][column],const int goal[2]){
     for(int i=0;i<row;i++){
         for(int j=0;j<column;j++){
-            array[i][j] =1.1 * sqrt(  pow((goal[0]-i),2) + pow((goal[1]-j),2)) ;
+            array[i][j] =sqrt(  pow((goal[0]-i),2) + pow((goal[1]-j),2)) ;
         }
     }
 }
 
-void set_wallcost(float array[row][column]){
-	int range = 12;
-	for(int i=0;i<row;i++){
+void set_wallcost(float array[row][column]){ //0~1.0
+    int range = 20;
+    float near_kl;
+    float far = sqrt((range/2)*(range/2)*2);
+    int count = 0;
+    int adjust = 0;
+    float max_value = 1.0;
+    for(int i=0;i<row;i++){
          for(int j=0;j<column;j++){
-			 if(grid[i][j] == 100){
-				 for(int k=0;k<range;k++){
-					 for(int l=0;l<range-k;l++){
-						array[i+k][j+l] += 2.0;
-						array[i-k][j-l] += 2.0;
-					 }
-				 }
-			 }
+             if(grid[i][j] == 0){
+                 near_kl = far;
+
+                 for(int k=0;k<range+1;k++){
+                     for(int l=0;l<range+1;l++){
+                        if(grid[i-range/2+k][j-range/2+l] != 0){
+                            if( sqrt(pow(abs(k-range/2),2)+pow(abs(l-range/2),2)) < near_kl){
+                                near_kl = sqrt(pow(abs(k-range/2),2)+pow(abs(l-range/2),2));
+                                count++;
+                            }
+                        }
+                     }
+                 }
+                 array[i][j] = max_value - (max_value/(far+adjust)) * (near_kl+adjust);
+             }
+             else array[i][j] = 10.0;
          }
      }
 }
+
+//void set_wallcost(float array[row][column]){
+//	int range = 12;
+//	for(int i=0;i<row;i++){
+//         for(int j=0;j<column;j++){
+//			 if(grid[i][j] == 100){
+//				 for(int k=0;k<range;k++){
+//					 for(int l=0;l<range-k;l++){
+//						array[i+k][j+l] += 2.0;
+//						array[i-k][j-l] += 2.0;
+//					 }
+//				 }
+//			 }
+//         }
+//     }
+//}
 
 
 Point make_Point(float cost,float gvalue,int x,int y,int direction)
@@ -163,6 +192,10 @@ int search(const int init[2],const int goal[2])
 	y = init[0];
 	direction = 0; 
 
+	float a = 1.0;
+	float b = 1.1;
+	float c = 0;
+
 	open_Point.push_back(make_Point(cost,gvalue,x,y,direction));
 
 	set_heuristic(heuristic,goal);
@@ -171,6 +204,7 @@ int search(const int init[2],const int goal[2])
 	open_grid[y][x] = 10;
 
 	for(int step=0; step<row*column; step++){
+		if(step == 5000) break;
 		if (open_Point.size() < 1){
 			//printf("-----------mis----------\n");
 			ROS_INFO("miss");
@@ -181,7 +215,7 @@ int search(const int init[2],const int goal[2])
 		open_Point.pop_back();
 		close_grid[y][x] = 1;
 		open_grid[y][x] = (direction+d/2)%d;
-		//ROS_INFO("close is done.(%d,%d) H_grid=%f cost=%f",x,y,heuristic[y][x],cost);
+		printf("\rclose is done.(%d,%d) H_grid=%f cost=%f",x,y,heuristic[y][x],cost);
 		for(int i=0;i<d;i++){
 			direction2 = (direction+d/2)%d;
 			if(i != direction2){
@@ -191,7 +225,7 @@ int search(const int init[2],const int goal[2])
 				if(x2<column && x2>-1 && y2<row && y2>-1){
 					if(close_grid[y2][x2] < 0 && grid[y2][x2] == 0){
 						gvalue2 = gvalue + delta_cost[i];
-						cost2 = gvalue2 + heuristic[y2][x2] + wallcost_grid[y2][x2];
+						cost2 = a*gvalue2 + b*heuristic[y2][x2] + c*wallcost_grid[y2][x2];
 						//open_grid[y2][x2] = (i+4)%8;
 						open_Point.push_back(make_Point(cost2,gvalue2,x2,y2,i));
 						if(heuristic[y2][x2] < 1.0 ){
@@ -295,7 +329,7 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 	 }
 
 
-	 for(int i=0+400*sg;i<global_path.poses.size()-400*(1-sg);i++){
+	 for(int i=0;i<global_path.poses.size();i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
@@ -303,7 +337,7 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
 		}
 	}
 	if((min_i+t_dis) > global_path.poses.size()-1) 
-		target_i = global_path.poses.size();
+		target_i = global_path.poses.size()-1;
 	else 
 		target_i = min_i+t_dis;
 	ROS_INFO("min_i = %d target_i = %d sg=%d",min_i,target_i,sg);
@@ -341,7 +375,7 @@ void localization_callback(const geometry_msgs::PoseWithCovarianceStamped::Const
 			min_i = i;
 		}
 	}
-	if((min_i+t_dis) > global_path.poses.size()-1) target_i = global_path.poses.size();
+	if((min_i+t_dis) > global_path.poses.size()-1) target_i = global_path.poses.size() - 1;
 	else target_i = min_i+t_dis;
 
 	target_point.point.x = global_path.poses[target_i].pose.position.x;
@@ -365,17 +399,16 @@ void set_init(const float x,const float y)
  	set_init(0.0,0.0);
 
   	set_randmark(16.19,-0.18);
-  	set_randmark(16.0,14.17);
-  	set_randmark(-17.34,14.25);
- 	set_randmark(-17.15,-0.10);
- 
- 
-// 	set_randmark(-16.00,-4.70);
-// 	set_randmark(-19.59,8.84);
-// 	set_randmark(12.55,17.27);
-// 	set_randmark(16.15,3.70);
-
- 	set_randmark(0.0,0.0);
+//  	set_randmark(16.0,14.17);
+//  	set_randmark(-17.34,14.25);
+// 	set_randmark(-17.15,-0.10);
+// 
+//// 	set_randmark(16.15,3.70);
+//// 	set_randmark(12.55,17.27);
+//// 	set_randmark(-19.59,8.84);
+//// 	set_randmark(-16.00,-4.70);
+//
+// 	set_randmark(0.0,0.0);
 }
  
 void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
