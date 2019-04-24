@@ -261,7 +261,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
-			goal_dist = 4.0 *  calc_goal_dist(traj, goal);
+			goal_dist = 3.0 *  calc_goal_dist(traj, goal);
 			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
@@ -369,9 +369,21 @@ int main(int argc, char **argv)
 	
 	//yaw = roomba.yaw;
 	while(white_line_detector == true){
+
+	  ROS_INFO("White_line");
+
 	  msg.cntl.linear.x = 0.0;
 	  msg.cntl.angular.z = 0.0;
+	  ctrl_pub.publish(msg);
 	  sleep(5);
+
+	  ROS_INFO("Restart");
+
+	  msg.cntl.linear.x = 0.2;
+	  msg.cntl.angular.z = 0.0;
+	  ctrl_pub.publish(msg);
+	  sleep(1);
+
 	  break;
 	}
 
