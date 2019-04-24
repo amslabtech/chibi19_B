@@ -369,13 +369,21 @@ int main(int argc, char **argv)
 	
 	//yaw = roomba.yaw;
 	while(white_line_detector == true){
+
+	  ROS_INFO("White_line");
+
 	  msg.cntl.linear.x = 0.0;
 	  msg.cntl.angular.z = 0.0;
 	  ctrl_pub.publish(msg);
 	  sleep(5);
+
+	  ROS_INFO("Restart");
+
 	  msg.cntl.linear.x = 0.2;
 	  msg.cntl.angular.z = 0.0;
+	  ctrl_pub.publish(msg);
 	  sleep(1);
+
 	  break;
 	}
 
