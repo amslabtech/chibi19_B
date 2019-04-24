@@ -287,7 +287,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 			if(min_cost >= final_cost){
 				min_cost = final_cost;
 				min_u.v = i;
-				min_u.omega = center + j;
+				min_u.omega = center - j;
 			}
 		}
 	}
