@@ -228,11 +228,11 @@ int search(const int init[2],const int goal[2])
 						cost2 = a*gvalue2 + b*heuristic[y2][x2] + c*wallcost_grid[y2][x2];
 						//open_grid[y2][x2] = (i+4)%8;
 						open_Point.push_back(make_Point(cost2,gvalue2,x2,y2,i));
-						if(heuristic[y2][x2] < 1.0 ){
+						if(heuristic[y2][x2] == 0.0 ){
 							open_grid[y2][x2] = (i+d/2)%d;
 							i=d;
 							step = row*column;
-							ROS_INFO("success");
+							printf("\nsuccess!!!!\n");
 							break;
 						}
 					}
@@ -312,30 +312,28 @@ void click_callback(const geometry_msgs::PointStamped::ConstPtr& msg)
     geometry_msgs::PointStamped _msg = *msg;
 
 	int t_dis = 60;
-	int target_i;
+	int target_i,min_i;
 	float x = _msg.point.x;
 	float y = _msg.point.y;
-	float dis;
+	float dis,min;
+	int start_i = 0;
+	int quater_size = global_path.poses.size()/4;
 
     ROS_INFO("click point =(%.2f,%.2f)",x,y);
 	
-	float min = pow((x-global_path.poses[0].pose.position.x),2.0)+pow((y-global_path.poses[0].pose.position.y),2.0);
-	int min_i = 0;
-
      if(y > 13.0) sg = 1;
-	 if(sg == 1){
-		 min = pow((x-global_path.poses[400].pose.position.x),2.0)+pow((y-global_path.poses[410].pose.position.y),2.0);
-		 min_i = 1000;
-	 }
+	
+	if(sg == 1) start_i = quater_size;
+	min = pow((x-global_path.poses[start_i].pose.position.x),2.0)+pow((y-global_path.poses[start_i].pose.position.y),2.0);
+	min_i = start_i;
 
-
-	 for(int i=0;i<global_path.poses.size();i++){
+	for(int i=0+start_i;i<global_path.poses.size()-(quater_size-start_i);i++){
 		dis = pow((x-global_path.poses[i].pose.position.x),2.0)+pow((y-global_path.poses[i].pose.position.y),2.0);
 		if(dis < min){
 			min = dis;
 			min_i = i;
 		}
-	}
+	} 
 	if((min_i+t_dis) > global_path.poses.size()-1) 
 		target_i = global_path.poses.size();
 	else 
