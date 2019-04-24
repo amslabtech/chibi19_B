@@ -25,7 +25,6 @@ double robot_radius;
 double roomba_v_gain;
 double roomba_omega_gain;
 bool white_line_detector = false;
-bool dist = false;
 
 const int N = 720;//(_msg.angle_max - _msg.angle_max) / _msg.angle_increment
 
@@ -261,7 +260,7 @@ void calc_final_input(State roomba, Speed& u, Dynamic_Window& dw, Goal goal){
 		for(double j = dw.min_omega ; j < dw.max_omega ; j += yawrate_reso){
 			calc_trajectory(traj, roomba,  i, j);
 			to_goal_cost = calc_to_goal_cost(traj, goal, roomba);
-			goal_dist = 4.0 *  calc_goal_dist(traj, goal);
+			goal_dist = 3.0 *  calc_goal_dist(traj, goal);
 			speed_cost = calc_speed_cost(traj);
 			ob_cost = calc_obstacle_cost(roomba, traj);
 
@@ -297,6 +296,15 @@ void lasercallback(const sensor_msgs::LaserScan::ConstPtr& msg)
         Ldata[i].angle = _msg.angle_min + i*_msg.angle_increment;
         Ldata[i].range = _msg.ranges[i];
     }
+}
+
+void GOAL(){
+
+	roomba_500driver_meiji::RoombaCtrl msg;
+
+	msg.cntl.linear.x = 0.0;
+	msg.cntl.angular.z = 0.0;
+
 }
 
 int main(int argc, char **argv)
@@ -340,7 +348,6 @@ int main(int argc, char **argv)
 	//[x, y, yaw, v, omega]	
 	Speed u = {0.0, 0.0};
 	Dynamic_Window dw = {0.0, 0.0, 0.0, 0.0};
-	double yaw = 0.0;
 
 	while(ros::ok())
 	{
@@ -358,7 +365,7 @@ int main(int argc, char **argv)
 	msg.cntl.linear.x = roomba_v_gain * u.v / max_speed;
 	msg.cntl.angular.z = roomba_omega_gain * u.omega / max_yawrate;
 	if(fabs(msg.cntl.angular.z) < 0.10){
-	  if(-0.10 < msg.cntl.angular.z && msg.cntl.angular.z < -0.5){
+	  if(-0.10 < msg.cntl.angular.z && msg.cntl.angular.z < 0.5){
 		msg.cntl.angular.z = -0.10;
 	  }else if(0.5 < msg.cntl.angular.z && msg.cntl.angular.z < 0.10){
 		msg.cntl.angular.z = 0.10;
@@ -367,37 +374,20 @@ int main(int argc, char **argv)
 	  }
 	}
 	
-	//yaw = roomba.yaw;
-	while(white_line_detector == true){
-	  msg.cntl.linear.x = 0.0;
-	  msg.cntl.angular.z = 0.0;
-	  sleep(5);
-	  break;
-	}
-
-	if(dist == false && roomba.x > 2.0){
-	  dist = true;
-	}
-
 	//check goal
-	
-	//ROS_INFO("x = %f, goal_dist = %f", roomba.x, sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)));
-	
-	if(dist == true && sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.4){
-	  ROS_INFO("Goal!!!");
-	  msg.cntl.linear.x = 0.0;
-	  msg.cntl.angular.z = 0.0;
-	  msg.mode = 0;
-	  ctrl_pub.publish(msg);
-	  loop_rate.sleep();
-	  return 0;
+	if(sqrt(pow(roomba.x - goal.x, 2.0) + pow(roomba.y - goal.y, 2.0)) < 0.5){
+			printf("Goal!!!");
+			GOAL;
+			//msg.cntl.linear.x = 0.0;
+			//msg.cntl.angular.z = 0.0;
+			//break;
 	}
 
 	ctrl_pub.publish(msg);
 	//ROS_INFO("roomba.x = %f, roomba.y = %f, roomba.yaw = %f", roomba.x, roomba.y, roomba.yaw);
 	//ROS_INFO("goal.x = %f, goal.y = %f", goal.x, goal.y);
 	//ROS_INFO("x = %f, z = %f", msg.cntl.linear.x, msg.cntl.angular.z);	
-	//ROS_INFO("v = %f, omega = %f", roomba.v, roomba.omega);
+	ROS_INFO("v = %f, omega = %f", roomba.v, roomba.omega);
 	loop_rate.sleep();
 	}
 	
