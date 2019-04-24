@@ -371,7 +371,11 @@ int main(int argc, char **argv)
 	while(white_line_detector == true){
 	  msg.cntl.linear.x = 0.0;
 	  msg.cntl.angular.z = 0.0;
+	  ctrl_pub.publish(msg);
 	  sleep(5);
+	  msg.cntl.linear.x = 0.2;
+	  msg.cntl.angular.z = 0.0;
+	  sleep(1);
 	  break;
 	}
 
