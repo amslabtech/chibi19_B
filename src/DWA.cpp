@@ -375,7 +375,7 @@ int main(int argc, char **argv)
 	  break;
 	}
 
-	if(dist == false && roomba.y > 2.0){
+	if(dist == false && roomba.x > 2.0){
 	  dist = true;
 	}
 
