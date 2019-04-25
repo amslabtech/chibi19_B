@@ -1,4 +1,4 @@
-This is e-pTeX, Version 3.14159265-p3.7.1-161114-2.6 (utf8.euc) (TeX Live 2017/Debian) (preloaded format=platex 2019.4.24)  25 APR 2019 22:37
+This is e-pTeX, Version 3.14159265-p3.7.1-161114-2.6 (utf8.euc) (TeX Live 2017/Debian) (preloaded format=platex 2019.4.24)  26 APR 2019 01:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -227,24 +227,19 @@ Underfull \hbox (badness 10000) in paragraph at lines 29--31
 
 File: ./picture/system.png Graphic file (type bmp)
 <./picture/system.png>
+
+Overfull \hbox (9.95847pt too wide) in paragraph at lines 36--37
+[][] 
+ []
+
 File: ./picture/wallcostmap.png Graphic file (type bmp)
 <./picture/wallcostmap.png>
 File: ./picture/global_path.png Graphic file (type bmp)
 <./picture/global_path.png>
-
-Overfull \hbox (9.95847pt too wide) in paragraph at lines 65--66
-[][] 
- []
-
 File: ./picture/DWA.png Graphic file (type bmp)
 <./picture/DWA.png>
 
-Overfull \hbox (9.95847pt too wide) in paragraph at lines 71--72
-[][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 77--78
+Underfull \hbox (badness 10000) in paragraph at lines 85--87
 []\JY1/mc/m/n/10 白線検知にはオ ープンソ ースソフトウ ェ アの
  []
 
@@ -256,25 +251,23 @@ Underfull \hbox (badness 10000) in paragraph at lines 77--78
 File: ./picture/obstacle_test.png Graphic file (type bmp)
 <./picture/obstacle_test.png>
 
-Overfull \hbox (4.13696pt too wide) in paragraph at lines 126--127
+Overfull \hbox (17.17259pt too wide) in paragraph at lines 140--141
 [][] 
  []
 
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 144--146
+
+Underfull \hbox (badness 10000) in paragraph at lines 158--160
 []\OT1/cmr/m/n/7 https://www.raspberrypi.org/products/raspberry-pi-3-
  []
 
-[3
-
-] (./chibi19_b.aux) ) 
+[2] (./chibi19_b.aux) ) 
 Here is how much of TeX's memory you used:
  2255 strings out of 494662
  27482 string characters out of 6174544
- 91221 words of memory out of 5000000
+ 92221 words of memory out of 5000000
  5735 multiletter control sequences out of 15000+600000
  15621 words of font info for 62 fonts, out of 8000000 for 9000
  309 hyphenation exceptions out of 8191
- 27i,15n,26p,784b,295s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 27i,15n,26p,784b,352s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on chibi19_b.dvi (3 pages, 18328 bytes).
+Output written on chibi19_b.dvi (2 pages, 18184 bytes).
