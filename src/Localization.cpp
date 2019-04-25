@@ -367,7 +367,8 @@ int main(int argc, char** argv)
 				double M = 1*N/4;
 				est_x /= M;
 				est_y /= M;
-				est_yaw /= M;
+				//est_yaw /= M;
+				est_yaw = Get_Yaw(New_Particles[0].pose.pose.orientation);
 				
 				estimated_pose.pose.position.x = est_x;
 				estimated_pose.pose.position.y = est_y;
