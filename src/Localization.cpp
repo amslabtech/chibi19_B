@@ -459,7 +459,7 @@ double calc_range(double p_x, double p_y, double yaw)
 	int xstep, ystep;
 	int x, y;
 	bool flag = false;
-	int err;
+	int err = 0;
 
 	x0 = (p_x - map.info.origin.position.x) / map.info.resolution;
 	y0 = (p_y - map.info.origin.position.y) / map.info.resolution;
@@ -484,8 +484,8 @@ double calc_range(double p_x, double p_y, double yaw)
 
 	}
 	
-	dx = fabs(x1 - x0);
-    dy = fabs(y1 - y0);
+	dx = abs(x1 - x0);
+    dy = abs(y1 - y0);
 
 	x = x0;
 	y = y0;
