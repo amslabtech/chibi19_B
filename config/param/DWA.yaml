@@ -16,7 +16,7 @@ to_goal_cost_gain: 3.0
 speed_cost_gain: 0.1
 obstacle_cost_gain: 0.01
 
-robot_radius: 0.25
+robot_radius: 0.22
 
 roomba_v_gain: 0.3
 roomba_omega_gain: 0.5
