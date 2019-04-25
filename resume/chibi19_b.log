@@ -1,4 +1,4 @@
-This is e-pTeX, Version 3.14159265-p3.7.1-161114-2.6 (utf8.euc) (TeX Live 2017/Debian) (preloaded format=platex 2019.4.16)  24 APR 2019 11:56
+This is e-pTeX, Version 3.14159265-p3.7.1-161114-2.6 (utf8.euc) (TeX Live 2017/Debian) (preloaded format=platex 2019.4.24)  26 APR 2019 01:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -180,26 +180,26 @@ Package: multirow 2016/11/25 v2.2 Span multiple rows of a table
 (./chibi19_b.aux)
 \openout1 = `chibi19_b.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for JY1/mc/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
-LaTeX Font Info:    Checking defaults for JT1/mc/m/n on input line 16.
-LaTeX Font Info:    ... okay on input line 16.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for JY1/mc/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
+LaTeX Font Info:    Checking defaults for JT1/mc/m/n on input line 17.
+LaTeX Font Info:    ... okay on input line 17.
 LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <17.28> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 21.
+(Font)              Font shape `JT1/gt/m/n' tried instead on input line 22.
 LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <17.28> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 21.
+(Font)              Font shape `JY1/gt/m/n' tried instead on input line 22.
 LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <12> not available
 (Font)              Font shape `JT1/gt/m/n' tried instead on input line 23.
 LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <12> not available
@@ -216,46 +216,30 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 LaTeX Font Info:    Try loading font information for U+stmry on input line 24.
 
 (/usr/share/texlive/texmf-dist/tex/latex/stmaryrd/Ustmry.fd)
-LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <7> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 27.
-LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <7> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 27.
-
-
-LaTeX Warning: Citation `gmapping' on page 1 undefined on input line 27.
-
 LaTeX Font Info:    Font shape `JT1/mc/bx/n' in size <10> not available
-(Font)              Font shape `JT1/gt/m/n' tried instead on input line 29.
+(Font)              Font shape `JT1/gt/m/n' tried instead on input line 28.
 LaTeX Font Info:    Font shape `JY1/mc/bx/n' in size <10> not available
-(Font)              Font shape `JY1/gt/m/n' tried instead on input line 29.
+(Font)              Font shape `JY1/gt/m/n' tried instead on input line 28.
 
-Underfull \hbox (badness 10000) in paragraph at lines 30--31
+Underfull \hbox (badness 10000) in paragraph at lines 29--31
 []\JY1/mc/m/n/10 自己位置推定には \OT1/cmr/m/n/10 Aug-mented Monte Carlo
  []
 
 File: ./picture/system.png Graphic file (type bmp)
 <./picture/system.png>
 
-Overfull \hbox (9.95847pt too wide) in paragraph at lines 39--40
+Overfull \hbox (9.95847pt too wide) in paragraph at lines 36--37
 [][] 
  []
 
+File: ./picture/wallcostmap.png Graphic file (type bmp)
+<./picture/wallcostmap.png>
 File: ./picture/global_path.png Graphic file (type bmp)
 <./picture/global_path.png>
-
-Overfull \hbox (9.95847pt too wide) in paragraph at lines 45--46
-[][] 
- []
-
 File: ./picture/DWA.png Graphic file (type bmp)
 <./picture/DWA.png>
 
-Overfull \hbox (9.95847pt too wide) in paragraph at lines 76--77
-[][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 82--83
+Underfull \hbox (badness 10000) in paragraph at lines 85--87
 []\JY1/mc/m/n/10 白線検知にはオ ープンソ ースソフトウ ェ アの
  []
 
@@ -264,24 +248,26 @@ Underfull \hbox (badness 10000) in paragraph at lines 82--83
 
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 103--104
+File: ./picture/obstacle_test.png Graphic file (type bmp)
+<./picture/obstacle_test.png>
+
+Overfull \hbox (17.17259pt too wide) in paragraph at lines 140--141
+[][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 158--160
 []\OT1/cmr/m/n/7 https://www.raspberrypi.org/products/raspberry-pi-3-
  []
 
-[2
-
-] (./chibi19_b.aux)
-
-LaTeX Warning: There were undefined references.
-
- ) 
+[2] (./chibi19_b.aux) ) 
 Here is how much of TeX's memory you used:
- 2241 strings out of 494662
- 27209 string characters out of 6174544
- 90222 words of memory out of 5000000
- 5725 multiletter control sequences out of 15000+600000
- 14716 words of font info for 59 fonts, out of 8000000 for 9000
+ 2255 strings out of 494662
+ 27482 string characters out of 6174544
+ 92221 words of memory out of 5000000
+ 5735 multiletter control sequences out of 15000+600000
+ 15621 words of font info for 62 fonts, out of 8000000 for 9000
  309 hyphenation exceptions out of 8191
- 27i,15n,26p,871b,267s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 27i,15n,26p,784b,352s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on chibi19_b.dvi (2 pages, 11988 bytes).
+Output written on chibi19_b.dvi (2 pages, 18184 bytes).
