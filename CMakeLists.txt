@@ -286,4 +286,6 @@ target_link_libraries(WhiteLineListener_test ${catkin_LIBRARIES})
 add_executable(make_heatmap src/make_heatmap.cpp)
 target_link_libraries(make_heatmap ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
+add_executable(Local_path_planner src/Local_path_planner.cpp)
+target_link_libraries(Local_path_planner ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
