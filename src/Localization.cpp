@@ -239,6 +239,7 @@ int main(int argc, char** argv)
 				
 				x_cov = 0.3;
 				y_cov = 0.3;
+				yaw_cov = 0.2;
 				
 				for(int i=0;i<N;i++)
 				{
@@ -361,13 +362,11 @@ int main(int argc, char** argv)
 				{
 					est_x += New_Particles[i].pose.pose.position.x;
 					est_y += New_Particles[i].pose.pose.position.y;
-					est_yaw += Get_Yaw(New_Particles[i].pose.pose.orientation);
 				}
 
 				double M = 1*N/4;
 				est_x /= M;
 				est_y /= M;
-				//est_yaw /= M;
 				est_yaw = Get_Yaw(New_Particles[0].pose.pose.orientation);
 				
 				estimated_pose.pose.position.x = est_x;
