@@ -8,10 +8,6 @@
 
 	<node pkg="roomba_teleop_meiji" name="electric_joystick_drive" type="electric_joystick_drive"/>
 
-	<node pkg="joy" name="joy_node" type="joy_node">
-		<param name="dev" value="/dev/input/js0"/>
-	</node>
-
 	<arg name="map_file" default="$(find chibi19_b)/mapdata/DMapData.yaml"/>
 	<node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)">
 	</node>
@@ -20,6 +16,12 @@
 
 	<node pkg="chibi19_b" type="Localization" name="Localization" output="screen">
 		<rosparam file="$(find chibi19_b)/config/param/Localization.yaml" command="load"/>
+	</node>
+
+	<node pkg="chibi19_b" type="global_path_planning" name="global_path_planning" output="screen"/>
+
+	<node pkg="chibi19_b" type="DWA" name="DWA" output="screen">
+		<rosparam file="$(find chibi19_b)/config/param/DWA.yaml" command="load"/>
 	</node>
 
 </launch>
