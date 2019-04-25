@@ -18,8 +18,4 @@
 		<rosparam file="$(find chibi19_b)/config/param/Localization.yaml" command="load"/>
 	</node>
 
-	<node pkg="chibi19_b" type="Local_path_planner" name="Local_path_planner" output="screen">
-		<rosparam file="$(find chibi19_b)/config/param/DWA.yaml" command="load"/>
-	</node>
-
 </launch>
