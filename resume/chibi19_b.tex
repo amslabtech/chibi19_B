@@ -60,7 +60,6 @@
 	    \label{eq:dwa}
 	\end{split}
 \end{equation}
-\vspace{-3mm}
 ここで，評価関数には予測経路と障害物までの最短距離である$obs(v,\omega)$，最終予測位置から目標地点までの距離である$dis(v,\omega)$，目標位置に対する機体の向きである$heading(v,\omega)$，最高速度との差である$vel(v, \omega)$を用いる．特に，ゴールへの評価は距離と向きの二つを用いる．$α,β,γ,δ$は係数である．Fig.\ref{fig:DWA}に局所経路計画の評価のイメージを示す．
 \begin{figure}
 	\includegraphics[width=8.5cm]{./picture/global_path.png}
@@ -81,6 +80,7 @@
 	\label{eq:gray}
 \end{equation}
 そのグレースケール画像に対してガウシアンフィルタをかけ，二値化の際に画像が煩雑にならないようにした．また二値化では白線のみに反応するように，160を閾値として二値化した．今回の手法では黒い背景に白い物体がある想定で物体の輪郭を検出した．その後，その物体の輪郭から画像上の面積を取得して，大きすぎるものと小さすぎるものは除く処理を行った．また，画像の上半分は白線があると想定される床以外移すことが多いため，上半分にある輪郭は除く処理を行った．最後に，取得した輪郭を矩形で囲み，輪郭の面積$S_{contours}$と矩形の面積$S_{rectangle}$がEq.\ref{eq:kukei}を満たすものだけに絞ることで四角形の判断を行い，白線を検出した．
+\vspace{-3mm}
 \begin{equation}
 	S_{contours} > S_{rectangle} * 0.8
 	\label{eq:kukei}
