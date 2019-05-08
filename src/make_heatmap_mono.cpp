@@ -20,12 +20,11 @@ int grid[row][column];
 float wallcost_grid[row][column];
 
 void set_wallcost(float array[row][column]){
-    int range = 20;
+    int range = 35;
 	float near_kl = 0;
 	float far = sqrt((range/2)*(range/2)*2);
 	int count = 0;
-	int adjust = 0;
-	float max_value = 1.0;
+	int adjust = 3;
     for(int i=0;i<row;i++){
          for(int j=0;j<column;j++){
              if(grid[i][j] == 0){
@@ -41,56 +40,33 @@ void set_wallcost(float array[row][column]){
 						}
                      }
                  }
-				 array[i][j] = max_value - (max_value/(far+adjust)) * (near_kl+adjust);
+				 array[i][j] = (255.0/(far+adjust)) * (near_kl+adjust);
              }
-			 else array[i][j] = 10.0;
+			 else array[i][j] = 50;
          }
      }
 	ROS_INFO("c = %d",count);
 }
 
-
-void ColorScaleBCGYR( double in_value, int &r,int &g,int &b)
-{
-    // 0.0～1.0 の範囲の値をサーモグラフィみたいな色にする
-    double  value = in_value;
-    double  tmp_val = cos( 4 * M_PI * value );
-    int     col_val = (int)( ( -tmp_val / 2 + 0.5 ) * 255 );
-         if ( value >= ( 4.0 / 4.0 ) ) { r = 255;     g = 0;       b = 0;       }   // 赤
-    else if ( value >= ( 3.0 / 4.0 ) ) { r = 255;     g = col_val; b = 0;       }   // 黄～赤
-    else if ( value >= ( 2.0 / 4.0 ) ) { r = col_val; g = 255;     b = 0;       }   // 緑～黄
-    else if ( value >= ( 1.0 / 4.0 ) ) { r = 0;       g = 255;     b = col_val; }   // 水～緑
-    else if ( value >= ( 0.0 / 4.0 ) ) { r = 0;       g = col_val; b = 255;     }   // 青～水
-    else {                               r = 0;       g = 0;       b = 255;     }   // 青
-}
-
 void make_heatmap(float array[row][column])
 {
-	int b,g,r;
 	const int size = row+1;
-	cv::Mat heatmap_img(row,column,CV_8UC3);
-	cv::Mat color_img(100,600,CV_8UC3);
+	cv::Mat_<uchar> hsv_image(row,column);
+	cv::Mat_<uchar> rgb_image(row,column);
 
 	for(int i = 0;i<row;i++){
 		for(int j=0;j<column;j++){
-			if(array[i][j] > 5) heatmap_img.at<cv::Vec3b>(i,j) = cv::Vec3b(100,100,100); 
-			else{
-				ColorScaleBCGYR(array[i][j],r,g,b);
-				heatmap_img.at<cv::Vec3b>(i,j) = cv::Vec3b(b,g,r); //bgr
-			}
+			hsv_image(i,j) = array[i][j]; //max255
 		}
 	}
 
-	for(int i = 0;i<100;i++){
-		for(int j=0;j<600;j++){
-			ColorScaleBCGYR((float)j/599.0,r,g,b);
-            color_img.at<cv::Vec3b>(i,j) = cv::Vec3b(b,g,r); //bgr
-		}
-	}
+	//cvtColor(hsv_image, rgb_image, CV_HSV2RGB);
+	
+	cv::imwrite("heatmap_hsv.png",hsv_image);
+	cv::imwrite("heatmap.png",rgb_image);
 
-
-	cv::imwrite("heatmap_hsv.png",heatmap_img);
-	cv::imwrite("color_sample.png",color_img);
+	cv::waitKey(0);
+	cv::destroyAllWindows();
 }
 
 void map_sub_callback(const nav_msgs::OccupancyGrid::ConstPtr& msg)
