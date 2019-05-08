@@ -16,9 +16,6 @@
 const int row = 4000;
 const int column = 4000;
 
-int test = 1;
-
-
 int grid[row][column];
 float wallcost_grid[row][column];
 
